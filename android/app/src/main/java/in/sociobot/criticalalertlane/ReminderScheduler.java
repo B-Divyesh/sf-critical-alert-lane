@@ -34,6 +34,11 @@ public final class ReminderScheduler {
     static void replace(Context context, JSONObject data) {
         JSONObject old = read(context);
         cancelAll(context, old);
+        // Acknowledging, snoozing, editing, disabling, or deleting arrives as
+        // a complete replacement from the web view. A posted non-auto-cancel
+        // alert belongs to that old state, so remove it before arming the new
+        // schedule. Otherwise it incorrectly survives a handled reminder.
+        cancelNotifications(context, old);
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(STATE, data.toString()).apply();
         scheduleAll(context, data, System.currentTimeMillis());
     }
@@ -95,10 +100,44 @@ public final class ReminderScheduler {
         }
     }
 
+    static void cancelNotifications(Context context, JSONObject data) {
+        NotificationManagerCompat notifications = NotificationManagerCompat.from(context);
+        for (int id : notificationIds(data)) notifications.cancel(id);
+    }
+
+    /** Every old reminder is a possible non-auto-cancel notification to clear during replace(). */
+    static int[] notificationIds(JSONObject data) {
+        JSONArray reminders = data.optJSONArray("reminders");
+        if (reminders == null) return new int[0];
+        String[] reminderIds = new String[reminders.length()];
+        int count = 0;
+        for (int i = 0; i < reminders.length(); i++) {
+            JSONObject reminder = reminders.optJSONObject(i);
+            if (reminder == null) continue;
+            String id = reminder.optString("id", "");
+            if (!id.isEmpty()) reminderIds[count++] = id;
+        }
+        String[] compactIds = new String[count];
+        System.arraycopy(reminderIds, 0, compactIds, 0, count);
+        return notificationIdsForReminderIds(compactIds);
+    }
+
+    static int[] notificationIdsForReminderIds(String[] reminderIds) {
+        int[] values = new int[reminderIds.length];
+        int count = 0;
+        for (String id : reminderIds) if (id != null && !id.isEmpty()) values[count++] = notificationId(id);
+        int[] result = new int[count];
+        System.arraycopy(values, 0, result, 0, count);
+        return result;
+    }
+
     private static void schedule(Context context, String id, long triggerAt) {
         AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent pending = alarmIntent(context, id);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && alarms.canScheduleExactAlarms()) {
+        // setExactAndAllowWhileIdle is available from API 23. Android 12+
+        // additionally gates it behind SCHEDULE_EXACT_ALARM; older supported
+        // Android versions do not need that permission check.
+        if (usesExactAlarm(Build.VERSION.SDK_INT, alarms.canScheduleExactAlarms())) {
             alarms.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending);
@@ -106,6 +145,12 @@ public final class ReminderScheduler {
             alarms.set(AlarmManager.RTC_WAKEUP, triggerAt, pending);
         }
     }
+
+    static boolean usesExactAlarm(int sdkInt, boolean exactAlarmPermissionGranted) {
+        return sdkInt >= Build.VERSION_CODES.M && (sdkInt < Build.VERSION_CODES.S || exactAlarmPermissionGranted);
+    }
+
+    static int notificationId(String id) { return id.hashCode(); }
 
     private static PendingIntent alarmIntent(Context context, String id) {
         Intent intent = new Intent(context, ReminderAlarmReceiver.class).setAction(ACTION_REMINDER).putExtra("reminderId", id);
@@ -179,7 +224,7 @@ public final class ReminderScheduler {
             .setOnlyAlertOnce(false)
             .setContentIntent(openPending)
             .build();
-        NotificationManagerCompat.from(context).notify(reminder.optString("id").hashCode(), notification);
+        NotificationManagerCompat.from(context).notify(notificationId(reminder.optString("id")), notification);
     }
 
     private static void ensureChannel(Context context) {

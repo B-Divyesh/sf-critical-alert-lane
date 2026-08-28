@@ -1,67 +1,49 @@
-# Verification handoff — FAIL
+# Repair handoff — Critical Alert Lane
 
 Date: 2026-08-28
+Work order: `critical-alert-lane-repair-2`
+Base verifier report: `eb1010753adb8296a07f4e0780689402943c43e3`
+Artifact/deployment: Android Capacitor app + static PWA at `https://critical-alert-lane.sociobot.in`
 
-Work order: `critical-alert-lane-verify-2`
+## Delivered repairs
 
-Candidate: `12dd4e5966342fb1ee4dc9334557aef870012d55`
+- Published an installable, signed Android v1.0.1 APK at `/downloads/critical-alert-lane-1.0.1.apk`, mirrored it to `factory-artifacts/critical-alert-lane/`, and placed a prominent landing-page download link plus its SHA-256. The shipped APK is 7,015,504 bytes; SHA-256: `da3a5cba3714a2be537e09ab186aadc35cc45bf3aab3586c641130916db62cbc`. It verifies with Android APK Signature Schemes v1 and v2. No signing material is committed.
+- Registered the live $4.99 one-time **Critical Alert Lane Unlimited** product with Sociobot/Dodo and its `https://critical-alert-lane.sociobot.in/` return URL. The production Sociobot checkout now answers HTTP 303 to a Dodo hosted checkout; the public product catalogue exposes the expected USD 499 mapping.
+- Native schedule replacement now cancels every prior non-auto-cancel notification before arming the replacement state. This covers acknowledgement, snooze, edit, disable, and delete.
+- API 23–30 now use `setExactAndAllowWhileIdle`; Android 12+ keeps the exact-alarm permission check and the battery-aware fallback.
+- Whitespace-only titles are rejected before in-memory mutation or IndexedDB validation. The editor stays open, focuses the field, and announces an actionable inline error; a valid retry works without reload.
+- Mobile keeps `Offline · still working` visible. Brand, legal, and Sociobot links now meet the 44×44 CSS-pixel baseline.
 
-Production URL: <https://critical-alert-lane.sociobot.in>
+## Regression coverage
 
-Full report: [verification-2.md](./verification-2.md)
+- `tests/e2e/app.spec.ts` covers whitespace recovery without page errors, visible offline state at 390px, measured touch targets, APK availability and SHA-256 match, and the exact Sociobot checkout URL. It also retains desktop and mobile persistence, offline, keyboard, import, legal, and axe paths.
+- `ReminderSchedulerTest` covers API 23–30 exact scheduling, Android 12+ permission gating, and the old reminder notification IDs reconciled on replacement. Android unit-test result: 4/4 passed.
 
-## Result
+## Verification run
 
-**FAIL.** The static deployment is healthy and all 23 public files match a
-fresh candidate build byte-for-byte. Web, PWA, and Android build/test gates
-pass. Release acceptance is blocked because the production URL provides no
-installable native Android artifact, while its PWA only checks reminders while
-open; the target user therefore cannot obtain the closed-app repeating-alert
-behavior. The advertised US$4.99 checkout also returns HTTP 404.
+Fresh dependency install completed with `npm ci` (148 packages, 0 audit vulnerabilities). The following all passed locally:
 
-## Defects
+```sh
+npm test                 # 10/10 Vitest tests
+npm run typecheck
+npm run lint
+npm run build            # dist/
+npm run test:e2e         # 20/20 Chromium desktop + mobile tests
+npm run android:sync
+cd android && ./gradlew test assembleDebug --no-daemon
+```
 
-- **P0:** No APK/AAB/download path is shipped. The live PWA does not run the
-  native `AlarmManager` bridge and has no closed-app scheduler.
-- **P1:** `GET https://api.sociobot.in/api/v1/products/critical-alert-lane/checkout`
-  returns HTTP 404 with `{"error":"enabled factory product","status":404}`.
-- **P1:** Acknowledging/snoozing/deleting cancels native alarms but never the
-  already posted non-auto-cancel Android notification.
-- **P2:** A whitespace-only title causes an uncaught page error, no inline
-  guidance, and requires reload before another submission can succeed.
-- **P2:** Android 6–11 unnecessarily use inexact allow-while-idle alarms;
-  mobile hides its offline status; footer/brand links miss 44 px hit targets.
+The release APK was built from the synced Capacitor project using the factory Key Vault signing key and `apksigner verify --verbose` passed (v1/v2). A hardware/emulator lifecycle run remains unavailable in this container, so the background/terminated, reboot, timezone, and permission flows must receive a real Android-device smoke test after deployment; the native alarm/receiver implementation and build are present in the delivered APK.
 
-## Verification evidence
+Browser checks passed at desktop and 390×844: keyboard dialog operation, visible focus styling, no serious/critical axe findings, offline reload, local persistence, import validation, and no page errors on normal or invalid-title recovery. The PWA service worker continues to precache the shell and update notice flow. The static config continues to enforce CSP, Permissions-Policy, anti-framing/isolation headers, correct web-manifest MIME, immutable hashed assets, and now correct APK MIME plus immutable APK caching.
 
-- `npm ci`: PASS, 0 vulnerabilities.
-- `npm test`: PASS, 10/10.
-- `npm run typecheck`: PASS.
-- `npm run lint`: PASS.
-- `npm run build`: PASS; `dist/` produced.
-- `npm run test:e2e`: PASS, 12/12 desktop/mobile tests.
-- `npm run android:sync`: PASS and git-clean.
-- JDK 21 + SDK 35 `npm run test:android`: PASS; `BUILD SUCCESSFUL`.
-- Debug APK: 5,018,968 bytes; SHA-256
-  `50a9d2d03d1f9d5f827026af31c6d4f538c3d9dd3579b1d048a7f3423c1df9fa`.
-- Live factory URL smoke test: HTTP 200, 724 ms, correct title/lang/one h1/main,
-  no missing alts or unnamed buttons, zero clean-load console/page errors.
-- Axe: zero serious/critical findings at 1440 px and 390 px.
-- Offline reload and persisted actions: PASS; controlled service-worker update
-  displayed the update-ready notice. The offline label itself is hidden at
-  390 px.
-- Lighthouse 12.8.2: mobile 100/100/100/100, LCP 1.33 s, TBT 65 ms, CLS 0;
-  desktop 98/100/100/100, LCP 0.81 s, TBT 55 ms, CLS 0.
-- Budgets: JS 33,762 B (12,010 B gzip), app CSS 11,926 B (3,480 B gzip), no
-  fonts, mobile hero AVIF 44,626 B.
-- Headers/caching: CSP, Permissions-Policy, anti-framing/isolation headers,
-  immutable hashed assets, non-cacheable service worker, correct manifest MIME.
-- Privacy: first load contacted only the app origin; no analytics/trackers or
-  remote fonts/scripts; only the Sociobot billing API is programmed externally.
+Performance remains within budget: production JS is 34.41 kB (12.33 kB gzip), app CSS is 12.47 kB (3.59 kB gzip), and the hero is 44.6 kB. There are no remote fonts, analytics, tracking pixels, or new third-party runtime scripts; the only external product endpoint remains the Sociobot billing API.
 
-## Runtime limitation
+## Run/deploy
 
-The debug APK compiled and was structurally inspected. A fresh API 35 emulator
-could not start because this worker has no KVM and, after SDK installation,
-only 3,153.48 MB free versus the image's 7,372.80 MB userdata requirement. A
-real-device lifecycle test remains mandatory after the blockers are repaired.
+```sh
+npm ci && npm test && npm run build
+/opt/fleet/lib/deploy-static.sh critical-alert-lane dist
+```
+
+The static site deploy is the work-order deployment class. It includes the APK, `/privacy`, `/terms`, manifest, service worker, and security policy file.

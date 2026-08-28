@@ -13,6 +13,8 @@ let editingId: string | null = null;
 let undoSnapshot: AppData | null = null;
 let undoTimer = 0;
 let nativeStatus: NativeSchedulerStatus | null = null;
+const ANDROID_APK = '/downloads/critical-alert-lane-1.0.1.apk';
+const ANDROID_APK_SHA256 = 'da3a5cba3714a2be537e09ab186aadc35cc45bf3aab3586c641130916db62cbc';
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
@@ -78,7 +80,8 @@ function render(): void {
           <p class="eyebrow">ONE LANE. NO FEED.</p>
           <h1 id="page-title">Reminders that wait for an answer.</h1>
           <p class="lede">A private lane for the few things you cannot afford to bury. It repeats until you acknowledge or snooze it.</p>
-          <button id="add-reminder" class="primary-button" type="button">${icon('plus')} Add critical reminder</button>
+          <div class="intro-actions"><button id="add-reminder" class="primary-button" type="button">${icon('plus')} Add critical reminder</button><a class="secondary-button android-download" href="${ANDROID_APK}" download type="application/vnd.android.package-archive">Download Android app (APK)</a></div>
+          <p class="apk-proof">Native Android alarms repeat after the app closes. APK SHA-256: <code>${ANDROID_APK_SHA256}</code></p>
         </div>
         <figure class="hero-art">
           <picture>
@@ -212,16 +215,29 @@ async function handleReminderSubmit(event: Event): Promise<void> {
   event.preventDefault();
   const form = event.currentTarget as HTMLFormElement;
   const values = new FormData(form);
+  const title = String(values.get('title') ?? '').trim();
+  const error = form.querySelector<HTMLParagraphElement>('#form-error')!;
+  const titleInput = form.elements.namedItem('title') as HTMLInputElement;
+  error.textContent = '';
+  titleInput.removeAttribute('aria-invalid');
+  if (!title) {
+    // `required` accepts spaces. Validate before changing in-memory data so the
+    // editor remains usable and persistence can never be asked to save it.
+    error.textContent = 'Enter what needs your answer. A title cannot be blank.';
+    titleInput.setAttribute('aria-invalid', 'true');
+    titleInput.focus();
+    return;
+  }
   const id = String(values.get('id') || '');
   const existing = data.reminders.find(item => item.id === id);
   if (!existing && !unlocked && activeReminders().length >= 3) {
-    form.querySelector('#form-error')!.textContent = 'The free deck holds 3 active reminders. Handle one, or unlock unlimited reminders in Settings.';
+    error.textContent = 'The free deck holds 3 active reminders. Handle one, or unlock unlimited reminders in Settings.';
     return;
   }
   const now = new Date().toISOString();
   const reminder: Reminder = {
     id: existing?.id ?? crypto.randomUUID(),
-    title: String(values.get('title')).trim(),
+    title,
     note: String(values.get('note')).trim(),
     nextAt: new Date(String(values.get('nextAt'))).toISOString(),
     recurrence: String(values.get('recurrence')) as Reminder['recurrence'],
