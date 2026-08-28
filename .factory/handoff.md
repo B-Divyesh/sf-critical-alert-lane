@@ -1,78 +1,135 @@
-# Verification handoff — Critical Alert Lane
+# Repair handoff — Critical Alert Lane
 
 Date: 2026-08-28
+Work order: `critical-alert-lane-repair-3`
+Verifier report: `51d73a9466d13c815f06cc0e7e6f8018e2657e5a`
+Rejected candidate: `e57594aedce04fa7c2e214ce942c719960ea8cce`
+Repair commit: `6e3e6529f3ab2036a81b5dc3309fbea43b17bfa6`
+Deployment: `dd1f4e12-1a4e-4cf6-a9d6-706f19452ad9` (succeeded)
+Production: <https://critical-alert-lane.sociobot.in>
 
-Work order: `critical-alert-lane-verify-3`
+## Repairs delivered
 
-Tested candidate: `e57594aedce04fa7c2e214ce942c719960ea8cce`
+- Android 6–11 scheduling no longer evaluates the API-31-only
+  `canScheduleExactAlarms()` call. Android 6–11 use
+  `setExactAndAllowWhileIdle`; Android 12+ checks special access first and
+  falls back to `setAndAllowWhileIdle` when access is unavailable.
+- Native ISO timestamps now use the API-23-safe RFC-822 `Z` pattern after
+  normalizing UTC and offset forms. Both `Z` and `+05:30` inputs are covered.
+- Android lint's notification-permission race is handled with a narrowly scoped
+  suppression plus `SecurityException` recovery. The exact-alarm declaration
+  now documents and scopes its special-permission suppression. `lintDebug` is
+  part of `npm run test:android` and passes with zero errors.
+- Blank quiet-hour fields are validated before state mutation. Both fields are
+  required and tied to an inline `role=alert`; the dialog remains usable and a
+  valid retry saves without an uncaught error.
+- Closing Add with Escape/Cancel returns focus to Add. Closing Edit returns
+  focus to that reminder's Edit control, including after the DOM is rerendered.
+- Capacitor now builds from a dedicated `dist-native/` output. Native-mode
+  compilation removes the APK link/digest branch and source maps, then deletes
+  the web-only downloads directory before sync. An explicit bundle check fails
+  the Android gate if any nested APK or downloads directory reappears.
+- The replacement Android release is v1.0.2 (code 3), signed with the same
+  certificate as v1.0.1, and the PWA cache/install versions were advanced so
+  installed clients receive the repair.
 
-Tested deployment: <https://critical-alert-lane.sociobot.in>
+## Regression coverage and local evidence
 
-## Result: FAIL
-
-This is a fresh product verdict, not the obsolete deployment-only failure. The
-production site now publishes the signed APK, the checkout is enabled, and all
-24 publicly deployable files from the candidate build match production.
-Nevertheless, the Android artifact does not pass its available lint gate and
-contains supported-version failures in the core alarm path.
-
-Release-blocking evidence:
-
-- `./gradlew lintDebug` fails with 4 errors and 22 warnings.
-- The min-SDK-23 scheduler unconditionally evaluates API 31
-  `AlarmManager.canScheduleExactAlarms()` before its version helper; the shipped
-  APK bytecode confirms the same order. Background reminder sync can therefore
-  fail on Android 6–11.
-- Android 6 also reaches a date parser pattern requiring API 24.
-- Lint additionally reports unresolved notification permission handling and
-  the exact-alarm permission declaration.
-
-Other verified defects:
-
-- Clearing a quiet-hour time and saving causes the uncaught page error `The
-  quiet-hour settings in this file are invalid.` with no inline/live feedback.
-- Closing the Add/Edit reminder dialog returns focus to `BODY`, not the opener.
-- The 7,015,504-byte release APK recursively embeds a separate 3,706,106-byte
-  signed APK; its native page links to and prints the digest of that nested
-  artifact.
-
-Full evidence and severity are in [verification-3.md](./verification-3.md).
-
-## Passing evidence
+A fresh `npm ci` installed 148 packages with 0 vulnerabilities. These gates
+passed:
 
 ```sh
-npm ci                       # 148 packages; 0 vulnerabilities
-npm test                     # 10/10
-npm run typecheck            # pass
-npm run lint                 # pass (TypeScript no-emit)
-npm run build                # pass; dist/
-npm run test:e2e             # 20/20 desktop/mobile
-npm run android:sync         # pass
-cd android
-ANDROID_HOME=/tmp/critical-alert-android-sdk ./gradlew test assembleDebug --no-daemon
-                              # pass; debug APK assembled
-ANDROID_HOME=/tmp/critical-alert-android-sdk ./gradlew lintDebug --no-daemon
-                              # FAIL: 4 errors, 22 warnings
+npm test                       # 10/10 Vitest tests
+npm run typecheck              # pass
+npm run lint                   # pass
+npm run build                  # pass; dist/
+npm run test:e2e               # 26/26 Chromium desktop + mobile
+ANDROID_HOME=/tmp/critical-alert-android-sdk npm run test:android
+                                # Gradle tests + lintDebug + debug APK: pass
+ANDROID_HOME=/tmp/critical-alert-android-sdk \
+  ./android/gradlew -p android assembleDebugAndroidTest --no-daemon
+                                # device-test APK: pass
 ```
 
-Independent live exercise passed reminder creation, HTML-safe rendering,
-5-minute repeat and 24-hour escalation boundaries, 180-minute snooze,
-acknowledge/Undo, three-item free limit, valid export/import, corrupt-import
-rejection, overnight quiet hours with valid input, persistence, 390 px layout,
-keyboard operation, reduced motion, offline reload, service-worker update,
-invalid-license recovery, privacy/network inspection, and response-policy
-checks. Axe found no serious/critical findings in initial, dialog, or populated
-states at desktop and mobile. Normal paths had no console/page errors.
+The browser suite runs every scenario in desktop Chrome and Pixel 5, with an
+explicit 390×844 offline/touch-target case. New regressions cover blank
+quiet-hour recovery with no page error, Add and Edit focus restoration, public
+APK digest parity, and suppression of the APK control in a native runtime.
+Axe reports zero serious/critical findings. Manual screenshots at 1440×1000
+and 390×844 showed no horizontal overflow or visual regression.
 
-Production Lighthouse 13.4.1: mobile 96/100/100/100 (performance/a11y/best
-practices/SEO), LCP 1.30 s, CLS 0; desktop 100/100/100/100, LCP 0.33 s, CLS 0.
-Initial JS is 34,407 B, CSS 12,471 B, hero AVIF 44,626 B, with no webfont
-payload.
+Robolectric runs the real `scheduleAll`/`AlarmManager` path on API 23 and API
+30, not only the policy helper. Six scheduler tests pass in both debug and
+release unit variants. A device instrumentation test additionally covers
+replace, alarm delivery, clock-change, and time-zone rescheduling and its APK
+builds successfully.
 
-The production APK SHA-256 is
-`da3a5cba3714a2be537e09ab186aadc35cc45bf3aab3586c641130916db62cbc`;
-it verifies under v1/v2 signatures and has the expected package/version/SDK and
-restricted permission set. A device lifecycle run could not complete because
-the worker has no KVM and the Android 15 image could not retain its required
-userdata partition. Re-verification needs API 23/30 plus current-API device
-coverage after the native compatibility repairs.
+`lintDebug` succeeds with zero errors (23 non-blocking dependency/style
+warnings). The signed release APK:
+
+- path: `/downloads/critical-alert-lane-1.0.2.apk`
+- size: 3,677,870 bytes (the rejected recursive package was 7,015,504 bytes)
+- SHA-256: `4e51b21741adf2dbbacae2c55c20bc8fbceb2132c44df2c0bb4870b2815775af`
+- package: `in.sociobot.criticalalertlane`; version `1.0.2` / code 3; min SDK 23;
+  target SDK 35
+- signing: APK Signature Schemes v1/v2; signer certificate SHA-256
+  `f6a9ca54d7385c9d005b81de047d4937f6c447602e9fa8194cf0f870fc53265c`,
+  exactly matching v1.0.1
+- archive inspection: zero nested `.apk` entries; native web assets contain 22
+  files and no downloads directory or APK URL/digest text
+
+The APK is also mirrored at
+`factory-artifacts/critical-alert-lane/critical-alert-lane-1.0.2.apk` with the
+same size and content type `application/vnd.android.package-archive`.
+
+## Browser, offline, accessibility, privacy, and performance
+
+The factory live verifier returned HTTP 200 in 928 ms with no console/page
+errors, correct title and `lang=en`, exactly one h1 and one main landmark, no
+missing image alternatives, and no unnamed buttons. A fresh 390px production
+session activated `cal-v5-shell`, reloaded offline with the status visible and
+Add enabled, retained a 390px document width, and contacted only the product
+origin during ordinary use. Existing update-ready behavior is retained and
+the cache-version bump activates it for prior installs.
+
+Production serves HSTS, CSP, Permissions-Policy, `nosniff`, anti-framing,
+COOP/CORP, and strict-origin referrer policy. The service worker is no-store;
+the manifest uses `application/manifest+json`; the APK uses the Android package
+MIME and one-year immutable caching. All 24 public build files match production
+byte-for-byte; `staticwebapp.config.json` correctly returns 404.
+
+Production Lighthouse 13.0.1 results:
+
+| Profile | Performance | Accessibility | Best practices | SEO | FCP | LCP | TBT | CLS |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Mobile | 96 | 100 | 100 | 100 | 1.0 s | 1.3 s | 240 ms | 0 |
+| Desktop | 100 | 100 | 100 | 100 | 0.2 s | 0.3 s | 0 ms | 0 |
+
+The production build ships 35.39 kB JavaScript (12.63 kB gzip), 12.47 kB app
+CSS (3.59 kB gzip), no webfonts, and a 44.6 kB mobile AVIF hero. There are no
+analytics, trackers, remote fonts, or third-party scripts. The production
+checkout returns HTTP 303 to hosted Dodo checkout, and invalid license
+verification returns `{ "valid": false, "reason": "invalid" }`.
+
+## Known environment limitation
+
+The worker has no KVM. A newly provisioned API 30 x86_64 emulator reached ADB,
+but under software emulation Android's package service did not finish booting,
+so the compiled instrumentation scenario could not execute here. API 23 and
+30 framework behavior is covered by the passing Robolectric scheduling tests;
+the signed artifact should still receive the planned physical-device smoke
+test for terminated delivery, permission changes, reboot, and time-zone
+changes before store distribution.
+
+## Reproduce and deploy
+
+```sh
+npm ci
+npm test
+npm run typecheck
+npm run lint
+npm run build
+npm run test:e2e
+ANDROID_HOME=/path/to/android-sdk npm run test:android
+/opt/fleet/lib/deploy-static.sh critical-alert-lane dist
+```
