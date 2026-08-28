@@ -1,5 +1,6 @@
 import './styles.css';
-import { loadData, prepareImport, saveData } from './db';
+import { clearData, loadData, prepareImport, saveData, useStorageNamespace } from './db';
+import { createDemoData } from './demo';
 import { buyUrl, captureLicense, isOptimisticallyUnlocked, removeLicense, setLicense, verifyLicense } from './license';
 import { icon } from './icons';
 import { isNativeAndroid, nativeScheduleStatus, openNativeExactAlarmSettings, requestNativeNotifications, syncNativeSchedule, type NativeSchedulerStatus } from './native-scheduler';
@@ -9,6 +10,8 @@ import type { AppData, Reminder } from './types';
 declare const __NATIVE_BUILD__: boolean;
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
+const isDemo = /^\/demo\/?$/.test(window.location.pathname) || new URLSearchParams(window.location.search).get('demo') === '1';
+if (isDemo) useStorageNamespace('demo');
 let data: AppData;
 let unlocked = false;
 let editingId: string | null = null;
@@ -37,6 +40,7 @@ const dueReminders = () => activeReminders().filter(reminder => isDue(reminder))
 
 async function saveAndSchedule(): Promise<void> {
   await saveData(data);
+  if (isDemo) return;
   try { nativeStatus = await syncNativeSchedule(data); }
   catch { /* Local browser data remains usable if the native bridge is unavailable. */ }
 }
@@ -79,7 +83,7 @@ function render(): void {
   const onTime = data.history.filter(entry => entry.withinWindow).length;
   const reliability = handled ? Math.round((onTime / handled) * 100) : 0;
 
-  app.innerHTML = `<header class="site-header">
+  app.innerHTML = `${isDemo ? `<aside class="demo-banner" aria-label="Demo mode"><strong>Demo — sample data, nothing is saved</strong><span>Try the repeating reminder below.</span><div><button id="reset-demo" class="demo-action" type="button">Reset demo</button><button id="start-real" class="demo-action" type="button">Start for real</button></div></aside>` : ''}<header class="site-header">
       <a class="brand" href="/">${icon('tape')} <span>CRITICAL / LANE</span></a>
       <div class="header-actions">
         <span id="network-state" class="network-state" aria-live="polite">${navigator.onLine ? 'On device' : 'Offline · still working'}</span>
@@ -90,9 +94,10 @@ function render(): void {
       <section class="intro" aria-labelledby="page-title">
         <div class="intro-copy">
           <p class="eyebrow">ONE LANE. NO FEED.</p>
-          <h1 id="page-title">Reminders that wait for an answer.</h1>
-          <p class="lede">A private lane for the few things you cannot afford to bury. It repeats until you acknowledge or snooze it.</p>
-          <div class="intro-actions"><button id="add-reminder" class="primary-button" type="button">${icon('plus')} Add critical reminder</button>${androidDownloadButton()}</div>
+          <h1 id="page-title">Keep critical Android reminders repeating.</h1>
+          <p class="lede">For Android users overwhelmed by notifications, keep medicine, deadlines, and calls visible until you handle them.</p>
+          <div class="intro-actions">${isDemo ? '' : '<a id="try-demo" class="primary-button" href="/demo">Try it with sample data</a>'}<button id="add-reminder" class="${isDemo ? 'primary-button' : 'secondary-button'}" type="button">${icon('plus')} Add critical reminder</button>${androidDownloadButton()}</div>
+          <ul class="intro-facts" aria-label="Key facts"><li>Private: data stays on this device.</li><li>Offline after the first visit.</li><li>US$4.99 once for unlimited reminders.</li></ul>
           ${androidDownloadProof()}
         </div>
         <figure class="hero-art">
@@ -219,6 +224,17 @@ function bindEvents(): void {
     });
   });
   document.querySelector('#add-reminder')?.addEventListener('click', () => openEditor(null));
+  document.querySelector('#reset-demo')?.addEventListener('click', async () => {
+    data = createDemoData();
+    await clearData();
+    await saveData(data);
+    render();
+    showToast('Sample reminders reset.');
+  });
+  document.querySelector('#start-real')?.addEventListener('click', async () => {
+    await clearData();
+    window.location.assign('/');
+  });
   document.querySelectorAll<HTMLElement>('.edit-reminder').forEach(button => button.addEventListener('click', () => openEditor(button.closest<HTMLElement>('[data-id]')!.dataset.id!)));
   document.querySelectorAll<HTMLElement>('.delete-reminder').forEach(button => button.addEventListener('click', async () => {
     const id = button.closest<HTMLElement>('[data-id]')!.dataset.id!;
@@ -384,6 +400,7 @@ async function restoreLicense(event: Event): Promise<void> {
 }
 
 async function checkNotifications(): Promise<void> {
+  if (isDemo) return;
   if (isQuietTime(data.settings) || !('Notification' in window) || Notification.permission !== 'granted') return;
   const registration = await navigator.serviceWorker?.ready;
   if (!registration) return;
@@ -397,12 +414,20 @@ async function checkNotifications(): Promise<void> {
 }
 
 async function init(): Promise<void> {
-  captureLicense();
-  unlocked = isOptimisticallyUnlocked();
+  if (!isDemo) {
+    captureLicense();
+    unlocked = isOptimisticallyUnlocked();
+  }
   try {
     data = await loadData();
-    nativeStatus = await nativeScheduleStatus();
-    await syncNativeSchedule(data);
+    if (isDemo && !data.reminders.length && !data.history.length) {
+      data = createDemoData();
+      await saveData(data);
+    }
+    if (!isDemo) {
+      nativeStatus = await nativeScheduleStatus();
+      await syncNativeSchedule(data);
+    }
     render();
   }
   catch { data = { version: 1, reminders: [], history: [], settings: { quietEnabled: true, quietStart: '22:00', quietEnd: '07:00' }, updatedAt: new Date().toISOString() }; render(); showToast('Local storage could not be read. Reminders may not persist in this browser.'); }
@@ -418,14 +443,14 @@ async function init(): Promise<void> {
   window.addEventListener('offline', () => { render(); showToast('Offline. The lane and your saved data still work.'); });
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
-      void nativeScheduleStatus().then(status => { if (status) { nativeStatus = status; render(); } });
+      if (!isDemo) void nativeScheduleStatus().then(status => { if (status) { nativeStatus = status; render(); } });
       render();
       void checkNotifications();
     }
   });
   window.setInterval(() => { render(); void checkNotifications(); }, 30_000);
   void checkNotifications();
-  if (localStorage.getItem('sb_license:critical-alert-lane')) {
+  if (!isDemo && localStorage.getItem('sb_license:critical-alert-lane')) {
     verifyLicense().then(valid => { if (valid !== unlocked) { unlocked = valid; render(); if (!valid) showToast('This license is no longer active. The free lane remains available.'); } }).catch(() => undefined);
   }
 }

@@ -2,15 +2,19 @@
 
 Date: 2026-08-28
 
-Scope: initial landing view and its empty product state. Counts treat
-hyphenated terms and numbers as one word. No banned plain-language terms were
-found in `src/`, `index.html`, the legal pages, or `README.md`.
+Scope: initial landing view, demo banner, and empty product state. Counts
+treat hyphenated terms and numbers as one word. No banned plain-language terms
+were found in `src/`, `index.html`, the legal pages, or `README.md`.
 
 | Visible sentence | Words |
 | --- | ---: |
-| Reminders that wait for an answer. | 6 |
-| A private lane for the few things you cannot afford to bury. | 12 |
-| It repeats until you acknowledge or snooze it. | 8 |
+| Keep critical Android reminders repeating. | 5 |
+| For Android users overwhelmed by notifications, keep medicine, deadlines, and calls visible until you handle them. | 14 |
+| Demo — sample data, nothing is saved. | 7 |
+| Try the repeating reminder below. | 5 |
+| Private: data stays on this device. | 6 |
+| Offline after the first visit. | 5 |
+| US$4.99 once for unlimited reminders. | 5 |
 | Native Android alarms repeat after the app closes. | 8 |
 | One protected signal, pulled out of the noise. | 8 |
 | The lane is clear. | 4 |
@@ -23,8 +27,9 @@ found in `src/`, `index.html`, the legal pages, or `README.md`.
 | No account, ads, tracking, calendar, or contacts. | 7 |
 
 All sentences are at or below the 22-word limit. The first screen states the
-job in the h1, identifies the few-reminder use case in the following sentence,
-and presents `Add critical reminder` as the primary action.
+job in the h1, identifies the overwhelmed Android user in the following
+sentence, and presents `Try it with sample data` as the first action. The demo
+banner makes its isolation and exit controls explicit.
 
 ## Terminology
 

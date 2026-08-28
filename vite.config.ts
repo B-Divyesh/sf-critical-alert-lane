@@ -20,9 +20,11 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: {
           app: resolve(__dirname, 'index.html'),
+          demo: resolve(__dirname, 'demo/index.html'),
           privacy: resolve(__dirname, 'privacy/index.html'),
           terms: resolve(__dirname, 'terms/index.html'),
-          offline: resolve(__dirname, 'offline.html')
+          offline: resolve(__dirname, 'offline.html'),
+          notFound: resolve(__dirname, '404.html')
         }
       }
     }

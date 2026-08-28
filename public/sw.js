@@ -1,7 +1,7 @@
-const VERSION = 'cal-v6';
+const VERSION = 'cal-v7';
 const SHELL = `${VERSION}-shell`;
 const ASSETS = `${VERSION}-assets`;
-const PRECACHE = ['/', '/offline.html', '/manifest.webmanifest', '/icons/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png', '/art/hero-cassette-512.webp', '/art/hero-cassette-768.webp', '/art/hero-cassette-768.avif', '/art/hero-cassette-768.jpg', '/privacy/', '/terms/'];
+const PRECACHE = ['/', '/demo/', '/404.html', '/offline.html', '/manifest.webmanifest', '/icons/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png', '/art/hero-cassette-512.webp', '/art/hero-cassette-768.webp', '/art/hero-cassette-768.avif', '/art/hero-cassette-768.jpg', '/privacy/', '/terms/'];
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {

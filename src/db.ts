@@ -3,10 +3,19 @@ import { DEFAULT_DATA, type AppData } from './types';
 const DB_NAME = 'critical-alert-lane';
 const STORE = 'state';
 const KEY = 'app-data';
+let databaseName = DB_NAME;
+
+/**
+ * Keep the catalog demo physically separate from a visitor's reminder lane.
+ * This must be called before the first database operation in a document.
+ */
+export function useStorageNamespace(namespace?: 'demo'): void {
+  databaseName = namespace ? `${namespace}:${DB_NAME}` : DB_NAME;
+}
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 1);
+    const request = indexedDB.open(databaseName, 1);
     request.onupgradeneeded = () => request.result.createObjectStore(STORE);
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error ?? new Error('Could not open local storage.'));
@@ -43,6 +52,16 @@ export async function saveData(data: AppData): Promise<void> {
     transaction.objectStore(STORE).put(data, KEY);
     transaction.oncomplete = () => { db.close(); resolve(); };
     transaction.onerror = () => reject(transaction.error ?? new Error('Could not save reminders.'));
+  });
+}
+
+export async function clearData(): Promise<void> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE, 'readwrite');
+    transaction.objectStore(STORE).clear();
+    transaction.oncomplete = () => { db.close(); resolve(); };
+    transaction.onerror = () => reject(transaction.error ?? new Error('Could not reset reminders.'));
   });
 }
 

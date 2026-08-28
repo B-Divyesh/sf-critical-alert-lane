@@ -12,9 +12,9 @@
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:android": "npm run android:sync && node scripts/verify-native-bundle.mjs && cd android && ./gradlew test lintDebug assembleDebug assembleDebugAndroidTest --no-daemon",
-    "test:android:instrumentation": "npm run android:sync && node scripts/verify-native-bundle.mjs && cd android && ./gradlew assembleDebugAndroidTest --no-daemon",
-    "test:android:claim": "npm run android:sync && node scripts/verify-native-bundle.mjs && cd android && ./gradlew :app:testDebugUnitTest --tests '*ReminderSchedulerTest.claim_native_background_repeat_rearms_from_persisted_state' --no-daemon",
+    "test:android": "npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/gradle.mjs test lintDebug assembleDebug assembleDebugAndroidTest --no-daemon",
+    "test:android:instrumentation": "npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/gradle.mjs assembleDebugAndroidTest --no-daemon",
+    "test:android:claim": "npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/gradle.mjs :app:testDebugUnitTest --tests '*ReminderSchedulerTest.claim_native_background_repeat_rearms_from_persisted_state' --no-daemon",
     "android:sync": "npm run build:native && npx cap sync android"
   },
   "dependencies": {

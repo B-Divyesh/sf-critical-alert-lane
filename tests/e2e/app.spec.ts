@@ -40,13 +40,60 @@ test('creates, persists, and acknowledges a due reminder', async ({ page }) => {
 });
 
 test('@claim:offline-reload works offline after the first visit', async ({ page, context }) => {
-  await page.goto('/');
-  await expect(page.getByRole('heading', { name: /Reminders that wait/ })).toBeVisible();
+  await page.goto('/demo');
+  await expect(page.getByRole('heading', { name: /Keep critical Android reminders repeating/ })).toBeVisible();
+  await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
   await page.waitForFunction(() => Boolean(navigator.serviceWorker?.controller));
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByText('Offline · still working')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Add critical reminder' })).toBeVisible();
+});
+
+test('@claim:repeat-until-handled lets a sample reminder stay due until it is snoozed or acknowledged', async ({ page }) => {
+  await page.goto('/demo');
+  await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
+  await expect(page.locator('.current-alert')).toContainText('Take evening medicine');
+  await expect(page.locator('.current-alert')).toContainText('● REPEATING NOW');
+  await expect(page.getByText('Daily · repeats every 5 min until handled')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Snooze' }).click();
+  await expect(page.getByText(/Snoozed “Take evening medicine” for 10 minutes/)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Acknowledge' })).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Reset demo' }).click();
+  await expect(page.getByRole('button', { name: 'Acknowledge' })).toBeVisible();
+  await page.getByRole('button', { name: 'Acknowledge' }).click();
+  await expect(page.getByRole('status')).toContainText('Acknowledged “Take evening medicine”.');
+  await expect(page.getByRole('button', { name: 'Acknowledge' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Take evening medicine' }).last()).toBeVisible();
+});
+
+test('@claim:demo-isolation keeps sample actions separate from a real reminder lane', async ({ page }) => {
+  await page.goto('/demo');
+  await page.evaluate(async () => {
+    const realData = {
+      version: 1,
+      reminders: [{ id: 'real-only', title: 'Real reminder stays private', note: '', nextAt: '2026-09-01T09:00:00.000Z', recurrence: 'daily', repeatMinutes: 5, escalationMinutes: 60, enabled: true, createdAt: '2026-08-28T09:00:00.000Z', updatedAt: '2026-08-28T09:00:00.000Z' }],
+      history: [], settings: { quietEnabled: true, quietStart: '22:00', quietEnd: '07:00' }, updatedAt: '2026-08-28T09:00:00.000Z'
+    };
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open('critical-alert-lane', 1);
+      request.onupgradeneeded = () => request.result.createObjectStore('state');
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const transaction = request.result.transaction('state', 'readwrite');
+        transaction.objectStore('state').put(realData, 'app-data');
+        transaction.oncomplete = () => { request.result.close(); resolve(); };
+        transaction.onerror = () => reject(transaction.error);
+      };
+    });
+  });
+  await expect(page.getByText('Real reminder stays private')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Start for real' }).click();
+  await page.waitForURL('http://127.0.0.1:4173/');
+  await expect(page.getByRole('heading', { name: 'Real reminder stays private' })).toBeVisible();
+  await expect(page.getByText('Take evening medicine')).toHaveCount(0);
 });
 
 test('keeps whitespace-title recovery in the editor without a page error', async ({ page }) => {
@@ -95,7 +142,7 @@ test('rejects a corrupt backup without replacing device data', async ({ page }) 
 });
 
 test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision during import', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/demo');
   await page.getByRole('button', { name: 'Settings' }).click();
   const confirmation = new Promise<string>(resolve => page.once('dialog', async dialog => {
     const message = dialog.message();
@@ -135,7 +182,7 @@ test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision
 });
 
 test('@claim:free-limit imports all reminders but arms only three on the free tier', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/demo');
   await page.getByRole('button', { name: 'Settings' }).click();
   const confirmation = new Promise<string>(resolve => page.once('dialog', async dialog => {
     const message = dialog.message();
@@ -223,7 +270,10 @@ test('@claim:local-private keeps an ordinary reminder flow on the product origin
     const url = new URL(request.url());
     if (url.origin !== 'http://127.0.0.1:4173') externalRequests.push(url.href);
   });
-  await page.goto('/');
+  await page.goto('/demo');
+  page.once('dialog', dialog => dialog.accept());
+  await page.getByRole('button', { name: 'Delete Water the balcony plants' }).click();
+  await expect(page.getByText('Water the balcony plants')).toHaveCount(0);
   await page.getByRole('button', { name: 'Add critical reminder' }).click();
   await page.getByLabel('What needs your answer?').fill('Refill the medicine box');
   await page.getByLabel('First alert').fill('2026-09-01T09:00');
@@ -242,7 +292,7 @@ test('legal pages are available', async ({ page }) => {
 });
 
 test('@claim:apk-download publishes an installable Android package with its integrity digest', async ({ page, request }) => {
-  await page.goto('/');
+  await page.goto('/demo');
   const download = page.getByRole('link', { name: 'Download Android app (APK)' });
   await expect(download).toHaveAttribute('href', /critical-alert-lane-1\.0\.3\.apk$/);
   await expect(page.locator('.apk-proof code')).toHaveText(/^[a-f0-9]{64}$/);
@@ -276,7 +326,7 @@ test('does not offer an APK download from inside the Android shell', async ({ pa
 });
 
 test('@claim:one-time-license offers the registered one-time unlimited purchase through Sociobot', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/demo');
   await page.getByRole('button', { name: 'Settings' }).click();
   const buy = page.getByRole('link', { name: 'Buy once · US$4.99' });
   await expect(buy).toHaveAttribute('href', 'https://api.sociobot.in/api/v1/products/critical-alert-lane/checkout');

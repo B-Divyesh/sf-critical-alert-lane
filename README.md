@@ -7,6 +7,11 @@ explicitly acknowledge or snooze them.
 
 Live app: <https://critical-alert-lane.sociobot.in>
 
+Try it safely first: <https://critical-alert-lane.sociobot.in/demo>. The demo
+opens with realistic sample reminders in a separate browser database. **Reset
+demo** restores the samples; **Start for real** discards them and opens your
+empty real lane.
+
 Android download: [Critical Alert Lane 1.0.3 APK](./public/downloads/critical-alert-lane-1.0.3.apk)
 (`SHA-256 06382ba158e7cd4a28222e14a81174150b574daabe17af9be62cac91213e3c16`).
 Install this signed APK to use Android's on-device alarms when the app is
@@ -52,7 +57,10 @@ npm run test:android:instrumentation
 
 `npm run build` is the factory build command. It writes the deployable static
 site to `dist/`, with `dist/index.html` at its root. Playwright is pinned to
-1.58.2 as required by the worker image.
+1.58.2 as required by the worker image. Browser claim commands are
+self-contained after `npm ci`: their Playwright server builds before previewing.
+Android commands find JDK 21 and the Android SDK, then pass `JAVA_HOME` and
+`ANDROID_HOME` to Gradle.
 
 To refresh the Android shell after a web change:
 
@@ -79,6 +87,10 @@ Reminder data is stored in the browser's IndexedDB database
 request is a purchase/license check against the Sociobot billing API after a
 user buys or restores a license. The free experience never waits on that call.
 
+The sample demo is separate: its data uses IndexedDB database
+`demo:critical-alert-lane`. It never reads or writes real reminder data,
+license tokens, or the Android scheduler. See [the demo guide](./.factory/demo.md).
+
 The export format is versioned JSON. Exports are unencrypted, so users should
 store them somewhere they trust. See [Privacy](./privacy/index.html) and
 [Terms](./terms/index.html).
@@ -87,6 +99,7 @@ store them somewhere they trust. See [Privacy](./privacy/index.html) and
 
 - Product scope: [`.factory/brief.json`](./.factory/brief.json)
 - Visual system and asset provenance: [`.factory/design.md`](./.factory/design.md)
+- Demo sandbox: [`.factory/demo.md`](./.factory/demo.md)
 - Build verification and known gaps: [`.factory/handoff.md`](./.factory/handoff.md)
 
 Licensed under the [MIT License](./LICENSE).

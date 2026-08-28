@@ -8,5 +8,10 @@ export default defineConfig({
     { name: 'chromium-mobile', use: { ...devices['Pixel 5'] } },
     { name: 'chromium-desktop', use: { ...devices['Desktop Chrome'] } }
   ],
-  webServer: { command: 'npm run preview', url: 'http://127.0.0.1:4173', reuseExistingServer: true }
+  webServer: {
+    command: 'npm run build && npm run preview',
+    url: 'http://127.0.0.1:4173',
+    timeout: 120_000,
+    reuseExistingServer: true
+  }
 });
