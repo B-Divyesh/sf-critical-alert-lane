@@ -4,6 +4,8 @@ Date: 2026-08-28
 Work order: `critical-alert-lane-repair-2`
 Base verifier report: `eb1010753adb8296a07f4e0780689402943c43e3`
 Artifact/deployment: Android Capacitor app + static PWA at `https://critical-alert-lane.sociobot.in`
+Repair commit: `f7b992d483af9f21ef98fe5872cb8d10ecc27c75` (pushed to `main`)
+Static deployment: `47a5a3a7-1b7a-433e-a6f4-ae10c6ea6642` — succeeded; production DNS returned HTTP 200.
 
 ## Delivered repairs
 
@@ -36,6 +38,8 @@ cd android && ./gradlew test assembleDebug --no-daemon
 The release APK was built from the synced Capacitor project using the factory Key Vault signing key and `apksigner verify --verbose` passed (v1/v2). A hardware/emulator lifecycle run remains unavailable in this container, so the background/terminated, reboot, timezone, and permission flows must receive a real Android-device smoke test after deployment; the native alarm/receiver implementation and build are present in the delivered APK.
 
 Browser checks passed at desktop and 390×844: keyboard dialog operation, visible focus styling, no serious/critical axe findings, offline reload, local persistence, import validation, and no page errors on normal or invalid-title recovery. The PWA service worker continues to precache the shell and update notice flow. The static config continues to enforce CSP, Permissions-Policy, anti-framing/isolation headers, correct web-manifest MIME, immutable hashed assets, and now correct APK MIME plus immutable APK caching.
+
+Post-deploy verification used `verify-url.sh` against the production URL: HTTP 200, 776 ms load, no console/page errors, title present, `lang=en`, one h1, main landmark, no missing image alt text, and no unlabeled buttons. The live document SHA-256 matched `dist/index.html`; the live APK returned HTTP 200 with `application/vnd.android.package-archive`, 7,015,504 bytes, immutable caching, and the documented SHA-256. Production checkout returned HTTP 303 to Dodo; an invalid-license verification returned `{ "valid": false, "reason": "invalid" }`.
 
 Performance remains within budget: production JS is 34.41 kB (12.33 kB gzip), app CSS is 12.47 kB (3.59 kB gzip), and the hero is 44.6 kB. There are no remote fonts, analytics, tracking pixels, or new third-party runtime scripts; the only external product endpoint remains the Sociobot billing API.
 
