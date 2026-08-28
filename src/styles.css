@@ -41,6 +41,9 @@ svg { width: 22px; height: 22px; flex: none; }
 .text-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 4px; color: inherit; background: transparent; border: 0; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
 
 main { overflow: hidden; }
+.loading-screen { min-height: 100vh; display: grid; place-content: center; gap: 12px; padding: 24px; background: var(--paper); }
+.loading-screen p { margin: 0; font-weight: 900; letter-spacing: .12em; }
+.loading-screen h1 { margin: 0; max-width: 12ch; }
 .intro { max-width: 1240px; margin: 0 auto; padding: 72px 32px 64px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, .75fr); align-items: center; gap: clamp(40px, 8vw, 112px); }
 .intro-copy { max-width: 720px; }
 .eyebrow, .track-label { margin: 0 0 8px; font-weight: 900; letter-spacing: .13em; font-size: 13px; }
