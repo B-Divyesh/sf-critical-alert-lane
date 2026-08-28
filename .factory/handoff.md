@@ -1,87 +1,59 @@
-# Handoff — Critical Alert Lane v1
+# Verification handoff — FAIL
 
 Date: 2026-08-28
+Verifier work order: `critical-alert-lane-verify-1`
+Tested candidate: `24da88c1f25c64e24771be0ee9182a939bf700d1`
+Live URL: <https://critical-alert-lane.sociobot.in>
 
-Work order: `critical-alert-lane-build-1`
+## Result
 
-Deploy: static PWA from `dist/`
+**FAIL — do not release as the Android product described in the brief.** The
+live static files exactly match the tested candidate and the PWA's web UX,
+accessibility, privacy request surface, offline reload, unit tests, build,
+E2E tests, and local Lighthouse check are healthy. The core Android
+repeat-until-acknowledged delivery behavior is absent.
 
-## What was built
+## Exact evidence
 
-- A complete mobile-first, local-first reminder lane in Vite + vanilla
-  TypeScript. Users can create, edit, delete, acknowledge, undo, and snooze
-  reminders; choose one-time/daily/weekday/weekly recurrence; set a 5–60 minute
-  repeat cadence and 1–24 hour escalation window; and configure quiet hours.
-- IndexedDB persistence with a versioned, validated JSON export/import flow.
-  Imports require explicit replacement confirmation. Acknowledgement history is
-  retained for 30 days and shown as the pilot's handled-in-window reliability
-  measure.
-- Browser notifications requested in context, repeated while the web app is
-  running, and muted during configured quiet hours. Due alerts stay visible.
-- Installable PWA manifest, versioned service-worker caches, cache-first built
-  assets, network-first navigation, an offline fallback, and an update notice.
-  A cold offline reload of the full app is covered by Playwright.
-- Free access for three active reminders plus a US$4.99 one-time unlimited
-  unlock using the Sociobot checkout/verify contract. License return, restore,
-  daily verdict caching, background reconciliation, revocation, and offline
-  optimistic unlock behavior are implemented. Safety behavior, accessibility,
-  and export are never paywalled.
-- Dedicated `/privacy/` and `/terms/` pages, with no tracking, ads, CDN assets,
-  accounts, or unnecessary permissions.
-- A product-specific cassette-era zine system, original generated hero collage
-  with prompt provenance, AVIF/WebP/JPEG outputs, and original launcher mark.
-- A committed Capacitor Android skeleton using application ID
-  `in.sociobot.criticalalertlane`, native launcher/splash assets, local backup
-  disabled, light/dark-compatible no-action-bar shell, and current web assets
-  synced. Signing and APK production are left to the later Android work order.
+- Fresh checkout: clean at the tested commit; `origin/main` was the same SHA.
+- Passed: `npm ci` (0 audit vulnerabilities), `npm test` (8/8), `npm run
+  build`, and `npm run test:e2e` (8/8).
+- Local production Lighthouse: Performance 98, Accessibility 100, Best
+  Practices 100, SEO 100; FCP 1.1 s, LCP 1.8 s, CLS 0, TBT 140 ms. Initial JS
+  is 23,314 B (8,240 B gzip), CSS is 11,802 B (3,459 B gzip), fonts 0 B, and
+  LCP AVIF 44,626 B.
+- Live verification passed basic semantics and error capture (200, title,
+  `lang=en`, one `h1`, main, alt text, labels, zero errors), Axe serious and
+  critical at desktop and 390 px (zero), keyboard open/close/focus smoke tests,
+  and live offline reload after service-worker control.
+- All 23 files in the locally produced `dist/` had matching SHA-256 content at
+  the live URL. Initial browser requests stayed same-origin; no tracking or
+  third-party runtime request was observed.
+- `android/gradlew test assembleDebug` could not start in this worker: no Java
+  runtime or `JAVA_HOME` is available. No APK was produced.
 
-## Verification
+## Defects
 
-- `npm test`: 8/8 unit tests pass (scheduling, snooze, weekday skipping, quiet
-  hours, and import validation).
-- `npm run build`: passes; produces `dist/index.html` at the required root.
-- `npm run test:e2e`: 8/8 Playwright tests pass across Pixel 5 and desktop
-  Chromium, including create/persist/acknowledge/undo, offline reload, legal
-  pages, captured console/page errors, and Axe serious/critical checks.
-- `/opt/fleet/lib/verify-url.sh http://127.0.0.1:4173 ...`: passes; HTTP 200,
-  one `h1`, `lang="en"`, main landmark, zero missing alt text, zero unlabeled
-  buttons, zero console errors; measured load 625 ms locally.
-- Lighthouse mobile: Performance 100, Accessibility 100, Best Practices 100,
-  SEO 100. FCP 0.9 s, LCP 1.7 s, CLS 0, TBT 60 ms, Speed Index 0.9 s.
-- Bundle budgets: initial JS 23.31 KB (8.24 KB gzip), app CSS 11.80 KB
-  (3.45 KB gzip), no font payload, LCP AVIF 44 KB. Total `dist/` is 464 KB.
-- `npm audit`: zero vulnerabilities.
-- Manual visual inspection completed at 390 × 844; no horizontal clipping,
-  hidden actions, or overlapping text observed. Generated hero was reviewed for
-  text artifacts, brands, seams, and misleading capability.
+1. **P0 — missing native Android alarm/notification behavior.** `MainActivity`
+   is a plain Capacitor `BridgeActivity`; the Android manifest declares only
+   `INTERNET`; no native notification, alarm, exact-alarm, boot-recovery, or
+   receiver code exists. Web notification checking runs only while the document
+   executes (startup, visibility, and a 30-second interval), so it cannot
+   repeat after an Android app is closed. This fails the principal product
+   contract and Android notification/exact-alarm requirement.
+2. **P1 — corrupt imports are accepted.** An import with an invalid recurrence,
+   negative repeat interval, zero escalation, and invalid settings was accepted
+   as `Import complete` and rendered `undefined · repeats every -1 min until
+   handled`.
+3. **P2 — production delivery policies.** Hashed assets are cached for only 30
+   seconds, the manifest uses `application/octet-stream`, and CSP,
+   Permissions-Policy, frame, COOP, and CORP headers are absent.
 
-## Known gaps and next steps
+## Required before re-verification
 
-- This work order explicitly targets a static PWA plus Capacitor skeleton. Web
-  notifications cannot guarantee Android background or exact-alarm delivery
-  after the app is terminated. Before releasing an APK, the native follow-up
-  must add a local-notification/alarm implementation, request Android 13+
-  notification permission in context, request exact-alarm access only when the
-  chosen scheduling API legally requires it, cover reboot/timezone changes,
-  test OEM battery restrictions, and run `./gradlew assembleDebug` on the
-  Android worker. The UI and terms deliberately do not claim exact delivery.
-- The factory must register the paid product/price before checkout can succeed
-  in production and confirm that the displayed US$4.99 price matches the
-  billing record. No product ID or secret is embedded.
-- JSON exports are intentionally unencrypted in v1 and are labeled as such.
-  Optional encrypted export remains a future enhancement.
-- Lighthouse was measured against the local production preview in this worker;
-  rerun after deployment to capture CDN/network conditions.
-
-## Run and deploy
-
-```sh
-npm ci
-npm test
-npm run build
-npm run test:e2e
-npx cap sync android
-```
-
-Deploy the contents of `dist/`. Do not deploy the repository root. See
-`README.md` for storage, billing, and Android details.
+Implement durable native Android notification/alarm scheduling and its
+permission/reboot/timezone lifecycle, fully schema-validate imports, configure
+the live MIME/cache/security headers, then verify with an Android-capable
+worker using `./gradlew test assembleDebug` and actual device/emulator
+background/terminated-app alert tests. See `.factory/verification.md` for the
+complete command-level evidence and scope.
