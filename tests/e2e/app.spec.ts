@@ -97,11 +97,11 @@ test('rejects a corrupt backup without replacing device data', async ({ page }) 
 test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision during import', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Settings' }).click();
-  let confirmation = '';
-  page.once('dialog', async dialog => {
-    confirmation = dialog.message();
+  const confirmation = new Promise<string>(resolve => page.once('dialog', async dialog => {
+    const message = dialog.message();
     await dialog.accept();
-  });
+    resolve(message);
+  }));
   await page.locator('#import-data').setInputFiles({
     name: 'unsafe-identities.json',
     mimeType: 'application/json',
@@ -113,7 +113,7 @@ test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision
     ])))
   });
 
-  expect(confirmation).toContain('2 unsafe reminder ID(s) will be repaired');
+  expect(await confirmation).toContain('2 unsafe reminder ID(s) will be repaired');
   await expect(page.locator('#toast')).toContainText('2 reminder ID(s) repaired');
   await expect(page.getByRole('heading', { name: 'First duplicate' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Second duplicate' })).toBeVisible();
@@ -137,11 +137,11 @@ test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision
 test('@claim:free-limit imports all reminders but arms only three on the free tier', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Settings' }).click();
-  let confirmation = '';
-  page.once('dialog', async dialog => {
-    confirmation = dialog.message();
+  const confirmation = new Promise<string>(resolve => page.once('dialog', async dialog => {
+    const message = dialog.message();
     await dialog.accept();
-  });
+    resolve(message);
+  }));
   await page.locator('#import-data').setInputFiles({
     name: 'four-active-reminders.json',
     mimeType: 'application/json',
@@ -153,8 +153,9 @@ test('@claim:free-limit imports all reminders but arms only three on the free ti
     ])))
   });
 
-  expect(confirmation).toContain('The free lane can arm 3 reminders');
-  expect(confirmation).toContain('1 additional reminder(s) will be imported paused, not deleted');
+  const confirmationMessage = await confirmation;
+  expect(confirmationMessage).toContain('The free lane can arm 3 reminders');
+  expect(confirmationMessage).toContain('1 additional reminder(s) will be imported paused, not deleted');
   await expect(page.locator('#toast')).toContainText('1 reminder(s) paused for the 3-active free limit');
   await expect(page.getByText('3 / 3 free active')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Fourth preserved' })).toBeVisible();
