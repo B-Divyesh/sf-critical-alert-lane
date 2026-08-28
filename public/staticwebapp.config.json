@@ -13,6 +13,9 @@
     "Cross-Origin-Resource-Policy": "same-origin",
     "Cache-Control": "public, max-age=300, must-revalidate"
   },
+  "mimeTypes": {
+    ".webmanifest": "application/manifest+json"
+  },
   "routes": [
     {
       "route": "/assets/*",
