@@ -2,6 +2,7 @@ import './styles.css';
 import { loadData, saveData, validateData } from './db';
 import { buyUrl, captureLicense, isOptimisticallyUnlocked, removeLicense, setLicense, verifyLicense } from './license';
 import { icon } from './icons';
+import { isNativeAndroid, nativeScheduleStatus, openNativeExactAlarmSettings, requestNativeNotifications, syncNativeSchedule, type NativeSchedulerStatus } from './native-scheduler';
 import { effectiveDueAt, formatDateTime, isDue, isQuietTime, nextOccurrence, toLocalInput } from './schedule';
 import type { AppData, Reminder } from './types';
 
@@ -11,6 +12,7 @@ let unlocked = false;
 let editingId: string | null = null;
 let undoSnapshot: AppData | null = null;
 let undoTimer = 0;
+let nativeStatus: NativeSchedulerStatus | null = null;
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
@@ -19,6 +21,12 @@ const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, char => ({
 const activeReminders = () => data.reminders.filter(reminder => reminder.enabled);
 const dueReminders = () => activeReminders().filter(reminder => isDue(reminder)).sort((a, b) =>
   effectiveDueAt(a).getTime() - effectiveDueAt(b).getTime());
+
+async function saveAndSchedule(): Promise<void> {
+  await saveData(data);
+  try { nativeStatus = await syncNativeSchedule(data); }
+  catch { /* Local browser data remains usable if the native bridge is unavailable. */ }
+}
 
 function statusText(reminder: Reminder): string {
   if (!reminder.enabled) return 'Handled · one-time';
@@ -144,9 +152,14 @@ function editorDialog(): string {
 
 function settingsDialog(): string {
   const permission = 'Notification' in window ? Notification.permission : 'unsupported';
+  const nativeNotifications = nativeStatus?.notifications;
+  const nativeExactAlarms = nativeStatus?.exactAlarms;
+  const notificationCopy = isNativeAndroid()
+    ? `Android notifications: ${nativeNotifications ?? 'checking'}. ${nativeExactAlarms === 'granted' || nativeExactAlarms === 'not-required' ? 'Native alarms are armed in the background.' : 'Allow exact alarms for the most reliable timing.'}`
+    : `Permission: <strong>${permission}</strong>. The web build checks while open; Android schedules reminders after installation.`;
   return `<dialog id="settings-dialog" aria-labelledby="settings-title"><div class="dialog-sheet settings-sheet">
     <div class="dialog-heading"><div><p class="track-label">DECK CONTROLS</p><h2 id="settings-title">Settings & data</h2></div><button class="icon-button close-settings" type="button" aria-label="Close">×</button></div>
-    <section><h3>Notifications</h3><p>Permission: <strong>${permission}</strong>. The web build checks while open; the Android build will provide system scheduling.</p><button id="enable-notifications" class="secondary-button" type="button" ${permission === 'granted' || permission === 'unsupported' ? 'disabled' : ''}>Enable notifications</button></section>
+    <section><h3>Notifications</h3><p>${notificationCopy}</p><div class="button-row"><button id="enable-notifications" class="secondary-button" type="button" ${(isNativeAndroid() ? nativeNotifications : permission) === 'granted' || permission === 'unsupported' ? 'disabled' : ''}>${isNativeAndroid() ? 'Enable Android notifications' : 'Enable notifications'}</button>${isNativeAndroid() && nativeExactAlarms === 'prompt' ? '<button id="enable-exact-alarms" class="secondary-button" type="button">Allow exact alarms</button>' : ''}</div></section>
     <form id="quiet-form"><h3>Quiet hours</h3><label class="check-line"><input name="quietEnabled" type="checkbox" ${data.settings.quietEnabled ? 'checked' : ''} /> Mute notification repeats overnight</label><div class="form-grid"><label>Start<input name="quietStart" type="time" value="${data.settings.quietStart}" /></label><label>End<input name="quietEnd" type="time" value="${data.settings.quietEnd}" /></label></div><button class="secondary-button" type="submit">Save quiet hours</button></form>
     <section><h3>Your data</h3><p>Reminders and history live in IndexedDB on this device. Export is always free.</p><div class="button-row"><button id="export-data" class="secondary-button" type="button">Export JSON</button><label class="file-button">Import JSON<input id="import-data" type="file" accept="application/json,.json" /></label></div></section>
     <section class="license-panel"><span class="status-stamp">${unlocked ? '✓ FULL DECK' : 'FREE DECK'}</span><h3>${unlocked ? 'Unlimited lane unlocked' : 'Keep a bigger critical lane'}</h3><p>Free includes 3 active reminders and every safety feature. A US$4.99 one-time purchase adds unlimited active reminders. No subscription.</p>
@@ -164,7 +177,7 @@ function showToast(message: string, undo = false): void {
   undoTimer = window.setTimeout(() => { toast.hidden = true; undoSnapshot = null; }, 6500);
   document.querySelector('#undo-action')?.addEventListener('click', async () => {
     if (!undoSnapshot) return;
-    data = undoSnapshot; undoSnapshot = null; await saveData(data); render(); showToast('Action undone.');
+    data = undoSnapshot; undoSnapshot = null; await saveAndSchedule(); render(); showToast('Action undone.');
   });
 }
 
@@ -178,7 +191,7 @@ function bindEvents(): void {
     const id = button.closest<HTMLElement>('[data-id]')!.dataset.id!;
     const reminder = data.reminders.find(item => item.id === id)!;
     if (!confirm(`Delete “${reminder.title}”? This cannot be undone.`)) return;
-    data.reminders = data.reminders.filter(item => item.id !== id); await saveData(data); render(); showToast('Reminder deleted.');
+    data.reminders = data.reminders.filter(item => item.id !== id); await saveAndSchedule(); render(); showToast('Reminder deleted.');
   }));
   document.querySelectorAll('.close-dialog').forEach(button => button.addEventListener('click', () => editor.close()));
   document.querySelector('#reminder-form')?.addEventListener('submit', handleReminderSubmit);
@@ -188,6 +201,7 @@ function bindEvents(): void {
   document.querySelector('#snooze')?.addEventListener('click', snoozeCurrent);
   document.querySelector('#quiet-form')?.addEventListener('submit', saveSettings);
   document.querySelector('#enable-notifications')?.addEventListener('click', requestNotifications);
+  document.querySelector('#enable-exact-alarms')?.addEventListener('click', requestExactAlarms);
   document.querySelector('#export-data')?.addEventListener('click', exportData);
   document.querySelector<HTMLInputElement>('#import-data')?.addEventListener('change', importData);
   document.querySelector('#license-form')?.addEventListener('submit', restoreLicense);
@@ -218,7 +232,7 @@ async function handleReminderSubmit(event: Event): Promise<void> {
     updatedAt: now
   };
   data.reminders = existing ? data.reminders.map(item => item.id === id ? reminder : item) : [...data.reminders, reminder];
-  await saveData(data); editingId = null; render(); showToast(existing ? 'Reminder updated.' : 'Reminder armed.'); await checkNotifications();
+  await saveAndSchedule(); editingId = null; render(); showToast(existing ? 'Reminder updated.' : 'Reminder armed.'); await checkNotifications();
 }
 
 async function acknowledgeCurrent(): Promise<void> {
@@ -233,7 +247,7 @@ async function acknowledgeCurrent(): Promise<void> {
   if (next) reminder.nextAt = next;
   delete reminder.snoozedUntil; delete reminder.lastNotifiedAt;
   reminder.updatedAt = handledAt.toISOString();
-  await saveData(data); render(); showToast(`Acknowledged “${reminder.title}”.`, true);
+  await saveAndSchedule(); render(); showToast(`Acknowledged “${reminder.title}”.`, true);
 }
 
 async function snoozeCurrent(): Promise<void> {
@@ -242,7 +256,7 @@ async function snoozeCurrent(): Promise<void> {
   const minutes = Number(document.querySelector<HTMLSelectElement>('#snooze-minutes')!.value);
   reminder.snoozedUntil = new Date(Date.now() + minutes * 60_000).toISOString();
   delete reminder.lastNotifiedAt;
-  await saveData(data); render(); showToast(`Snoozed “${reminder.title}” for ${minutes} minutes.`);
+  await saveAndSchedule(); render(); showToast(`Snoozed “${reminder.title}” for ${minutes} minutes.`);
 }
 
 async function saveSettings(event: Event): Promise<void> {
@@ -250,13 +264,24 @@ async function saveSettings(event: Event): Promise<void> {
   const form = event.currentTarget as HTMLFormElement;
   const values = new FormData(form);
   data.settings = { quietEnabled: values.get('quietEnabled') === 'on', quietStart: String(values.get('quietStart')), quietEnd: String(values.get('quietEnd')) };
-  await saveData(data); render(); showToast('Quiet hours saved.');
+  await saveAndSchedule(); render(); showToast('Quiet hours saved.');
 }
 
 async function requestNotifications(): Promise<void> {
+  if (isNativeAndroid()) {
+    nativeStatus = await requestNativeNotifications();
+    render();
+    showToast(nativeStatus?.notifications === 'granted' ? 'Android notifications enabled. Background reminders are armed.' : 'Android notifications were not enabled. You can still use the in-app lane.');
+    return;
+  }
   if (!('Notification' in window)) { showToast('Notifications are not supported in this browser.'); return; }
   const permission = await Notification.requestPermission();
   render(); showToast(permission === 'granted' ? 'Notifications enabled.' : 'Notifications were not enabled. You can still use the in-app lane.');
+}
+
+async function requestExactAlarms(): Promise<void> {
+  await openNativeExactAlarmSettings();
+  showToast('Android alarm access is ready to allow in system settings. Return here when finished.');
 }
 
 function exportData(): void {
@@ -270,7 +295,7 @@ async function importData(event: Event): Promise<void> {
   try {
     const imported = validateData(JSON.parse(await file.text()));
     if (!confirm(`Replace this device’s data with ${imported.reminders.length} reminder(s)? Export first if you need a backup.`)) return;
-    data = imported; await saveData(data); render(); showToast('Import complete.');
+    data = imported; await saveAndSchedule(); render(); showToast('Import complete.');
   } catch (error) { showToast(error instanceof Error ? error.message : 'The import could not be read.'); }
 }
 
@@ -298,7 +323,12 @@ async function checkNotifications(): Promise<void> {
 async function init(): Promise<void> {
   captureLicense();
   unlocked = isOptimisticallyUnlocked();
-  try { data = await loadData(); render(); }
+  try {
+    data = await loadData();
+    nativeStatus = await nativeScheduleStatus();
+    await syncNativeSchedule(data);
+    render();
+  }
   catch { data = { version: 1, reminders: [], history: [], settings: { quietEnabled: true, quietStart: '22:00', quietEnd: '07:00' }, updatedAt: new Date().toISOString() }; render(); showToast('Local storage could not be read. Reminders may not persist in this browser.'); }
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').then(registration => {
@@ -310,7 +340,13 @@ async function init(): Promise<void> {
   }
   window.addEventListener('online', () => { render(); showToast('Back online. Your reminders stayed on this device.'); });
   window.addEventListener('offline', () => { render(); showToast('Offline. The lane and your saved data still work.'); });
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) { render(); void checkNotifications(); } });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      void nativeScheduleStatus().then(status => { if (status) { nativeStatus = status; render(); } });
+      render();
+      void checkNotifications();
+    }
+  });
   window.setInterval(() => { render(); void checkNotifications(); }, 30_000);
   void checkNotifications();
   if (localStorage.getItem('sb_license:critical-alert-lane')) {

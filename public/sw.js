@@ -1,4 +1,4 @@
-const VERSION = 'cal-v3';
+const VERSION = 'cal-v4';
 const SHELL = `${VERSION}-shell`;
 const ASSETS = `${VERSION}-assets`;
 const PRECACHE = ['/', '/offline.html', '/manifest.webmanifest', '/icons/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png', '/art/hero-cassette-512.webp', '/art/hero-cassette-768.webp', '/art/hero-cassette-768.avif', '/art/hero-cassette-768.jpg', '/privacy/', '/terms/'];

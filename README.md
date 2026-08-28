@@ -18,13 +18,15 @@ Live app: <https://critical-alert-lane.sociobot.in>
 - Local JSON export/import with validation and replacement confirmation
 - Free use for up to three active reminders; US$4.99 one-time license unlock
   for unlimited active reminders through the Sociobot hosted checkout
-- A Capacitor Android project with product-specific launcher and splash assets
+- Native Android alarms and local notifications that continue repeating after
+  the app is backgrounded or closed, then recover after boot, clock, and time
+  zone changes
 
 The app requests no account, calendar, contacts, location, camera, or
 microphone access. Notification permission is requested only from the Settings
-button. The static/PWA build checks and repeats notifications while the app is
-running; reliable Android background/exact-alarm scheduling is intentionally
-left for the later native-APK work order and is not claimed by this build.
+button. On Android, the app also presents exact-alarm access from Settings when
+the OS requires it; without that access, Android's battery-aware inexact alarm
+fallback is used.
 
 ## Develop and verify
 
@@ -36,6 +38,7 @@ npm run dev
 npm test
 npm run build
 npm run test:e2e
+npm run test:android
 ```
 
 `npm run build` is the factory build command. It writes the deployable static
@@ -45,8 +48,7 @@ site to `dist/`, with `dist/index.html` at its root. Playwright is pinned to
 To refresh the Android shell after a web change:
 
 ```sh
-npm run build
-npx cap sync android
+npm run android:sync
 ```
 
 The committed project uses application ID `in.sociobot.criticalalertlane`.

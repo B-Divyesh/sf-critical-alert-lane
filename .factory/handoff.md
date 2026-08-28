@@ -1,59 +1,72 @@
-# Verification handoff — FAIL
+# Repair handoff — Critical Alert Lane
 
 Date: 2026-08-28
-Verifier work order: `critical-alert-lane-verify-1`
-Tested candidate: `24da88c1f25c64e24771be0ee9182a939bf700d1`
-Live URL: <https://critical-alert-lane.sociobot.in>
+Work order: `critical-alert-lane-repair-1`
+Repair base: `947f8f2d5845c4f54b39f5169272668ae5e17c86`
 
-## Result
+## Repaired findings
 
-**FAIL — do not release as the Android product described in the brief.** The
-live static files exactly match the tested candidate and the PWA's web UX,
-accessibility, privacy request surface, offline reload, unit tests, build,
-E2E tests, and local Lighthouse check are healthy. The core Android
-repeat-until-acknowledged delivery behavior is absent.
+1. **P0 Android background delivery:** added a local Capacitor bridge and
+   native `AlarmManager` scheduler. Every saved web-data change reconciles
+   native alarms. The receiver posts a high-importance local notification and
+   schedules the next repeat until the reminder is acknowledged, snoozed,
+   disabled, or deleted in the app. `POST_NOTIFICATIONS`, exact-alarm access,
+   boot recovery, clock/time-zone recovery, a notification channel, and a
+   Settings permission path are included. If exact alarms are unavailable,
+   Android's allow-while-idle inexact fallback remains armed.
+2. **P1 corrupt import:** `validateData()` now validates the complete v1
+   schema before replacement: every reminder, optional timestamp, history row,
+   quiet-hour value, enum, and allowed cadence/escalation range. Invalid data
+   never reaches IndexedDB or native scheduling.
+3. **P2 delivery policy:** added Azure Static Web Apps configuration with CSP,
+   Permissions-Policy, anti-framing/isolation headers, immutable cache headers
+   for fingerprinted assets, non-cacheable service worker, and the correct
+   manifest MIME type. The PWA cache version and start URL are bumped to v2/v4
+   so existing installs receive the repair.
 
-## Exact evidence
+## Regression coverage
 
-- Fresh checkout: clean at the tested commit; `origin/main` was the same SHA.
-- Passed: `npm ci` (0 audit vulnerabilities), `npm test` (8/8), `npm run
-  build`, and `npm run test:e2e` (8/8).
-- Local production Lighthouse: Performance 98, Accessibility 100, Best
-  Practices 100, SEO 100; FCP 1.1 s, LCP 1.8 s, CLS 0, TBT 140 ms. Initial JS
-  is 23,314 B (8,240 B gzip), CSS is 11,802 B (3,459 B gzip), fonts 0 B, and
-  LCP AVIF 44,626 B.
-- Live verification passed basic semantics and error capture (200, title,
-  `lang=en`, one `h1`, main, alt text, labels, zero errors), Axe serious and
-  critical at desktop and 390 px (zero), keyboard open/close/focus smoke tests,
-  and live offline reload after service-worker control.
-- All 23 files in the locally produced `dist/` had matching SHA-256 content at
-  the live URL. Initial browser requests stayed same-origin; no tracking or
-  third-party runtime request was observed.
-- `android/gradlew test assembleDebug` could not start in this worker: no Java
-  runtime or `JAVA_HOME` is available. No APK was produced.
+- Vitest covers malformed recurrence, cadence, escalation, timestamps,
+  history, and quiet-hour imports (10 tests total).
+- Playwright covers the corrupt-file UI path, persistence/acknowledge/undo,
+  offline reload, keyboard dialog operation, legal pages, and axe checks in
+  Chromium desktop and Pixel 5/390 px (12 tests total).
+- Native JUnit `ReminderSchedulePolicyTest` covers immediate recovery of a due
+  reminder, repeat cadence after notification, and quiet-hour deferral.
 
-## Defects
+## Verification run
 
-1. **P0 — missing native Android alarm/notification behavior.** `MainActivity`
-   is a plain Capacitor `BridgeActivity`; the Android manifest declares only
-   `INTERNET`; no native notification, alarm, exact-alarm, boot-recovery, or
-   receiver code exists. Web notification checking runs only while the document
-   executes (startup, visibility, and a 30-second interval), so it cannot
-   repeat after an Android app is closed. This fails the principal product
-   contract and Android notification/exact-alarm requirement.
-2. **P1 — corrupt imports are accepted.** An import with an invalid recurrence,
-   negative repeat interval, zero escalation, and invalid settings was accepted
-   as `Import complete` and rendered `undefined · repeats every -1 min until
-   handled`.
-3. **P2 — production delivery policies.** Hashed assets are cached for only 30
-   seconds, the manifest uses `application/octet-stream`, and CSP,
-   Permissions-Policy, frame, COOP, and CORP headers are absent.
+- `npm ci` — passed; 0 audit vulnerabilities.
+- `npm run lint` / TypeScript typecheck — passed.
+- `npm test` — 10/10 passed.
+- `npm run build` — passed; deployable `dist/` produced.
+- `npm run test:e2e` — 12/12 passed across desktop and Pixel 5. Includes
+  keyboard, accessibility, offline, and corrupt-import checks; no page or
+  console errors.
+- `npm run android:sync` — passed.
+- `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ANDROID_HOME=/opt/android-sdk npm run test:android`
+  — passed: native unit tests and `assembleDebug`; debug APK at
+  `android/app/build/outputs/apk/debug/app-debug.apk` (5,018,612 bytes).
+- Local `verify-url.sh` production-preview smoke check — 200; title/lang/one
+  h1/main/alt text all present; zero console/page errors; 390 px screenshot
+  captured.
+- Lighthouse local production preview: desktop 100/100 Performance,
+  Accessibility, Best Practices, SEO (FCP 0.3 s, LCP 0.4 s, CLS 0, TBT 0 ms);
+  mobile 100/100 (FCP 0.9 s, LCP 1.7 s, CLS 0, TBT 0 ms).
+- Budget: initial JS 33,770 B (12,010 B gzip), app CSS 11,802 B, LCP AVIF
+  44,626 B, no font payload.
 
-## Required before re-verification
+## Deployment and live verification
 
-Implement durable native Android notification/alarm scheduling and its
-permission/reboot/timezone lifecycle, fully schema-validate imports, configure
-the live MIME/cache/security headers, then verify with an Android-capable
-worker using `./gradlew test assembleDebug` and actual device/emulator
-background/terminated-app alert tests. See `.factory/verification.md` for the
-complete command-level evidence and scope.
+Deployment and post-deploy HTTPS/header/identity verification are recorded
+after the repair commit is pushed.
+
+## Known limitation
+
+No Android device was attached. I attempted to create an API 35 x86_64
+emulator, but this worker has 2.5 GB free disk while the emulator requires a
+7.37 GB userdata partition. Native source, unit scheduling policy, and debug
+APK compilation pass; before an Android release, run a physical-device or
+adequately provisioned-emulator test that backgrounds/terminates the app,
+waits for a repeat, reboots, changes time zone, and verifies acknowledgement
+and snooze cancel/re-arm alarms.

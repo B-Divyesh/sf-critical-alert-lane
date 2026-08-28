@@ -27,6 +27,36 @@ test('works offline after the first visit', async ({ page, context }) => {
   await expect(page.getByRole('button', { name: 'Add critical reminder' })).toBeVisible();
 });
 
+test('rejects a corrupt backup without replacing device data', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.locator('#import-data').setInputFiles({
+    name: 'corrupt-critical-alert-lane.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({
+      version: 1,
+      reminders: [{ id: 'broken', title: 'Broken reminder', note: '', nextAt: 'not-a-time', recurrence: 'not-a-recurrence', repeatMinutes: -1, escalationMinutes: 0, enabled: true, createdAt: '2026-08-28T09:00:00.000Z', updatedAt: '2026-08-28T09:00:00.000Z' }],
+      history: [], settings: { quietEnabled: true, quietStart: '25:00', quietEnd: '07:00' }, updatedAt: 'not-a-time'
+    }))
+  });
+  await expect(page.locator('#toast')).toContainText(/reminders.*invalid/i);
+  await expect(page.getByText('Broken reminder')).toHaveCount(0);
+});
+
+test('opens and closes dialogs from the keyboard', async ({ page }) => {
+  await page.goto('/');
+  const add = page.getByRole('button', { name: 'Add critical reminder' });
+  await add.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('dialog', { name: 'Add critical reminder' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: 'Add critical reminder' })).not.toBeVisible();
+  const settings = page.getByRole('button', { name: 'Settings' });
+  await settings.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('dialog', { name: 'Settings & data' })).toBeVisible();
+});
+
 test('has no serious accessibility violations', async ({ page }) => {
   const errors: string[] = [];
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
