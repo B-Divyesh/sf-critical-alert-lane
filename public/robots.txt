@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://critical-alert-lane.sociobot.in/sitemap.xml
