@@ -52,7 +52,8 @@ Repair base: `947f8f2d5845c4f54b39f5169272668ae5e17c86`
   captured.
 - Lighthouse local production preview: desktop 100/100 Performance,
   Accessibility, Best Practices, SEO (FCP 0.3 s, LCP 0.4 s, CLS 0, TBT 0 ms);
-  mobile 100/100 (FCP 0.9 s, LCP 1.7 s, CLS 0, TBT 0 ms).
+  mobile Performance 97; Accessibility, Best Practices, and SEO 100
+  (FCP 0.9 s, LCP 1.7 s, CLS 0, TBT 170 ms).
 - Budget: initial JS 33,770 B (12,010 B gzip), app CSS 11,802 B, LCP AVIF
   44,626 B, no font payload.
 
