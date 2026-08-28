@@ -58,8 +58,23 @@ Repair base: `947f8f2d5845c4f54b39f5169272668ae5e17c86`
 
 ## Deployment and live verification
 
-Deployment and post-deploy HTTPS/header/identity verification are recorded
-after the repair commit is pushed.
+Deployed the static artifact with `/opt/fleet/lib/deploy-static.sh
+critical-alert-lane /work/repo/dist` from commit `96cf365` to
+<https://critical-alert-lane.sociobot.in>.
+
+- Live HTTPS root: 200; the response SHA-256 exactly matched local
+  `dist/index.html` (`d1178bc6b415adf8454709d6da3b49887f8883fbf3e1b8d3a1a0448dece53f71`).
+- Live `verify-url.sh`: 694 ms load, zero console/page errors, correct title,
+  `lang=en`, one h1, main landmark, and no missing image alt text or unnamed
+  buttons at desktop and 390 px.
+- Live Chromium + axe: zero serious/critical violations, zero page/console
+  errors, and no horizontal overflow at 1440 px and 390 px. After service
+  worker control, a live 390 px context reloaded offline and showed
+  `Offline · still working` with the add-reminder action usable.
+- Live response policy: CSP, Permissions-Policy, `X-Frame-Options: DENY`,
+  COOP, CORP, and `nosniff` present. Hashed JS has
+  `Cache-Control: public, max-age=31536000, immutable`; service worker is
+  `no-cache, no-store`; manifest is `application/manifest+json`.
 
 ## Known limitation
 
