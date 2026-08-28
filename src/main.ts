@@ -124,7 +124,7 @@ function render(): void {
 
       <section class="reliability" aria-labelledby="reliability-title">
         <div><p class="track-label">30-DAY SIGNAL CHECK</p><h2 id="reliability-title">${handled ? `${reliability}% handled in time` : 'Build a reliable streak'}</h2><p>${handled ? `${onTime} of ${handled} acknowledged reminders were handled inside their escalation window.` : 'Your acknowledgement rate appears here after you handle a reminder. History stays on this device.'}</p></div>
-        <div class="meter" role="img" aria-label="${handled ? `${reliability} percent handled in time` : 'No acknowledgement history yet'}"><span style="--meter:${reliability}%"></span></div>
+        <progress class="meter" value="${reliability}" max="100" aria-label="${handled ? `${reliability} percent handled in time` : 'No acknowledgement history yet'}">${reliability}%</progress>
       </section>
     </main>
     <footer><p>Private by default. No account, ads, tracking, calendar, or contacts.</p><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><small>Original generated collage · <a href="https://sociobot.in">A Sociobot utility</a></small></footer>
