@@ -6,6 +6,8 @@ import { isNativeAndroid, nativeScheduleStatus, openNativeExactAlarmSettings, re
 import { effectiveDueAt, formatDateTime, isDue, isQuietTime, nextOccurrence, toLocalInput } from './schedule';
 import type { AppData, Reminder } from './types';
 
+declare const __NATIVE_BUILD__: boolean;
+
 const app = document.querySelector<HTMLDivElement>('#app')!;
 let data: AppData;
 let unlocked = false;
@@ -13,12 +15,21 @@ let editingId: string | null = null;
 let undoSnapshot: AppData | null = null;
 let undoTimer = 0;
 let nativeStatus: NativeSchedulerStatus | null = null;
-const ANDROID_APK = '/downloads/critical-alert-lane-1.0.1.apk';
-const ANDROID_APK_SHA256 = 'da3a5cba3714a2be537e09ab186aadc35cc45bf3aab3586c641130916db62cbc';
+let editorReturnTarget: { kind: 'add' } | { kind: 'edit'; id: string } | null = null;
+const ANDROID_APK = '/downloads/critical-alert-lane-1.0.2.apk';
+const ANDROID_APK_SHA256 = '4e51b21741adf2dbbacae2c55c20bc8fbceb2132c44df2c0bb4870b2815775af';
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
 }[char]!));
+
+const showAndroidDownload = () => !__NATIVE_BUILD__ && !isNativeAndroid();
+const androidDownloadButton = () => showAndroidDownload()
+  ? `<a class="secondary-button android-download" href="${ANDROID_APK}" download type="application/vnd.android.package-archive">Download Android app (APK)</a>`
+  : '';
+const androidDownloadProof = () => showAndroidDownload()
+  ? `<p class="apk-proof">Native Android alarms repeat after the app closes. APK SHA-256: <code>${ANDROID_APK_SHA256}</code></p>`
+  : '';
 
 const activeReminders = () => data.reminders.filter(reminder => reminder.enabled);
 const dueReminders = () => activeReminders().filter(reminder => isDue(reminder)).sort((a, b) =>
@@ -80,8 +91,8 @@ function render(): void {
           <p class="eyebrow">ONE LANE. NO FEED.</p>
           <h1 id="page-title">Reminders that wait for an answer.</h1>
           <p class="lede">A private lane for the few things you cannot afford to bury. It repeats until you acknowledge or snooze it.</p>
-          <div class="intro-actions"><button id="add-reminder" class="primary-button" type="button">${icon('plus')} Add critical reminder</button><a class="secondary-button android-download" href="${ANDROID_APK}" download type="application/vnd.android.package-archive">Download Android app (APK)</a></div>
-          <p class="apk-proof">Native Android alarms repeat after the app closes. APK SHA-256: <code>${ANDROID_APK_SHA256}</code></p>
+          <div class="intro-actions"><button id="add-reminder" class="primary-button" type="button">${icon('plus')} Add critical reminder</button>${androidDownloadButton()}</div>
+          ${androidDownloadProof()}
         </div>
         <figure class="hero-art">
           <picture>
@@ -163,7 +174,7 @@ function settingsDialog(): string {
   return `<dialog id="settings-dialog" aria-labelledby="settings-title"><div class="dialog-sheet settings-sheet">
     <div class="dialog-heading"><div><p class="track-label">DECK CONTROLS</p><h2 id="settings-title">Settings & data</h2></div><button class="icon-button close-settings" type="button" aria-label="Close">×</button></div>
     <section><h3>Notifications</h3><p>${notificationCopy}</p><div class="button-row"><button id="enable-notifications" class="secondary-button" type="button" ${(isNativeAndroid() ? nativeNotifications : permission) === 'granted' || permission === 'unsupported' ? 'disabled' : ''}>${isNativeAndroid() ? 'Enable Android notifications' : 'Enable notifications'}</button>${isNativeAndroid() && nativeExactAlarms === 'prompt' ? '<button id="enable-exact-alarms" class="secondary-button" type="button">Allow exact alarms</button>' : ''}</div></section>
-    <form id="quiet-form"><h3>Quiet hours</h3><label class="check-line"><input name="quietEnabled" type="checkbox" ${data.settings.quietEnabled ? 'checked' : ''} /> Mute notification repeats overnight</label><div class="form-grid"><label>Start<input name="quietStart" type="time" value="${data.settings.quietStart}" /></label><label>End<input name="quietEnd" type="time" value="${data.settings.quietEnd}" /></label></div><button class="secondary-button" type="submit">Save quiet hours</button></form>
+    <form id="quiet-form" novalidate><h3>Quiet hours</h3><label class="check-line"><input name="quietEnabled" type="checkbox" ${data.settings.quietEnabled ? 'checked' : ''} /> Mute notification repeats overnight</label><div class="form-grid"><label>Start<input name="quietStart" type="time" required aria-describedby="quiet-form-error" value="${data.settings.quietStart}" /></label><label>End<input name="quietEnd" type="time" required aria-describedby="quiet-form-error" value="${data.settings.quietEnd}" /></label></div><p id="quiet-form-error" class="form-error" role="alert"></p><button class="secondary-button" type="submit">Save quiet hours</button></form>
     <section><h3>Your data</h3><p>Reminders and history live in IndexedDB on this device. Export is always free.</p><div class="button-row"><button id="export-data" class="secondary-button" type="button">Export JSON</button><label class="file-button">Import JSON<input id="import-data" type="file" accept="application/json,.json" /></label></div></section>
     <section class="license-panel"><span class="status-stamp">${unlocked ? '✓ FULL DECK' : 'FREE DECK'}</span><h3>${unlocked ? 'Unlimited lane unlocked' : 'Keep a bigger critical lane'}</h3><p>Free includes 3 active reminders and every safety feature. A US$4.99 one-time purchase adds unlimited active reminders. No subscription.</p>
       ${unlocked ? '<button id="remove-license" class="text-button" type="button">Remove license from this device</button>' : `<a class="primary-button buy-link" href="${buyUrl()}">Buy once · US$4.99</a><form id="license-form"><label>Have a license? Paste it<input name="license" required autocomplete="off" /></label><button class="secondary-button" type="submit">Restore purchase</button></form>`}
@@ -187,7 +198,25 @@ function showToast(message: string, undo = false): void {
 function bindEvents(): void {
   const editor = document.querySelector<HTMLDialogElement>('#reminder-dialog')!;
   const settings = document.querySelector<HTMLDialogElement>('#settings-dialog')!;
-  const openEditor = (id: string | null) => { editingId = id; render(); document.querySelector<HTMLDialogElement>('#reminder-dialog')!.showModal(); window.setTimeout(() => document.querySelector<HTMLInputElement>('[name="title"]')?.focus(), 0); };
+  const openEditor = (id: string | null) => {
+    editorReturnTarget = id ? { kind: 'edit', id } : { kind: 'add' };
+    editingId = id;
+    render();
+    document.querySelector<HTMLDialogElement>('#reminder-dialog')!.showModal();
+    window.setTimeout(() => document.querySelector<HTMLInputElement>('[name="title"]')?.focus(), 0);
+  };
+  editor.addEventListener('close', () => {
+    editingId = null;
+    const target = editorReturnTarget;
+    editorReturnTarget = null;
+    window.requestAnimationFrame(() => {
+      if (target?.kind === 'edit') {
+        document.querySelector<HTMLElement>(`.reminder-row[data-id="${CSS.escape(target.id)}"] .edit-reminder`)?.focus();
+      } else {
+        document.querySelector<HTMLElement>('#add-reminder')?.focus();
+      }
+    });
+  });
   document.querySelector('#add-reminder')?.addEventListener('click', () => openEditor(null));
   document.querySelectorAll<HTMLElement>('.edit-reminder').forEach(button => button.addEventListener('click', () => openEditor(button.closest<HTMLElement>('[data-id]')!.dataset.id!)));
   document.querySelectorAll<HTMLElement>('.delete-reminder').forEach(button => button.addEventListener('click', async () => {
@@ -279,7 +308,22 @@ async function saveSettings(event: Event): Promise<void> {
   event.preventDefault();
   const form = event.currentTarget as HTMLFormElement;
   const values = new FormData(form);
-  data.settings = { quietEnabled: values.get('quietEnabled') === 'on', quietStart: String(values.get('quietStart')), quietEnd: String(values.get('quietEnd')) };
+  const quietStart = String(values.get('quietStart') ?? '');
+  const quietEnd = String(values.get('quietEnd') ?? '');
+  const error = form.querySelector<HTMLParagraphElement>('#quiet-form-error')!;
+  const startInput = form.elements.namedItem('quietStart') as HTMLInputElement;
+  const endInput = form.elements.namedItem('quietEnd') as HTMLInputElement;
+  error.textContent = '';
+  startInput.removeAttribute('aria-invalid');
+  endInput.removeAttribute('aria-invalid');
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(quietStart) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(quietEnd)) {
+    error.textContent = 'Enter both a start and end time for quiet hours.';
+    if (!quietStart) startInput.setAttribute('aria-invalid', 'true');
+    if (!quietEnd) endInput.setAttribute('aria-invalid', 'true');
+    (!quietStart ? startInput : endInput).focus();
+    return;
+  }
+  data.settings = { quietEnabled: values.get('quietEnabled') === 'on', quietStart, quietEnd };
   await saveAndSchedule(); render(); showToast('Quiet hours saved.');
 }
 

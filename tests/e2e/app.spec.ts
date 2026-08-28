@@ -81,10 +81,39 @@ test('opens and closes dialogs from the keyboard', async ({ page }) => {
   await expect(page.getByRole('dialog', { name: 'Add critical reminder' })).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog', { name: 'Add critical reminder' })).not.toBeVisible();
+  await expect(add).toBeFocused();
   const settings = page.getByRole('button', { name: 'Settings' });
   await settings.focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'Settings & data' })).toBeVisible();
+});
+
+test('returns focus to an edited reminder after closing the editor', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Add critical reminder' }).click();
+  await page.getByLabel('What needs your answer?').fill('Check the oxygen tank');
+  await page.getByLabel('First alert').fill('2026-09-01T09:00');
+  await page.getByRole('button', { name: 'Arm reminder' }).click();
+  const edit = page.getByRole('button', { name: 'Edit Check the oxygen tank' });
+  await edit.click();
+  await page.keyboard.press('Escape');
+  await expect(edit).toBeFocused();
+});
+
+test('announces invalid quiet hours without mutating data or raising a page error', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByLabel('Start').fill('');
+  await page.getByRole('button', { name: 'Save quiet hours' }).click();
+  await expect(page.locator('#quiet-form-error')).toHaveText('Enter both a start and end time for quiet hours.');
+  await expect(page.getByLabel('Start')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.getByRole('dialog', { name: 'Settings & data' })).toBeVisible();
+  await page.getByLabel('Start').fill('21:30');
+  await page.getByRole('button', { name: 'Save quiet hours' }).click();
+  await expect(page.getByRole('status')).toContainText('Quiet hours saved.');
+  expect(errors).toEqual([]);
 });
 
 test('has no serious accessibility violations', async ({ page }) => {
@@ -107,7 +136,7 @@ test('legal pages are available', async ({ page }) => {
 test('publishes an installable Android package with its integrity digest', async ({ page, request }) => {
   await page.goto('/');
   const download = page.getByRole('link', { name: 'Download Android app (APK)' });
-  await expect(download).toHaveAttribute('href', /critical-alert-lane-1\.0\.1\.apk$/);
+  await expect(download).toHaveAttribute('href', /critical-alert-lane-1\.0\.2\.apk$/);
   await expect(page.locator('.apk-proof code')).toHaveText(/^[a-f0-9]{64}$/);
   const href = await download.getAttribute('href');
   if (!href) throw new Error('Android download link has no URL.');
@@ -116,6 +145,26 @@ test('publishes an installable Android package with its integrity digest', async
   const apk = await response.body();
   expect(apk.byteLength).toBeGreaterThan(1_000_000);
   expect(createHash('sha256').update(apk).digest('hex')).toBe(await page.locator('.apk-proof code').textContent());
+});
+
+test('does not offer an APK download from inside the Android shell', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'androidBridge', { value: {} });
+    Object.defineProperty(window, 'Capacitor', {
+      value: {
+        PluginHeaders: [{ name: 'ReminderScheduler', methods: [
+          { name: 'status', rtype: 'promise' },
+          { name: 'sync', rtype: 'promise' }
+        ] }],
+        nativePromise: (_plugin: string, method: string) => Promise.resolve(method === 'status'
+          ? { notifications: 'granted', exactAlarms: 'granted' }
+          : { ok: true })
+      }
+    });
+  });
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: 'Download Android app (APK)' })).toHaveCount(0);
+  await expect(page.locator('.apk-proof')).toHaveCount(0);
 });
 
 test('offers the registered one-time unlimited purchase through Sociobot', async ({ page }) => {

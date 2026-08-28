@@ -7,8 +7,8 @@ explicitly acknowledge or snooze them.
 
 Live app: <https://critical-alert-lane.sociobot.in>
 
-Android download: [Critical Alert Lane 1.0.1 APK](./public/downloads/critical-alert-lane-1.0.1.apk)
-(`SHA-256 da3a5cba3714a2be537e09ab186aadc35cc45bf3aab3586c641130916db62cbc`).
+Android download: [Critical Alert Lane 1.0.2 APK](./public/downloads/critical-alert-lane-1.0.2.apk)
+(`SHA-256 4e51b21741adf2dbbacae2c55c20bc8fbceb2132c44df2c0bb4870b2815775af`).
 Install this signed APK to use Android's on-device alarms when the app is
 backgrounded or closed; the web/PWA lane remains available for its local-first
 browser workflow.
@@ -58,7 +58,7 @@ npm run android:sync
 ```
 
 The committed project uses application ID `in.sociobot.criticalalertlane`.
-The downloadable v1.0.1 release APK is signed with the factory signing key;
+The downloadable v1.0.2 release APK is signed with the factory signing key;
 the keystore and all signing credentials remain outside this repository. To
 produce a release APK, provide `ANDROID_RELEASE_STORE_FILE`,
 `ANDROID_RELEASE_STORE_PASSWORD`, `ANDROID_RELEASE_KEY_ALIAS`, and

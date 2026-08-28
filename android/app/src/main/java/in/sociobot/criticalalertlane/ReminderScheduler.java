@@ -1,5 +1,6 @@
 package in.sociobot.criticalalertlane;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -137,7 +138,8 @@ public final class ReminderScheduler {
         // setExactAndAllowWhileIdle is available from API 23. Android 12+
         // additionally gates it behind SCHEDULE_EXACT_ALARM; older supported
         // Android versions do not need that permission check.
-        if (usesExactAlarm(Build.VERSION.SDK_INT, alarms.canScheduleExactAlarms())) {
+        boolean exactAlarmPermissionGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarms.canScheduleExactAlarms();
+        if (usesExactAlarm(Build.VERSION.SDK_INT, exactAlarmPermissionGranted)) {
             alarms.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending);
@@ -173,11 +175,19 @@ public final class ReminderScheduler {
         return Math.max(nextAt, snoozedUntil);
     }
 
-    private static long parseTime(String value) {
+    static long parseTime(String value) {
+        if (value == null || value.isEmpty()) return 0L;
+        // SimpleDateFormat's ISO-8601 `X` zone pattern is unavailable on API
+        // 23. Normalize `Z` and ±HH:mm to the API-1 RFC-822 `Z` pattern.
+        String normalized = value.endsWith("Z") ? value.substring(0, value.length() - 1) + "+0000" : value;
+        if (normalized.matches(".*[+-]\\d{2}:\\d{2}$")) {
+            normalized = normalized.substring(0, normalized.length() - 3) + normalized.substring(normalized.length() - 2);
+        }
         try {
-            SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.US);
+            SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US);
+            parser.setLenient(false);
             parser.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Date parsed = parser.parse(value);
+            Date parsed = parser.parse(normalized);
             return parsed == null ? 0L : parsed.getTime();
         } catch (ParseException ignored) { return 0L; }
     }
@@ -205,6 +215,7 @@ public final class ReminderScheduler {
 
     private static int minutes(String value) { return Integer.parseInt(value.substring(0, 2)) * 60 + Integer.parseInt(value.substring(3, 5)); }
 
+    @SuppressLint("MissingPermission") // Checked immediately before notify; SecurityException handles revocation races.
     private static void showNotification(Context context, JSONObject reminder) {
         if (!notificationsAllowed(context)) return;
         ensureChannel(context);
@@ -224,7 +235,13 @@ public final class ReminderScheduler {
             .setOnlyAlertOnce(false)
             .setContentIntent(openPending)
             .build();
-        NotificationManagerCompat.from(context).notify(notificationId(reminder.optString("id")), notification);
+        try {
+            NotificationManagerCompat.from(context).notify(notificationId(reminder.optString("id")), notification);
+        } catch (SecurityException ignored) {
+            // Android may revoke notification permission between the check and
+            // delivery. The next schedule remains armed and the in-app lane is
+            // still available; never crash the background receiver.
+        }
     }
 
     private static void ensureChannel(Context context) {
