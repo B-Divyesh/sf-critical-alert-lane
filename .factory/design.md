@@ -24,7 +24,7 @@ is active.
 | Paper high | `#FFF9E9` | inputs and raised reminder sheets |
 | Oxide | `#191815` | primary ink and navigation |
 | Faded ink | `#575147` | supporting text (7:1+ on paper) |
-| Signal orange | `#D94B19` | primary action, alert edge |
+| Signal orange | `#E25B2A` | primary action, alert edge |
 | Signal yellow | `#F3C84B` | focus ring and status tape |
 | Acknowledged | `#276749` | success state and completion marks |
 | Danger | `#9E2F26` | destructive action and errors |
@@ -99,4 +99,3 @@ is clearer at launcher sizes.
   and misleading capability. No third-party source material is shipped.
 - Tape-lane icon and interface marks: original SVG/CSS artwork authored for
   Critical Alert Lane, 2026-08-28, MIT as part of the repository.
-

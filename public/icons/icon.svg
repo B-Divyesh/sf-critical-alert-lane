@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Critical Alert Lane cassette mark">
+  <rect width="512" height="512" fill="#191815"/>
+  <path fill="#D94B19" d="M72 100h368v224H72z"/>
+  <path fill="#F2E9D0" d="M112 144h288v120H112z"/>
+  <circle cx="172" cy="204" r="42" fill="#191815"/>
+  <circle cx="340" cy="204" r="42" fill="#191815"/>
+  <path stroke="#191815" stroke-width="24" d="M172 204h168M256 324v116"/>
+  <path fill="none" stroke="#F3C84B" stroke-width="24" stroke-linecap="square" stroke-linejoin="miter" d="m210 408 34 34 70-82"/>
+</svg>
