@@ -227,6 +227,7 @@ test('@claim:local-private keeps an ordinary reminder flow on the product origin
   await page.getByLabel('What needs your answer?').fill('Refill the medicine box');
   await page.getByLabel('First alert').fill('2026-09-01T09:00');
   await page.getByRole('button', { name: 'Arm reminder' }).click();
+  await expect(page.getByRole('heading', { name: 'Refill the medicine box' }).first()).toBeVisible();
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Refill the medicine box' }).first()).toBeVisible();
   expect(externalRequests).toEqual([]);
