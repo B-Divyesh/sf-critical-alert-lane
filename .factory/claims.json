@@ -31,7 +31,7 @@
     "id": "native-background-repeat",
     "claim": "The Android app re-arms a due reminder repeat from persisted native state without a running web timer.",
     "where": "landing APK proof, README",
-    "test": "cd android && ./gradlew :app:testDebugUnitTest --tests '*ReminderSchedulerTest.claim_native_background_repeat_rearms_from_persisted_state' --no-daemon",
+    "test": "npm run test:android:claim",
     "sandbox": "Robolectric API 30; persist due native state, invoke the alarm receiver path, and assert AlarmManager holds the next five-minute repeat"
   },
   {
