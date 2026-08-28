@@ -1,0 +1,10 @@
+{
+  "slug": "critical-alert-lane",
+  "title": "Critical Alert Lane",
+  "artifact_class": "android",
+  "user": "An Android user overwhelmed by notifications who needs a tiny offline lane for a few reminders that repeat until explicitly handled.",
+  "smallest_useful_product": "Android app with an on-device list of recurring critical reminders, repeat-until-acknowledged behavior, configurable quiet hours, and an export/import file.",
+  "success_measure": "In a 30-day pilot, at least 80% of scheduled critical reminders are acknowledged before their configured escalation window ends.",
+  "monetization": "one-time",
+  "constraints": "Must comply with Android exact-alarm and notification permissions; no contact/calendar permission by default; local encrypted export optional."
+}
