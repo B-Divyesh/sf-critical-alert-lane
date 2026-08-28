@@ -3,9 +3,14 @@ package in.sociobot.criticalalertlane;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.fail;
 
 import android.app.AlarmManager;
 import android.content.Context;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -29,16 +34,74 @@ public class ReminderSchedulerTest {
         assertTrue(ReminderScheduler.usesExactAlarm(35, true));
     }
 
-    @Test public void postedNotificationAndReconciliationUseTheSameReminderId() {
-        assertEquals("handled-reminder".hashCode(), ReminderScheduler.notificationId("handled-reminder"));
+    @Test public void postedNotificationAndReconciliationUseTheSamePersistedIdentity() {
+        Context context = RuntimeEnvironment.getApplication();
+        int identity = ReminderScheduler.notificationId(context, "handled-reminder");
+        assertEquals(identity, ReminderScheduler.notificationId(context, "handled-reminder"));
     }
 
     @Test public void replacementClearsEveryPostedNotificationFromTheOldState() {
-        int[] ids = ReminderScheduler.notificationIdsForReminderIds(new String[] { "acknowledged", "snoozed", "deleted" });
+        Context context = RuntimeEnvironment.getApplication();
+        int[] ids = ReminderScheduler.notificationIdsForReminderIds(context, new String[] { "acknowledged", "snoozed", "deleted" });
         assertEquals(3, ids.length);
-        assertEquals(ReminderScheduler.notificationId("acknowledged"), ids[0]);
-        assertEquals(ReminderScheduler.notificationId("snoozed"), ids[1]);
-        assertEquals(ReminderScheduler.notificationId("deleted"), ids[2]);
+        assertEquals(ReminderScheduler.notificationId(context, "acknowledged"), ids[0]);
+        assertEquals(ReminderScheduler.notificationId(context, "snoozed"), ids[1]);
+        assertEquals(ReminderScheduler.notificationId(context, "deleted"), ids[2]);
+        assertNotEquals(ids[0], ids[1]);
+        assertNotEquals(ids[1], ids[2]);
+    }
+
+    @Test @Config(sdk = 30)
+    public void distinctAaAndBbHashCollisionsScheduleIndependentPendingIntents() throws Exception {
+        assertEquals("Aa".hashCode(), "BB".hashCode());
+        Context context = RuntimeEnvironment.getApplication();
+        context.getSharedPreferences("critical-alert-lane-native", Context.MODE_PRIVATE).edit().clear().commit();
+        JSONObject data = new JSONObject("{\"reminders\":[" +
+            "{\"id\":\"Aa\",\"enabled\":true,\"nextAt\":\"2099-08-28T05:30:39.123Z\"}," +
+            "{\"id\":\"BB\",\"enabled\":true,\"nextAt\":\"2099-08-28T05:31:39.123Z\"}" +
+            "],\"settings\":{\"quietEnabled\":false,\"quietStart\":\"22:00\",\"quietEnd\":\"07:00\"}}");
+
+        ReminderScheduler.scheduleAll(context, data, 1_000L);
+        int aaIdentity = ReminderScheduler.identityForReminder(context, "Aa");
+        int bbIdentity = ReminderScheduler.identityForReminder(context, "BB");
+        assertNotEquals(aaIdentity, bbIdentity);
+        assertEquals(aaIdentity, ReminderScheduler.identityForReminder(context, "Aa"));
+        assertEquals(bbIdentity, ReminderScheduler.identityForReminder(context, "BB"));
+
+        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        assertEquals(2, Shadows.shadowOf(manager).getScheduledAlarms().size());
+    }
+
+    @Test @Config(sdk = 30)
+    public void claim_native_background_repeat_rearms_from_persisted_state() throws Exception {
+        Context context = RuntimeEnvironment.getApplication();
+        context.getSharedPreferences("critical-alert-lane-native", Context.MODE_PRIVATE).edit().clear().commit();
+        long now = System.currentTimeMillis();
+        String dueAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US).format(new Date(now - 60_000L));
+        String isoDueAt = dueAt.substring(0, dueAt.length() - 2) + ":" + dueAt.substring(dueAt.length() - 2);
+        JSONObject data = new JSONObject("{\"version\":1,\"reminders\":[{" +
+            "\"id\":\"background-repeat\",\"title\":\"Background repeat\",\"note\":\"\",\"enabled\":true," +
+            "\"nextAt\":\"" + isoDueAt + "\",\"repeatMinutes\":5}]," +
+            "\"settings\":{\"quietEnabled\":false,\"quietStart\":\"22:00\",\"quietEnd\":\"07:00\"}}");
+        ReminderScheduler.replace(context, data);
+        ReminderScheduler.handleAlarm(context, "background-repeat");
+        long afterHandle = System.currentTimeMillis();
+
+        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        long triggerAt = Shadows.shadowOf(manager).getNextScheduledAlarm().triggerAtTime;
+        assertTrue(triggerAt >= afterHandle + 5 * 60_000L - 1_000L);
+        assertTrue(triggerAt <= afterHandle + 5 * 60_000L + 1_000L);
+    }
+
+    @Test public void duplicateReminderIdsAreRejectedBeforeNativeReplacement() throws Exception {
+        JSONObject duplicate = new JSONObject("{\"reminders\":[{\"id\":\"duplicate\"},{\"id\":\"duplicate\"}]}");
+        assertFalse(ReminderScheduler.hasUniqueReminderIds(duplicate));
+        try {
+            ReminderScheduler.replace(RuntimeEnvironment.getApplication(), duplicate);
+            fail("Native replacement must reject duplicate reminder IDs.");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("Reminder IDs must be unique.", expected.getMessage());
+        }
     }
 
     @Test @Config(sdk = 23)

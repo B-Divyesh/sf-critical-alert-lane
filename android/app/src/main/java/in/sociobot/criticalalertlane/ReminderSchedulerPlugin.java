@@ -19,7 +19,10 @@ import org.json.JSONObject;
 public class ReminderSchedulerPlugin extends Plugin {
     @PluginMethod public void sync(PluginCall call) {
         JSONObject data = call.getObject("data");
-        if (data == null || data.optInt("version", 0) != 1) { call.reject("Invalid reminder data."); return; }
+        if (data == null || data.optInt("version", 0) != 1 || !ReminderScheduler.hasUniqueReminderIds(data)) {
+            call.reject("Invalid reminder data: reminder IDs must be unique.");
+            return;
+        }
         ReminderScheduler.replace(getContext(), data);
         call.resolve(status());
     }

@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -17,7 +18,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,10 +32,12 @@ public final class ReminderScheduler {
     private static final String CHANNEL_ID = "critical_reminders";
     private static final String PREFS = "critical-alert-lane-native";
     private static final String STATE = "reminder-state";
+    private static final String IDENTITIES = "reminder-identities";
 
     private ReminderScheduler() {}
 
     static void replace(Context context, JSONObject data) {
+        if (!hasUniqueReminderIds(data)) throw new IllegalArgumentException("Reminder IDs must be unique.");
         JSONObject old = read(context);
         cancelAll(context, old);
         // Acknowledging, snoozing, editing, disabling, or deleting arrives as
@@ -41,6 +46,7 @@ public final class ReminderScheduler {
         // schedule. Otherwise it incorrectly survives a handled reminder.
         cancelNotifications(context, old);
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(STATE, data.toString()).apply();
+        reconcileIdentityMap(context, data);
         scheduleAll(context, data, System.currentTimeMillis());
     }
 
@@ -97,36 +103,34 @@ public final class ReminderScheduler {
             JSONObject reminder = reminders.optJSONObject(i);
             if (reminder == null) continue;
             String id = reminder.optString("id", "");
-            if (!id.isEmpty()) alarms.cancel(alarmIntent(context, id));
+            if (!id.isEmpty()) {
+                alarms.cancel(alarmIntent(context, id));
+                // v1.0.2 and earlier used String.hashCode() without an Intent
+                // data URI. Cancel that identity during the mapping migration.
+                alarms.cancel(legacyAlarmIntent(context, id));
+            }
         }
     }
 
     static void cancelNotifications(Context context, JSONObject data) {
         NotificationManagerCompat notifications = NotificationManagerCompat.from(context);
-        for (int id : notificationIds(data)) notifications.cancel(id);
-    }
-
-    /** Every old reminder is a possible non-auto-cancel notification to clear during replace(). */
-    static int[] notificationIds(JSONObject data) {
         JSONArray reminders = data.optJSONArray("reminders");
-        if (reminders == null) return new int[0];
-        String[] reminderIds = new String[reminders.length()];
-        int count = 0;
+        if (reminders == null) return;
         for (int i = 0; i < reminders.length(); i++) {
             JSONObject reminder = reminders.optJSONObject(i);
             if (reminder == null) continue;
             String id = reminder.optString("id", "");
-            if (!id.isEmpty()) reminderIds[count++] = id;
+            if (id.isEmpty()) continue;
+            int mappedId = notificationId(context, id);
+            notifications.cancel(mappedId);
+            if (mappedId != id.hashCode()) notifications.cancel(id.hashCode());
         }
-        String[] compactIds = new String[count];
-        System.arraycopy(reminderIds, 0, compactIds, 0, count);
-        return notificationIdsForReminderIds(compactIds);
     }
 
-    static int[] notificationIdsForReminderIds(String[] reminderIds) {
+    static int[] notificationIdsForReminderIds(Context context, String[] reminderIds) {
         int[] values = new int[reminderIds.length];
         int count = 0;
-        for (String id : reminderIds) if (id != null && !id.isEmpty()) values[count++] = notificationId(id);
+        for (String id : reminderIds) if (id != null && !id.isEmpty()) values[count++] = notificationId(context, id);
         int[] result = new int[count];
         System.arraycopy(values, 0, result, 0, count);
         return result;
@@ -152,9 +156,95 @@ public final class ReminderScheduler {
         return sdkInt >= Build.VERSION_CODES.M && (sdkInt < Build.VERSION_CODES.S || exactAlarmPermissionGranted);
     }
 
-    static int notificationId(String id) { return id.hashCode(); }
+    static int notificationId(Context context, String id) { return identityForReminder(context, id); }
+
+    /**
+     * Stable collision-free integer identity shared by AlarmManager and
+     * NotificationManager. The complete mapping is persisted so process death,
+     * reboot, and Java hash collisions cannot change or alias an identity.
+     */
+    static synchronized int identityForReminder(Context context, String id) {
+        JSONObject identities = readIdentityMap(context);
+        int existing = identities.optInt(id, 0);
+        if (existing > 0) return existing;
+        Set<Integer> used = identityValues(identities);
+        int allocated = allocateIdentity(id, used);
+        try { identities.put(id, allocated); }
+        catch (JSONException impossible) { throw new IllegalStateException(impossible); }
+        writeIdentityMap(context, identities);
+        return allocated;
+    }
+
+    static boolean hasUniqueReminderIds(JSONObject data) {
+        JSONArray reminders = data.optJSONArray("reminders");
+        if (reminders == null) return true;
+        Set<String> ids = new HashSet<>();
+        for (int i = 0; i < reminders.length(); i++) {
+            JSONObject reminder = reminders.optJSONObject(i);
+            if (reminder == null) continue;
+            String id = reminder.optString("id", "");
+            if (id.isEmpty() || !ids.add(id)) return false;
+        }
+        return true;
+    }
+
+    private static synchronized void reconcileIdentityMap(Context context, JSONObject data) {
+        JSONObject old = readIdentityMap(context);
+        JSONObject reconciled = new JSONObject();
+        Set<Integer> used = new HashSet<>();
+        JSONArray reminders = data.optJSONArray("reminders");
+        if (reminders == null) { writeIdentityMap(context, reconciled); return; }
+        for (int i = 0; i < reminders.length(); i++) {
+            JSONObject reminder = reminders.optJSONObject(i);
+            if (reminder == null) continue;
+            String id = reminder.optString("id", "");
+            if (id.isEmpty()) continue;
+            int existing = old.optInt(id, 0);
+            int identity = existing > 0 && used.add(existing) ? existing : allocateIdentity(id, used);
+            used.add(identity);
+            try { reconciled.put(id, identity); }
+            catch (JSONException impossible) { throw new IllegalStateException(impossible); }
+        }
+        writeIdentityMap(context, reconciled);
+    }
+
+    private static int allocateIdentity(String id, Set<Integer> used) {
+        int candidate = id.hashCode() & 0x7fffffff;
+        if (candidate == 0) candidate = 1;
+        while (used.contains(candidate)) candidate = candidate == Integer.MAX_VALUE ? 1 : candidate + 1;
+        return candidate;
+    }
+
+    private static Set<Integer> identityValues(JSONObject identities) {
+        Set<Integer> used = new HashSet<>();
+        java.util.Iterator<String> keys = identities.keys();
+        while (keys.hasNext()) {
+            int value = identities.optInt(keys.next(), 0);
+            if (value > 0) used.add(value);
+        }
+        return used;
+    }
+
+    private static JSONObject readIdentityMap(Context context) {
+        String raw = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(IDENTITIES, null);
+        if (raw == null) return new JSONObject();
+        try { return new JSONObject(raw); }
+        catch (JSONException ignored) { return new JSONObject(); }
+    }
+
+    private static void writeIdentityMap(Context context, JSONObject identities) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(IDENTITIES, identities.toString()).commit();
+    }
 
     private static PendingIntent alarmIntent(Context context, String id) {
+        Intent intent = new Intent(context, ReminderAlarmReceiver.class)
+            .setAction(ACTION_REMINDER)
+            .setData(Uri.parse("critical-alert-lane://reminder/" + Uri.encode(id)))
+            .putExtra("reminderId", id);
+        return PendingIntent.getBroadcast(context, identityForReminder(context, id), intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    private static PendingIntent legacyAlarmIntent(Context context, String id) {
         Intent intent = new Intent(context, ReminderAlarmReceiver.class).setAction(ACTION_REMINDER).putExtra("reminderId", id);
         return PendingIntent.getBroadcast(context, id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
@@ -220,7 +310,9 @@ public final class ReminderScheduler {
         if (!notificationsAllowed(context)) return;
         ensureChannel(context);
         Intent openApp = new Intent(context, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent openPending = PendingIntent.getActivity(context, reminder.optString("id").hashCode(), openApp, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        String reminderId = reminder.optString("id");
+        openApp.setData(Uri.parse("critical-alert-lane://open/" + Uri.encode(reminderId)));
+        PendingIntent openPending = PendingIntent.getActivity(context, identityForReminder(context, reminderId), openApp, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         String title = reminder.optString("title", "Critical reminder");
         String note = reminder.optString("note", "");
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
@@ -236,7 +328,7 @@ public final class ReminderScheduler {
             .setContentIntent(openPending)
             .build();
         try {
-            NotificationManagerCompat.from(context).notify(notificationId(reminder.optString("id")), notification);
+            NotificationManagerCompat.from(context).notify(notificationId(context, reminderId), notification);
         } catch (SecurityException ignored) {
             // Android may revoke notification permission between the check and
             // delivery. The next schedule remains armed and the in-app lane is

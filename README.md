@@ -7,8 +7,8 @@ explicitly acknowledge or snooze them.
 
 Live app: <https://critical-alert-lane.sociobot.in>
 
-Android download: [Critical Alert Lane 1.0.2 APK](./public/downloads/critical-alert-lane-1.0.2.apk)
-(`SHA-256 4e51b21741adf2dbbacae2c55c20bc8fbceb2132c44df2c0bb4870b2815775af`).
+Android download: [Critical Alert Lane 1.0.3 APK](./public/downloads/critical-alert-lane-1.0.3.apk)
+(`SHA-256 06382ba158e7cd4a28222e14a81174150b574daabe17af9be62cac91213e3c16`).
 Install this signed APK to use Android's on-device alarms when the app is
 backgrounded or closed; the web/PWA lane remains available for its local-first
 browser workflow.
@@ -21,7 +21,9 @@ browser workflow.
 - Overnight quiet hours that mute notifications without hiding due alerts
 - A rolling 30-day “handled in time” reliability score
 - IndexedDB persistence, installable PWA, and tested offline reloads
-- Local JSON export/import with validation and replacement confirmation
+- Local JSON export/import with validation and replacement confirmation.
+  Unsafe duplicate or Android-hash-colliding IDs are repaired deterministically.
+  Free imports keep every reminder and pause active entries beyond the first three.
 - Free use for up to three active reminders; US$4.99 one-time license unlock
   for unlimited active reminders through the Sociobot hosted checkout
 - Native Android alarms and local notifications that continue repeating after
@@ -45,6 +47,7 @@ npm test
 npm run build
 npm run test:e2e
 npm run test:android
+npm run test:android:instrumentation
 ```
 
 `npm run build` is the factory build command. It writes the deployable static
@@ -57,8 +60,12 @@ To refresh the Android shell after a web change:
 npm run android:sync
 ```
 
+`npm run test:android:instrumentation` runs the repository-root Gradle
+aggregation and preserves the app's checked-in device test APK. Run the APK on
+physical API 23 and current-API devices before store distribution.
+
 The committed project uses application ID `in.sociobot.criticalalertlane`.
-The downloadable v1.0.2 release APK is signed with the factory signing key;
+The downloadable v1.0.3 release APK is signed with the factory signing key;
 the keystore and all signing credentials remain outside this repository. To
 produce a release APK, provide `ANDROID_RELEASE_STORE_FILE`,
 `ANDROID_RELEASE_STORE_PASSWORD`, `ANDROID_RELEASE_KEY_ALIAS`, and

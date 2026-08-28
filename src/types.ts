@@ -11,6 +11,7 @@ export interface Reminder {
   snoozedUntil?: string;
   lastNotifiedAt?: string;
   enabled: boolean;
+  pausedByFreeLimit?: true;
   createdAt: string;
   updatedAt: string;
 }

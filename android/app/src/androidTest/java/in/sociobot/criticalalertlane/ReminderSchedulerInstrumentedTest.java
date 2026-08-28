@@ -1,6 +1,7 @@
 package in.sociobot.criticalalertlane;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +14,22 @@ import org.junit.runner.RunWith;
 /** Device regression for scheduling, alarm delivery, and lifecycle rescheduling. */
 @RunWith(AndroidJUnit4.class)
 public class ReminderSchedulerInstrumentedTest {
+    @Test public void persistsSeparateIdentitiesForAaAndBbHashCollisions() throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        JSONObject collisionState = new JSONObject("{\"version\":1,\"reminders\":[" +
+            "{\"id\":\"Aa\",\"title\":\"First collision\",\"enabled\":true,\"nextAt\":\"2099-08-28T05:30:39.123Z\",\"repeatMinutes\":5}," +
+            "{\"id\":\"BB\",\"title\":\"Second collision\",\"enabled\":true,\"nextAt\":\"2099-08-28T05:31:39.123Z\",\"repeatMinutes\":5}" +
+            "],\"settings\":{\"quietEnabled\":false,\"quietStart\":\"22:00\",\"quietEnd\":\"07:00\"}}");
+        ReminderScheduler.replace(context, collisionState);
+
+        int aaIdentity = ReminderScheduler.identityForReminder(context, "Aa");
+        int bbIdentity = ReminderScheduler.identityForReminder(context, "BB");
+        assertEquals("Aa".hashCode(), "BB".hashCode());
+        assertNotEquals(aaIdentity, bbIdentity);
+        assertEquals(aaIdentity, ReminderScheduler.identityForReminder(context, "Aa"));
+        assertEquals(bbIdentity, ReminderScheduler.identityForReminder(context, "BB"));
+    }
+
     @Test public void schedulesAndReconcilesAcrossLifecycleBroadcasts() throws Exception {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         JSONObject future = state("device-lifecycle", "2099-08-28T05:30:39.123Z");

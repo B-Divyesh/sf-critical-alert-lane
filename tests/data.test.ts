@@ -1,5 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { validateData } from '../src/db';
+import { javaStringHash, prepareImport, validateData } from '../src/db';
+
+const reminder = (id: string, title = id) => ({
+  id,
+  title,
+  note: '',
+  nextAt: '2026-08-28T09:00:00.000Z',
+  recurrence: 'daily' as const,
+  repeatMinutes: 5,
+  escalationMinutes: 60,
+  enabled: true,
+  createdAt: '2026-08-28T09:00:00.000Z',
+  updatedAt: '2026-08-28T09:00:00.000Z'
+});
+
+const backup = (reminders: ReturnType<typeof reminder>[]) => ({
+  version: 1 as const,
+  reminders,
+  history: [],
+  settings: { quietEnabled: true, quietStart: '22:00', quietEnd: '07:00' },
+  updatedAt: '2026-08-28T09:00:00.000Z'
+});
 
 describe('import validation', () => {
   it('rejects unrelated JSON', () => {
@@ -34,5 +55,38 @@ describe('import validation', () => {
       updatedAt: '2026-08-28T09:00:00.000Z'
     };
     expect(() => validateData(value)).toThrow(/history.*invalid/i);
+  });
+
+  it('deterministically remaps duplicate reminder IDs instead of merging rows', () => {
+    const value = backup([reminder('duplicate', 'First duplicate'), reminder('duplicate', 'Second duplicate')]);
+    const first = prepareImport(value);
+    const second = prepareImport(value);
+
+    expect(first.remappedReminderIds).toBe(1);
+    expect(first.data.reminders.map(item => item.id)).toEqual(['duplicate', 'duplicate~import-2']);
+    expect(second.data.reminders.map(item => item.id)).toEqual(first.data.reminders.map(item => item.id));
+    expect(new Set(first.data.reminders.map(item => item.id)).size).toBe(2);
+  });
+
+  it('deterministically remaps the distinct Java Aa/BB hash collision', () => {
+    expect(javaStringHash('Aa')).toBe(2112);
+    expect(javaStringHash('BB')).toBe(2112);
+
+    const prepared = prepareImport(backup([reminder('Aa'), reminder('BB')]));
+    const ids = prepared.data.reminders.map(item => item.id);
+    expect(ids).toEqual(['Aa', 'BB~import-2']);
+    expect(new Set(ids.map(javaStringHash)).size).toBe(2);
+    expect(prepared.remappedReminderIds).toBe(1);
+  });
+
+  it('preserves every imported reminder while pausing active entries beyond the free limit', () => {
+    const prepared = prepareImport(backup([
+      reminder('one'), reminder('two'), reminder('three'), reminder('four')
+    ]), 3);
+
+    expect(prepared.data.reminders).toHaveLength(4);
+    expect(prepared.data.reminders.filter(item => item.enabled)).toHaveLength(3);
+    expect(prepared.pausedReminderIds).toEqual(['four']);
+    expect(prepared.data.reminders[3]).toMatchObject({ id: 'four', enabled: false, pausedByFreeLimit: true });
   });
 });

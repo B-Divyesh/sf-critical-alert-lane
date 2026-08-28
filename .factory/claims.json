@@ -1,0 +1,51 @@
+[
+  {
+    "id": "offline-reload",
+    "claim": "The reminder lane reloads offline after the first visit.",
+    "where": "landing page, manifest, README",
+    "test": "npm run test:e2e -- --grep @claim:offline-reload",
+    "sandbox": "fresh Chromium context; visit once, wait for service-worker control, disconnect, reload, and assert saved UI remains usable"
+  },
+  {
+    "id": "safe-import",
+    "claim": "Imports keep reminders independently addressable even when backup IDs are duplicate or Java-hash-colliding.",
+    "where": "Settings import, README",
+    "test": "npm run test:e2e -- --grep @claim:safe-import",
+    "sandbox": "fresh IndexedDB; import duplicate IDs plus Aa/BB, assert deterministic unique row IDs, then edit only one duplicate"
+  },
+  {
+    "id": "free-limit",
+    "claim": "The free tier arms at most three reminders while preserving extra imported reminders as paused.",
+    "where": "Settings pricing, queue count, README",
+    "test": "npm run test:e2e -- --grep @claim:free-limit",
+    "sandbox": "fresh unlicensed browser; import four enabled reminders and assert four rows, three active, and one visibly paused"
+  },
+  {
+    "id": "local-private",
+    "claim": "Ordinary reminder data stays on the device without analytics or tracking requests.",
+    "where": "landing footer, Privacy, README",
+    "test": "npm run test:e2e -- --grep @claim:local-private",
+    "sandbox": "fresh browser; record all requests while creating, persisting, and reloading a reminder; assert same-origin only"
+  },
+  {
+    "id": "native-background-repeat",
+    "claim": "The Android app re-arms a due reminder repeat from persisted native state without a running web timer.",
+    "where": "landing APK proof, README",
+    "test": "cd android && ./gradlew :app:testDebugUnitTest --tests '*ReminderSchedulerTest.claim_native_background_repeat_rearms_from_persisted_state' --no-daemon",
+    "sandbox": "Robolectric API 30; persist due native state, invoke the alarm receiver path, and assert AlarmManager holds the next five-minute repeat"
+  },
+  {
+    "id": "apk-download",
+    "claim": "The published Android APK downloads and matches the displayed SHA-256 digest.",
+    "where": "landing page, README",
+    "test": "npm run test:e2e -- --grep @claim:apk-download",
+    "sandbox": "local production server; download the linked APK, assert it is over 1 MB, and compare its bytes with the displayed digest"
+  },
+  {
+    "id": "one-time-license",
+    "claim": "US$4.99 is a one-time purchase for unlimited active reminders through Sociobot checkout.",
+    "where": "Settings pricing, Terms, README",
+    "test": "npm run test:e2e -- --grep @claim:one-time-license",
+    "sandbox": "fresh unlicensed browser; assert exact price, one-time copy, and the registered Sociobot checkout URL"
+  }
+]

@@ -12,7 +12,8 @@
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:android": "npm run android:sync && node scripts/verify-native-bundle.mjs && cd android && ./gradlew test lintDebug assembleDebug",
+    "test:android": "npm run android:sync && node scripts/verify-native-bundle.mjs && cd android && ./gradlew test lintDebug assembleDebug assembleDebugAndroidTest --no-daemon",
+    "test:android:instrumentation": "cd android && ./gradlew assembleDebugAndroidTest --no-daemon",
     "android:sync": "npm run build:native && npx cap sync android"
   },
   "dependencies": {

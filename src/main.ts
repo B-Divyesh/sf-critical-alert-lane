@@ -1,5 +1,5 @@
 import './styles.css';
-import { loadData, saveData, validateData } from './db';
+import { loadData, prepareImport, saveData } from './db';
 import { buyUrl, captureLicense, isOptimisticallyUnlocked, removeLicense, setLicense, verifyLicense } from './license';
 import { icon } from './icons';
 import { isNativeAndroid, nativeScheduleStatus, openNativeExactAlarmSettings, requestNativeNotifications, syncNativeSchedule, type NativeSchedulerStatus } from './native-scheduler';
@@ -16,8 +16,8 @@ let undoSnapshot: AppData | null = null;
 let undoTimer = 0;
 let nativeStatus: NativeSchedulerStatus | null = null;
 let editorReturnTarget: { kind: 'add' } | { kind: 'edit'; id: string } | null = null;
-const ANDROID_APK = '/downloads/critical-alert-lane-1.0.2.apk';
-const ANDROID_APK_SHA256 = '4e51b21741adf2dbbacae2c55c20bc8fbceb2132c44df2c0bb4870b2815775af';
+const ANDROID_APK = '/downloads/critical-alert-lane-1.0.3.apk';
+const ANDROID_APK_SHA256 = '06382ba158e7cd4a28222e14a81174150b574daabe17af9be62cac91213e3c16';
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
@@ -42,6 +42,7 @@ async function saveAndSchedule(): Promise<void> {
 }
 
 function statusText(reminder: Reminder): string {
+  if (reminder.pausedByFreeLimit) return 'Paused · free limit';
   if (!reminder.enabled) return 'Handled · one-time';
   if (isDue(reminder)) return isQuietTime(data.settings) ? 'Due · quiet hours active' : 'Needs your answer';
   if (reminder.snoozedUntil && new Date(reminder.snoozedUntil) > new Date(reminder.nextAt)) {
@@ -59,7 +60,7 @@ function reminderRow(reminder: Reminder): string {
   const due = isDue(reminder);
   return `<li class="reminder-row ${due ? 'is-due' : ''} ${!reminder.enabled ? 'is-handled' : ''}" data-id="${reminder.id}">
     <div class="row-copy">
-      <span class="status-stamp">${due ? '● DUE' : reminder.enabled ? '○ QUEUED' : '✓ HANDLED'}</span>
+      <span class="status-stamp">${due ? '● DUE' : reminder.enabled ? '○ QUEUED' : reminder.pausedByFreeLimit ? '‖ PAUSED' : '✓ HANDLED'}</span>
       <h3>${escapeHtml(reminder.title)}</h3>
       <p>${escapeHtml(statusText(reminder))}</p>
       <small>${escapeHtml(recurrenceLabel(reminder))}</small>
@@ -259,7 +260,7 @@ async function handleReminderSubmit(event: Event): Promise<void> {
   }
   const id = String(values.get('id') || '');
   const existing = data.reminders.find(item => item.id === id);
-  if (!existing && !unlocked && activeReminders().length >= 3) {
+  if (!unlocked && !existing?.enabled && activeReminders().length >= 3) {
     error.textContent = 'The free deck holds 3 active reminders. Handle one, or unlock unlimited reminders in Settings.';
     return;
   }
@@ -353,10 +354,25 @@ async function importData(event: Event): Promise<void> {
   const input = event.currentTarget as HTMLInputElement;
   const file = input.files?.[0]; if (!file) return;
   try {
-    const imported = validateData(JSON.parse(await file.text()));
-    if (!confirm(`Replace this device’s data with ${imported.reminders.length} reminder(s)? Export first if you need a backup.`)) return;
-    data = imported; await saveAndSchedule(); render(); showToast('Import complete.');
-  } catch (error) { showToast(error instanceof Error ? error.message : 'The import could not be read.'); }
+    const prepared = prepareImport(JSON.parse(await file.text()), unlocked ? undefined : 3);
+    const identityWarning = prepared.remappedReminderIds
+      ? ` ${prepared.remappedReminderIds} unsafe reminder ID(s) will be repaired so Android alarms stay separate.`
+      : '';
+    const limitWarning = prepared.pausedReminderIds.length
+      ? ` The free lane can arm 3 reminders. ${prepared.pausedReminderIds.length} additional reminder(s) will be imported paused, not deleted.`
+      : '';
+    if (!confirm(`Replace this device’s data with ${prepared.data.reminders.length} reminder(s)?${identityWarning}${limitWarning} Export first if you need a backup.`)) return;
+    data = prepared.data;
+    await saveAndSchedule();
+    render();
+    const repairs = prepared.remappedReminderIds ? ` ${prepared.remappedReminderIds} reminder ID(s) repaired.` : '';
+    const paused = prepared.pausedReminderIds.length ? ` ${prepared.pausedReminderIds.length} reminder(s) paused for the 3-active free limit.` : '';
+    showToast(`Import complete.${repairs}${paused}`);
+  } catch (error) {
+    showToast(error instanceof Error ? error.message : 'The import could not be read.');
+  } finally {
+    input.value = '';
+  }
 }
 
 async function restoreLicense(event: Event): Promise<void> {

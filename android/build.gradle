@@ -22,6 +22,14 @@ allprojects {
         google()
         mavenCentral()
     }
+    configurations.configureEach {
+        // Kotlin 1.8+ folds the old jdk7/jdk8 artifacts into kotlin-stdlib.
+        // Apply the exclusion to every aggregate module (including generated
+        // Capacitor/Cordova modules), not only :app, so the root device-test
+        // task cannot package both generations of the same classes.
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+    }
 }
 
 task clean(type: Delete) {
