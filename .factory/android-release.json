@@ -1,0 +1,18 @@
+{
+  "apk": {
+    "path": "public/downloads/critical-alert-lane-1.0.4.apk",
+    "sha256": "2af8e0b60ce77aa729b82e465626d9b37778e38f22b4665c80e6301bcd6327bf",
+    "applicationId": "in.sociobot.criticalalertlane",
+    "versionName": "1.0.4",
+    "versionCode": 5
+  },
+  "nativeSource": {
+    "android/app/build.gradle": "ab85e320c6ff78c13989da74eb476d4cd45b45c907b8a0836d84a44dd9490ed9",
+    "android/app/src/main/AndroidManifest.xml": "b6d9c2945043c3b917f657823ff65ba7362a54ada8843763c1a470732706d5a6",
+    "android/app/src/main/java/in/sociobot/criticalalertlane/ReminderAlarmReceiver.java": "c17b5ff838e5ae822fc3f2771b87948e61f782a5dbe5d8dd65f474f0cbec5b65",
+    "android/app/src/main/java/in/sociobot/criticalalertlane/ReminderRescheduleReceiver.java": "ed1fbeb60ac5ec1615df9a52f0e2fc9c7c76939df4ff78c56d8faaf3da94ba27",
+    "android/app/src/main/java/in/sociobot/criticalalertlane/ReminderSchedulePolicy.java": "5ba11a3be4f8e2e2e4af33b30a7771ffdcb9189a04312eeddef0dbd09dabd8bf",
+    "android/app/src/main/java/in/sociobot/criticalalertlane/ReminderScheduler.java": "4ae51c599cbe617ada4ad483818aaafa4bcfdb3a281a98e8b8d230018839d2f9",
+    "android/app/src/main/java/in/sociobot/criticalalertlane/ReminderSchedulerPlugin.java": "3506afaca8c3177e847d1ee628fcdbaf8f751334d274714633316fe872504590"
+  }
+}

@@ -47,4 +47,23 @@ describe('release policy regressions', () => {
     expect([social.readUInt32BE(16), social.readUInt32BE(20)]).toEqual([1200, 630]);
     expect([appleIcon.readUInt32BE(16), appleIcon.readUInt32BE(20)]).toEqual([180, 180]);
   });
+
+  it('keeps standalone update and native claim checks runnable in an SDK-less clean clone', () => {
+    const packageJson = JSON.parse(readFileSync(resolve('package.json'), 'utf8')) as {
+      scripts: Record<string, string>;
+    };
+    const updateCheck = readFileSync(resolve('scripts/verify-update.mjs'), 'utf8');
+    const artifactCheck = readFileSync(resolve('scripts/verify-apk-artifact.mjs'), 'utf8');
+    const workflow = readFileSync(resolve('.github/workflows/android.yml'), 'utf8');
+
+    expect(packageJson.scripts['test:update']).toContain('npm run build');
+    expect(updateCheck).toContain("port: 0");
+    expect(updateCheck).toContain('await server.close()');
+    expect(packageJson.scripts['test:android:claim']).not.toContain('gradle');
+    expect(packageJson.scripts['test:android:lifecycle-claim']).not.toContain('gradle');
+    expect(packageJson.scripts['test:android:artifact']).not.toContain('gradle');
+    expect(artifactCheck).toContain('released native-source fingerprints');
+    expect(workflow).toContain('npm run test:android:full');
+    expect(workflow).toContain('platforms;android-35');
+  });
 });

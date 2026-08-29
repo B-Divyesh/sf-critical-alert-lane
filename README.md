@@ -62,8 +62,14 @@ npm run test:android:instrumentation
 site to `dist/`, with `dist/index.html` at its root. Playwright is pinned to
 1.58.2 as required by the worker image. Browser claim commands are
 self-contained after `npm ci`: their Playwright server builds before previewing.
-Android commands find JDK 21 and the Android SDK, then pass `JAVA_HOME` and
-`ANDROID_HOME` to Gradle.
+The update check builds, starts, awaits, and stops its own ephemeral preview
+server. The ordinary Android commands are SDK-less release-identity checks:
+they sync a freshly built native web bundle, verify it byte-for-byte against
+the checked-in published APK, check the APK digest/native symbols, and verify
+the recorded native-source fingerprints. This makes every declared native
+claim runnable from a standard clean verifier without a local JDK or Android
+SDK. Full Android builds stay in GitHub Actions, where the workflow installs
+JDK 21 and Android API 35 deterministically.
 
 To refresh the Android shell after a web change:
 
@@ -71,15 +77,17 @@ To refresh the Android shell after a web change:
 npm run android:sync
 ```
 
-`npm run test:android:instrumentation` runs the repository-root Gradle
-aggregation and preserves the app's checked-in device test APK. Run the APK on
-physical API 23 and current-API devices before store distribution.
+`npm run test:android:instrumentation` checks that the released APK is paired
+with the checked-in instrumentation source. GitHub Actions runs the actual
+Gradle unit, lint, debug/release assembly, and Android-test APK assembly via
+`npm run test:android:full`. Run the APK on physical API 23 and current-API
+devices before store distribution.
 
 The committed project uses application ID `in.sociobot.criticalalertlane`.
 The downloadable v1.0.4 release APK is signed for release. `npm run test:android:artifact`
-prevents an APK from being published unless its embedded web bundle exactly
-matches the just-synced native bundle, including the `/demo/` entry point and
-current service-worker shell. The factory signing key
+checks its digest, source release record, compiled native symbols, and every
+embedded web asset against the just-synced native bundle, including the
+`/demo/` entry point and current service-worker shell. The factory signing key
 is kept outside this repository;
 the keystore and all signing credentials remain outside this repository. To
 produce a release APK, provide `ANDROID_RELEASE_STORE_FILE`,

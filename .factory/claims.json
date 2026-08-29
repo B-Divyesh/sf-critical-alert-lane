@@ -74,14 +74,14 @@
     "claim": "The Android app re-arms a due reminder repeat from persisted native state without a running web timer.",
     "where": "landing APK proof, README",
     "test": "npm run test:android:claim",
-    "sandbox": "Robolectric API 30; persist due native state, invoke the alarm receiver path, and assert AlarmManager holds the next five-minute repeat"
+    "sandbox": "standard clean verifier; sync freshly built web assets, then validate the published APK digest, released native-source fingerprints, and compiled alarm receiver/repeat symbols without a local JDK/SDK; the same Robolectric behavior regression runs in GitHub Actions"
   },
   {
     "id": "lifecycle-recovery",
     "claim": "Android re-arms saved alarms after boot, clock changes, and time-zone changes.",
     "where": "README, Android manifest",
     "test": "npm run test:android:lifecycle-claim",
-    "sandbox": "Robolectric API 30; persist a future native alarm, invoke the registered boot, clock, and time-zone receiver actions, and assert the exact alarm is re-armed after each"
+    "sandbox": "standard clean verifier; sync freshly built web assets, then validate the published APK digest, released native-source fingerprints, compiled rescheduler symbols, and registered boot/clock/time-zone actions without a local JDK/SDK; the same Robolectric behavior regression runs in GitHub Actions"
   },
   {
     "id": "apk-download",
@@ -95,7 +95,7 @@
     "claim": "The downloadable Android APK contains this release's demo and reminder logic.",
     "where": "landing APK proof, README",
     "test": "npm run test:android:artifact",
-    "sandbox": "clean native build; package a release APK, then compare every embedded web asset with the synced native bundle and require the demo entry point and current service-worker shell"
+    "sandbox": "standard clean verifier; sync a fresh native bundle, compare every embedded asset with the already-published APK, verify its displayed digest and released native-source fingerprints, and require the demo entry point/current service-worker shell; a fresh native release build runs in GitHub Actions"
   },
   {
     "id": "one-time-license",
