@@ -1,0 +1,10 @@
+303	https://api.sociobot.in/api/v1/products/critical-alert-lane/checkout	[redacted hosted checkout session]
+200	https://critical-alert-lane.sociobot.in/
+200	https://critical-alert-lane.sociobot.in/404.html
+200	https://critical-alert-lane.sociobot.in/?demo=1
+200	https://critical-alert-lane.sociobot.in/downloads/critical-alert-lane-1.0.5.apk
+200	https://critical-alert-lane.sociobot.in/privacy/
+200	https://critical-alert-lane.sociobot.in/terms/
+200	https://sociobot.in/
+301	mailto:privacy@sociobot.in	https://sociobot.in/
+301	mailto:support@sociobot.in	https://sociobot.in/

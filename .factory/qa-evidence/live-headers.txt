@@ -1,0 +1,123 @@
+URL http://critical-alert-lane.sociobot.in/
+HTTP/1.1 301 Moved Permanently
+Date: Sat, 29 Aug 2026 09:48:30 GMT
+Location: https://critical-alert-lane.sociobot.in/
+
+URL https://critical-alert-lane.sociobot.in/
+HTTP/2 200
+content-type: text/html
+date: Sat, 29 Aug 2026 09:48:30 GMT
+accept-ranges: bytes
+cache-control: public, max-age=300, must-revalidate
+etag: "19872397"
+last-modified: Sat, 29 Aug 2026 09:18:40 GMT
+content-length: 2091
+strict-transport-security: max-age=10886400; includeSubDomains; preload
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+x-dns-prefetch-control: off
+content-security-policy: default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'; img-src 'self' data:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; upgrade-insecure-requests
+permissions-policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+x-frame-options: DENY
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+
+URL https://critical-alert-lane.sociobot.in/assets/main-CAsESLM5.js
+HTTP/2 200
+content-type: text/javascript
+date: Sat, 29 Aug 2026 09:48:30 GMT
+accept-ranges: bytes
+cache-control: public, max-age=31536000, immutable
+etag: "19872397"
+last-modified: Sat, 29 Aug 2026 09:18:40 GMT
+content-length: 45333
+strict-transport-security: max-age=10886400; includeSubDomains; preload
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+x-dns-prefetch-control: off
+content-security-policy: default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'; img-src 'self' data:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; upgrade-insecure-requests
+permissions-policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+x-frame-options: DENY
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+
+URL https://critical-alert-lane.sociobot.in/sw.js
+HTTP/2 200
+content-type: text/javascript
+date: Sat, 29 Aug 2026 09:48:30 GMT
+accept-ranges: bytes
+cache-control: no-cache, no-store, must-revalidate
+etag: "19872397"
+last-modified: Sat, 29 Aug 2026 09:18:40 GMT
+content-length: 2601
+strict-transport-security: max-age=10886400; includeSubDomains; preload
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+x-dns-prefetch-control: off
+content-security-policy: default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'; img-src 'self' data:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; upgrade-insecure-requests
+permissions-policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+x-frame-options: DENY
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+
+URL https://critical-alert-lane.sociobot.in/manifest.webmanifest
+HTTP/2 200
+content-type: application/manifest+json
+date: Sat, 29 Aug 2026 09:48:30 GMT
+accept-ranges: bytes
+cache-control: public, max-age=300, must-revalidate
+etag: "19872397"
+last-modified: Sat, 29 Aug 2026 09:18:40 GMT
+content-length: 715
+strict-transport-security: max-age=10886400; includeSubDomains; preload
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+x-dns-prefetch-control: off
+content-security-policy: default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'; img-src 'self' data:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; upgrade-insecure-requests
+permissions-policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+x-frame-options: DENY
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+
+URL https://critical-alert-lane.sociobot.in/downloads/critical-alert-lane-1.0.5.apk
+HTTP/2 200
+content-type: application/vnd.android.package-archive
+date: Sat, 29 Aug 2026 09:48:31 GMT
+accept-ranges: bytes
+cache-control: public, max-age=31536000, immutable
+etag: "19872397"
+last-modified: Sat, 29 Aug 2026 09:18:40 GMT
+content-length: 4596635
+strict-transport-security: max-age=10886400; includeSubDomains; preload
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+x-dns-prefetch-control: off
+content-security-policy: default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'; img-src 'self' data:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; upgrade-insecure-requests
+permissions-policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+x-frame-options: DENY
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+
+URL https://critical-alert-lane.sociobot.in/not-a-real-route-header-qa
+HTTP/2 404
+content-type: text/html
+date: Sat, 29 Aug 2026 09:48:31 GMT
+cache-control: public, max-age=300, must-revalidate
+etag: "19872397"
+last-modified: Sat, 29 Aug 2026 09:18:40 GMT
+content-length: 2616
+strict-transport-security: max-age=10886400; includeSubDomains; preload
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+x-dns-prefetch-control: off
+content-security-policy: default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'; img-src 'self' data:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; upgrade-insecure-requests
+permissions-policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+x-frame-options: DENY
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin

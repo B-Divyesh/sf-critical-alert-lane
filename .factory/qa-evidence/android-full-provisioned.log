@@ -1,0 +1,526 @@
+
+> critical-alert-lane@1.0.0 test:android:full
+> npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/gradle.mjs clean test lintDebug assembleDebug assembleRelease assembleDebugAndroidTest --no-daemon && node scripts/verify-apk-artifact.mjs android/app/build/outputs/apk/release/app-release-unsigned.apk --fresh-build && npm run test:android:update-signing
+
+
+> critical-alert-lane@1.0.0 android:sync
+> npm run build:native && npx cap sync android
+
+
+> critical-alert-lane@1.0.0 build:native
+> tsc --noEmit && vite build --mode native
+
+vite v7.3.6 building client environment for native...
+transforming...
+✓ 19 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-native/demo/index.html                             1.98 kB │ gzip:  0.69 kB
+dist-native/index.html                                  2.09 kB │ gzip:  0.71 kB
+dist-native/404.html                                    2.62 kB │ gzip:  0.98 kB
+dist-native/offline.html                                2.63 kB │ gzip:  0.97 kB
+dist-native/terms/index.html                            3.94 kB │ gzip:  1.51 kB
+dist-native/privacy/index.html                          4.60 kB │ gzip:  1.73 kB
+dist-native/assets/route-focus-B1h9aYdw.css             2.72 kB │ gzip:  1.11 kB
+dist-native/assets/main-CF9DTGQe.css                   17.15 kB │ gzip:  4.47 kB
+dist-native/assets/modulepreload-polyfill-B5Qt9EMX.js   0.71 kB │ gzip:  0.40 kB
+dist-native/assets/route-focus-BrFkafHo.js              0.85 kB │ gzip:  0.47 kB
+dist-native/assets/main-D-Oe7V2t.js                    44.81 kB │ gzip: 15.16 kB
+✓ built in 600ms
+✔ Copying web assets from dist-native to android/app/src/main/assets/public in 15.12ms
+✔ Creating capacitor.config.json in android/app/src/main/assets in 1.39ms
+✔ copy android in 29.18ms
+✔ Updating Android plugins in 1.92ms
+✔ update android in 62.29ms
+[info] Sync finished in 0.105s
+Native bundle check passed: 28 files, no nested APK or downloads directory.
+Downloading https://services.gradle.org/distributions/gradle-8.11.1-all.zip
+.....................10%......................20%......................30%......................40%......................50%......................60%......................70%......................80%......................90%......................100%
+
+Welcome to Gradle 8.11.1!
+
+Here are the highlights of this release:
+ - Parallel load and store for Configuration Cache
+ - Java compilation errors at the end of the build output
+ - Consolidated report for warnings and deprecations
+
+For more details see https://docs.gradle.org/8.11.1/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :app
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Configure project :capacitor-cordova-android-plugins
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+Checking the license for package Android SDK Build-Tools 34 in /tmp/tmp.CJXEPejE32/licenses
+License for package Android SDK Build-Tools 34 accepted.
+Preparing "Install Android SDK Build-Tools 34 v.34.0.0".
+"Install Android SDK Build-Tools 34 v.34.0.0" ready.
+Installing Android SDK Build-Tools 34 in /tmp/tmp.CJXEPejE32/build-tools/34.0.0
+"Install Android SDK Build-Tools 34 v.34.0.0" complete.
+"Install Android SDK Build-Tools 34 v.34.0.0" finished.
+
+> Task :clean UP-TO-DATE
+> Task :app:clean UP-TO-DATE
+> Task :capacitor-android:clean UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:clean UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:javaPreCompileDebug
+> Task :capacitor-android:preBuild UP-TO-DATE
+> Task :capacitor-android:preDebugBuild UP-TO-DATE
+> Task :capacitor-android:writeDebugAarMetadata
+> Task :capacitor-cordova-android-plugins:preBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:preDebugBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:writeDebugAarMetadata
+> Task :app:checkDebugAarMetadata
+> Task :app:generateDebugResValues
+> Task :capacitor-android:generateDebugResValues
+> Task :capacitor-android:generateDebugResources
+> Task :capacitor-android:packageDebugResources
+> Task :capacitor-cordova-android-plugins:generateDebugResValues
+> Task :capacitor-cordova-android-plugins:generateDebugResources
+> Task :capacitor-cordova-android-plugins:packageDebugResources
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:mergeDebugResources
+> Task :app:packageDebugResources
+> Task :app:parseDebugLocalResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :capacitor-android:extractDeepLinksDebug
+> Task :capacitor-android:processDebugManifest
+> Task :capacitor-cordova-android-plugins:extractDeepLinksDebug
+> Task :capacitor-cordova-android-plugins:processDebugManifest
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :capacitor-android:compileDebugLibraryResources
+> Task :capacitor-android:parseDebugLocalResources
+> Task :capacitor-android:generateDebugRFile
+> Task :capacitor-cordova-android-plugins:compileDebugLibraryResources
+> Task :capacitor-cordova-android-plugins:parseDebugLocalResources
+> Task :capacitor-cordova-android-plugins:generateDebugRFile
+> Task :app:processDebugResources
+> Task :capacitor-android:javaPreCompileDebug
+
+> Task :capacitor-android:compileDebugJavaWithJavac
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :capacitor-android:bundleLibCompileToJarDebug
+> Task :capacitor-cordova-android-plugins:javaPreCompileDebug
+> Task :capacitor-cordova-android-plugins:compileDebugJavaWithJavac NO-SOURCE
+> Task :capacitor-cordova-android-plugins:bundleLibCompileToJarDebug
+> Task :app:compileDebugJavaWithJavac
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest
+
+> Task :app:compileDebugUnitTestJavaWithJavac
+Note: /work/repo/android/app/src/test/java/in/sociobot/criticalalertlane/ReminderSchedulerTest.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :capacitor-android:mergeDebugShaders
+> Task :capacitor-android:compileDebugShaders NO-SOURCE
+> Task :capacitor-android:generateDebugAssets UP-TO-DATE
+> Task :capacitor-android:packageDebugAssets
+> Task :capacitor-cordova-android-plugins:mergeDebugShaders
+> Task :capacitor-cordova-android-plugins:compileDebugShaders NO-SOURCE
+> Task :capacitor-cordova-android-plugins:generateDebugAssets UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:packageDebugAssets
+> Task :app:mergeDebugAssets
+> Task :app:packageDebugUnitTestForUnitTest
+> Task :app:generateDebugUnitTestConfig
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes NO-SOURCE
+> Task :capacitor-android:bundleLibRuntimeToJarDebug
+> Task :capacitor-android:processDebugJavaRes NO-SOURCE
+> Task :capacitor-cordova-android-plugins:bundleLibRuntimeToJarDebug
+> Task :capacitor-cordova-android-plugins:processDebugJavaRes NO-SOURCE
+> Task :app:testDebugUnitTest
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:javaPreCompileRelease
+> Task :capacitor-android:preReleaseBuild UP-TO-DATE
+> Task :capacitor-android:writeReleaseAarMetadata
+> Task :capacitor-cordova-android-plugins:preReleaseBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:writeReleaseAarMetadata
+> Task :app:checkReleaseAarMetadata
+> Task :app:generateReleaseResValues
+> Task :capacitor-android:generateReleaseResValues
+> Task :capacitor-android:generateReleaseResources
+> Task :capacitor-android:packageReleaseResources
+> Task :capacitor-cordova-android-plugins:generateReleaseResValues
+> Task :capacitor-cordova-android-plugins:generateReleaseResources
+> Task :capacitor-cordova-android-plugins:packageReleaseResources
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:generateReleaseResources
+> Task :app:mergeReleaseResources
+> Task :app:packageReleaseResources
+> Task :app:parseReleaseLocalResources
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :capacitor-android:extractDeepLinksRelease
+> Task :capacitor-android:processReleaseManifest
+> Task :capacitor-cordova-android-plugins:extractDeepLinksRelease
+> Task :capacitor-cordova-android-plugins:processReleaseManifest
+> Task :app:processReleaseMainManifest
+> Task :app:processReleaseManifest
+> Task :app:processReleaseManifestForPackage
+> Task :capacitor-android:compileReleaseLibraryResources
+> Task :capacitor-android:parseReleaseLocalResources
+> Task :capacitor-android:generateReleaseRFile
+> Task :capacitor-cordova-android-plugins:compileReleaseLibraryResources
+> Task :capacitor-cordova-android-plugins:parseReleaseLocalResources
+> Task :capacitor-cordova-android-plugins:generateReleaseRFile
+> Task :app:processReleaseResources
+> Task :capacitor-android:javaPreCompileRelease
+
+> Task :capacitor-android:compileReleaseJavaWithJavac
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :capacitor-android:bundleLibCompileToJarRelease
+> Task :capacitor-cordova-android-plugins:javaPreCompileRelease
+> Task :capacitor-cordova-android-plugins:compileReleaseJavaWithJavac NO-SOURCE
+> Task :capacitor-cordova-android-plugins:bundleLibCompileToJarRelease
+> Task :app:compileReleaseJavaWithJavac
+> Task :app:bundleReleaseClassesToRuntimeJar
+> Task :app:bundleReleaseClassesToCompileJar
+> Task :app:preReleaseUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileReleaseUnitTest
+
+> Task :app:compileReleaseUnitTestJavaWithJavac
+Note: /work/repo/android/app/src/test/java/in/sociobot/criticalalertlane/ReminderSchedulerTest.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :app:mergeReleaseShaders
+> Task :app:compileReleaseShaders NO-SOURCE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :capacitor-android:mergeReleaseShaders
+> Task :capacitor-android:compileReleaseShaders NO-SOURCE
+> Task :capacitor-android:generateReleaseAssets UP-TO-DATE
+> Task :capacitor-android:packageReleaseAssets
+> Task :capacitor-cordova-android-plugins:mergeReleaseShaders
+> Task :capacitor-cordova-android-plugins:compileReleaseShaders NO-SOURCE
+> Task :capacitor-cordova-android-plugins:generateReleaseAssets UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:packageReleaseAssets
+> Task :app:mergeReleaseAssets
+> Task :app:packageReleaseUnitTestForUnitTest
+> Task :app:generateReleaseUnitTestConfig
+> Task :app:processReleaseJavaRes NO-SOURCE
+> Task :app:processReleaseUnitTestJavaRes NO-SOURCE
+> Task :capacitor-android:bundleLibRuntimeToJarRelease
+> Task :capacitor-android:processReleaseJavaRes NO-SOURCE
+> Task :capacitor-cordova-android-plugins:bundleLibRuntimeToJarRelease
+> Task :capacitor-cordova-android-plugins:processReleaseJavaRes NO-SOURCE
+> Task :app:testReleaseUnitTest
+> Task :app:test
+> Task :capacitor-android:preDebugUnitTestBuild UP-TO-DATE
+> Task :capacitor-android:generateDebugUnitTestStubRFile
+> Task :capacitor-android:javaPreCompileDebugUnitTest
+> Task :capacitor-android:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :capacitor-android:processDebugUnitTestJavaRes NO-SOURCE
+> Task :capacitor-android:testDebugUnitTest NO-SOURCE
+> Task :capacitor-android:preReleaseUnitTestBuild UP-TO-DATE
+> Task :capacitor-android:generateReleaseUnitTestStubRFile
+> Task :capacitor-android:javaPreCompileReleaseUnitTest
+> Task :capacitor-android:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :capacitor-android:processReleaseUnitTestJavaRes NO-SOURCE
+> Task :capacitor-android:testReleaseUnitTest NO-SOURCE
+> Task :capacitor-android:test UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:preDebugUnitTestBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:generateDebugUnitTestStubRFile
+> Task :capacitor-cordova-android-plugins:javaPreCompileDebugUnitTest
+> Task :capacitor-cordova-android-plugins:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :capacitor-cordova-android-plugins:processDebugUnitTestJavaRes NO-SOURCE
+> Task :capacitor-cordova-android-plugins:testDebugUnitTest NO-SOURCE
+> Task :capacitor-cordova-android-plugins:preReleaseUnitTestBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:generateReleaseUnitTestStubRFile
+> Task :capacitor-cordova-android-plugins:javaPreCompileReleaseUnitTest
+> Task :capacitor-cordova-android-plugins:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :capacitor-cordova-android-plugins:processReleaseUnitTestJavaRes NO-SOURCE
+> Task :capacitor-cordova-android-plugins:testReleaseUnitTest NO-SOURCE
+> Task :capacitor-cordova-android-plugins:test UP-TO-DATE
+> Task :capacitor-android:mergeDebugJniLibFolders
+> Task :capacitor-android:mergeDebugNativeLibs NO-SOURCE
+> Task :capacitor-android:stripDebugDebugSymbols NO-SOURCE
+> Task :capacitor-android:copyDebugJniLibsProjectAndLocalJars
+> Task :capacitor-android:extractDebugAnnotations
+> Task :capacitor-android:extractDeepLinksForAarDebug
+> Task :capacitor-android:mergeDebugGeneratedProguardFiles
+> Task :capacitor-android:mergeDebugConsumerProguardFiles
+> Task :capacitor-android:prepareDebugArtProfile
+> Task :capacitor-android:prepareLintJarForPublish
+> Task :capacitor-android:mergeDebugJavaResource
+> Task :capacitor-android:syncDebugLibJars
+> Task :capacitor-android:bundleDebugLocalLintAar
+> Task :capacitor-cordova-android-plugins:mergeDebugJniLibFolders
+> Task :capacitor-cordova-android-plugins:mergeDebugNativeLibs NO-SOURCE
+> Task :capacitor-cordova-android-plugins:stripDebugDebugSymbols NO-SOURCE
+> Task :capacitor-cordova-android-plugins:copyDebugJniLibsProjectAndLocalJars
+> Task :capacitor-cordova-android-plugins:extractDebugAnnotations
+> Task :capacitor-cordova-android-plugins:extractDeepLinksForAarDebug
+> Task :capacitor-cordova-android-plugins:mergeDebugGeneratedProguardFiles
+> Task :capacitor-cordova-android-plugins:mergeDebugConsumerProguardFiles
+> Task :capacitor-cordova-android-plugins:prepareDebugArtProfile
+> Task :capacitor-cordova-android-plugins:prepareLintJarForPublish
+> Task :capacitor-cordova-android-plugins:mergeDebugJavaResource
+> Task :capacitor-cordova-android-plugins:syncDebugLibJars
+> Task :capacitor-cordova-android-plugins:bundleDebugLocalLintAar
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:generateDebugAndroidTestResValues
+> Task :capacitor-android:createFullJarDebug
+> Task :capacitor-android:writeDebugLintModelMetadata
+> Task :capacitor-cordova-android-plugins:createFullJarDebug
+> Task :capacitor-cordova-android-plugins:writeDebugLintModelMetadata
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:extractProguardFiles
+> Task :capacitor-android:extractProguardFiles
+> Task :capacitor-android:generateDebugLintModel
+> Task :capacitor-cordova-android-plugins:extractProguardFiles
+> Task :capacitor-cordova-android-plugins:generateDebugLintModel
+> Task :app:generateDebugLintReportModel
+> Task :app:generateDebugUnitTestLintModel
+> Task :capacitor-android:lintAnalyzeDebug
+> Task :capacitor-cordova-android-plugins:lintAnalyzeDebug
+> Task :app:lintAnalyzeDebug
+> Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :capacitor-android:preDebugAndroidTestBuild UP-TO-DATE
+> Task :capacitor-android:generateDebugAndroidTestResValues
+> Task :capacitor-android:generateDebugAndroidTestLintModel
+> Task :capacitor-android:generateDebugUnitTestLintModel
+> Task :capacitor-android:lintAnalyzeDebugAndroidTest
+> Task :capacitor-android:lintAnalyzeDebugUnitTest
+> Task :capacitor-cordova-android-plugins:preDebugAndroidTestBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:generateDebugAndroidTestResValues
+> Task :capacitor-cordova-android-plugins:generateDebugAndroidTestLintModel
+> Task :capacitor-cordova-android-plugins:generateDebugUnitTestLintModel
+> Task :capacitor-cordova-android-plugins:lintAnalyzeDebugAndroidTest
+> Task :capacitor-cordova-android-plugins:lintAnalyzeDebugUnitTest
+
+> Task :app:lintReportDebug
+Wrote HTML report to file:///work/repo/android/app/build/reports/lint-results-debug.html
+
+> Task :app:lintDebug
+> Task :capacitor-android:generateDebugLintReportModel
+> Task :capacitor-android:lintReportDebug
+> Task :capacitor-android:lintDebug
+> Task :capacitor-cordova-android-plugins:generateDebugLintReportModel
+
+> Task :capacitor-cordova-android-plugins:lintReportDebug
+Wrote HTML report to file:///work/repo/android/capacitor-cordova-android-plugins/build/reports/lint-results-debug.html
+
+> Task :capacitor-cordova-android-plugins:lintDebug
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:compressDebugAssets
+> Task :app:desugarDebugFileDependencies
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugGlobalSynthetics
+> Task :app:mergeDebugJavaResource
+> Task :app:checkDebugDuplicateClasses
+> Task :app:mergeExtDexDebug
+> Task :app:mergeLibDexDebug
+> Task :app:mergeProjectDexDebug
+> Task :app:mergeDebugJniLibFolders
+> Task :capacitor-android:copyDebugJniLibsProjectOnly
+> Task :capacitor-cordova-android-plugins:copyDebugJniLibsProjectOnly
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+> Task :capacitor-android:bundleDebugAar
+> Task :capacitor-android:assembleDebug
+> Task :capacitor-cordova-android-plugins:bundleDebugAar
+> Task :capacitor-cordova-android-plugins:assembleDebug
+> Task :capacitor-android:createFullJarRelease
+> Task :capacitor-android:generateReleaseLintModel
+> Task :capacitor-cordova-android-plugins:createFullJarRelease
+> Task :capacitor-cordova-android-plugins:generateReleaseLintModel
+> Task :app:generateReleaseLintVitalReportModel
+> Task :capacitor-android:mergeReleaseJniLibFolders
+> Task :capacitor-android:mergeReleaseNativeLibs NO-SOURCE
+> Task :capacitor-android:stripReleaseDebugSymbols NO-SOURCE
+> Task :capacitor-android:copyReleaseJniLibsProjectAndLocalJars
+> Task :capacitor-android:extractDeepLinksForAarRelease
+> Task :capacitor-android:extractReleaseAnnotations
+> Task :capacitor-android:mergeReleaseGeneratedProguardFiles
+> Task :capacitor-android:mergeReleaseConsumerProguardFiles
+> Task :capacitor-android:prepareReleaseArtProfile
+> Task :capacitor-android:mergeReleaseJavaResource
+> Task :capacitor-android:syncReleaseLibJars
+> Task :capacitor-android:bundleReleaseLocalLintAar
+> Task :capacitor-cordova-android-plugins:mergeReleaseJniLibFolders
+> Task :capacitor-cordova-android-plugins:mergeReleaseNativeLibs NO-SOURCE
+> Task :capacitor-cordova-android-plugins:stripReleaseDebugSymbols NO-SOURCE
+> Task :capacitor-cordova-android-plugins:copyReleaseJniLibsProjectAndLocalJars
+> Task :capacitor-cordova-android-plugins:extractDeepLinksForAarRelease
+> Task :capacitor-cordova-android-plugins:extractReleaseAnnotations
+> Task :capacitor-cordova-android-plugins:mergeReleaseGeneratedProguardFiles
+> Task :capacitor-cordova-android-plugins:mergeReleaseConsumerProguardFiles
+> Task :capacitor-cordova-android-plugins:prepareReleaseArtProfile
+> Task :capacitor-cordova-android-plugins:mergeReleaseJavaResource
+> Task :capacitor-cordova-android-plugins:syncReleaseLibJars
+> Task :capacitor-cordova-android-plugins:bundleReleaseLocalLintAar
+> Task :capacitor-android:lintVitalAnalyzeRelease
+> Task :capacitor-android:writeReleaseLintModelMetadata
+> Task :capacitor-cordova-android-plugins:lintVitalAnalyzeRelease
+> Task :capacitor-cordova-android-plugins:writeReleaseLintModelMetadata
+> Task :app:lintVitalAnalyzeRelease
+> Task :capacitor-android:generateReleaseLintVitalModel
+> Task :capacitor-cordova-android-plugins:generateReleaseLintVitalModel
+> Task :app:lintVitalReportRelease
+> Task :app:lintVitalRelease
+> Task :app:mergeReleaseJniLibFolders
+> Task :capacitor-android:copyReleaseJniLibsProjectOnly
+> Task :capacitor-cordova-android-plugins:copyReleaseJniLibsProjectOnly
+> Task :app:mergeReleaseNativeLibs NO-SOURCE
+> Task :app:stripReleaseDebugSymbols NO-SOURCE
+> Task :app:extractReleaseNativeSymbolTables NO-SOURCE
+> Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:dexBuilderRelease
+> Task :app:desugarReleaseFileDependencies
+> Task :app:mergeReleaseStartupProfile
+> Task :app:mergeExtDexRelease
+> Task :app:mergeDexRelease
+> Task :app:mergeReleaseArtProfile
+> Task :app:mergeReleaseGlobalSynthetics
+> Task :app:compileReleaseArtProfile
+> Task :app:compressReleaseAssets
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:mergeReleaseJavaResource
+> Task :app:optimizeReleaseResources
+> Task :app:collectReleaseDependencies
+> Task :app:sdkReleaseDependencyData
+> Task :app:writeReleaseAppMetadata
+> Task :app:writeReleaseSigningConfigVersions
+> Task :app:packageRelease
+> Task :app:createReleaseApkListingFileRedirect
+> Task :app:assembleRelease
+> Task :capacitor-android:bundleReleaseAar
+> Task :capacitor-android:mapReleaseSourceSetPaths
+> Task :capacitor-android:mergeReleaseResources
+> Task :capacitor-android:verifyReleaseResources
+> Task :capacitor-android:assembleRelease
+> Task :capacitor-cordova-android-plugins:bundleReleaseAar
+> Task :capacitor-cordova-android-plugins:mapReleaseSourceSetPaths
+> Task :capacitor-cordova-android-plugins:mergeReleaseResources
+> Task :capacitor-cordova-android-plugins:verifyReleaseResources
+> Task :capacitor-cordova-android-plugins:assembleRelease
+> Task :app:javaPreCompileDebugAndroidTest
+> Task :app:checkDebugAndroidTestAarMetadata
+> Task :app:mapDebugAndroidTestSourceSetPaths
+> Task :app:generateDebugAndroidTestResources
+> Task :app:mergeDebugAndroidTestResources
+> Task :app:processDebugAndroidTestManifest
+> Task :app:processDebugAndroidTestResources
+> Task :app:compileDebugAndroidTestJavaWithJavac
+> Task :app:mergeDebugAndroidTestShaders
+> Task :app:compileDebugAndroidTestShaders NO-SOURCE
+> Task :app:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :app:mergeDebugAndroidTestAssets
+> Task :app:compressDebugAndroidTestAssets
+> Task :app:desugarDebugAndroidTestFileDependencies
+> Task :app:dexBuilderDebugAndroidTest
+> Task :app:mergeDebugAndroidTestGlobalSynthetics
+> Task :app:processDebugAndroidTestJavaRes NO-SOURCE
+> Task :app:mergeDebugAndroidTestJavaResource
+> Task :app:checkDebugAndroidTestDuplicateClasses
+> Task :app:mergeExtDexDebugAndroidTest
+> Task :app:mergeLibDexDebugAndroidTest
+> Task :app:mergeProjectDexDebugAndroidTest
+> Task :app:mergeDebugAndroidTestJniLibFolders
+> Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebugAndroidTest
+> Task :app:writeDebugAndroidTestSigningConfigVersions
+> Task :app:packageDebugAndroidTest
+> Task :app:createDebugAndroidTestApkListingFileRedirect
+> Task :app:assembleDebugAndroidTest
+> Task :capacitor-android:javaPreCompileDebugAndroidTest
+> Task :capacitor-android:checkDebugAndroidTestAarMetadata
+> Task :capacitor-android:mapDebugAndroidTestSourceSetPaths
+> Task :capacitor-android:generateDebugAndroidTestResources
+> Task :capacitor-android:mergeDebugAndroidTestResources
+> Task :capacitor-android:processDebugAndroidTestManifest
+> Task :capacitor-android:processDebugAndroidTestResources
+> Task :capacitor-android:compileDebugAndroidTestJavaWithJavac NO-SOURCE
+> Task :capacitor-android:mergeDebugAndroidTestShaders
+> Task :capacitor-android:compileDebugAndroidTestShaders NO-SOURCE
+> Task :capacitor-android:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :capacitor-android:mergeDebugAndroidTestAssets
+> Task :capacitor-android:compressDebugAndroidTestAssets
+> Task :capacitor-android:desugarDebugAndroidTestFileDependencies
+> Task :capacitor-android:dexBuilderDebugAndroidTest
+> Task :capacitor-android:mergeDebugAndroidTestGlobalSynthetics
+> Task :capacitor-android:processDebugAndroidTestJavaRes NO-SOURCE
+> Task :capacitor-android:mergeDebugAndroidTestJavaResource
+> Task :capacitor-android:checkDebugAndroidTestDuplicateClasses
+> Task :capacitor-android:mergeExtDexDebugAndroidTest
+> Task :capacitor-android:mergeLibDexDebugAndroidTest
+> Task :capacitor-android:mergeProjectDexDebugAndroidTest
+> Task :capacitor-android:mergeDebugAndroidTestJniLibFolders
+> Task :capacitor-android:mergeDebugAndroidTestNativeLibs NO-SOURCE
+> Task :capacitor-android:stripDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :capacitor-android:validateSigningDebugAndroidTest
+> Task :capacitor-android:writeDebugAndroidTestSigningConfigVersions
+> Task :capacitor-android:packageDebugAndroidTest
+> Task :capacitor-android:createDebugAndroidTestApkListingFileRedirect
+> Task :capacitor-android:assembleDebugAndroidTest
+> Task :capacitor-cordova-android-plugins:javaPreCompileDebugAndroidTest
+> Task :capacitor-cordova-android-plugins:checkDebugAndroidTestAarMetadata
+> Task :capacitor-cordova-android-plugins:mapDebugAndroidTestSourceSetPaths
+> Task :capacitor-cordova-android-plugins:generateDebugAndroidTestResources
+> Task :capacitor-cordova-android-plugins:mergeDebugAndroidTestResources
+> Task :capacitor-cordova-android-plugins:processDebugAndroidTestManifest
+> Task :capacitor-cordova-android-plugins:processDebugAndroidTestResources
+> Task :capacitor-cordova-android-plugins:compileDebugAndroidTestJavaWithJavac NO-SOURCE
+> Task :capacitor-cordova-android-plugins:mergeDebugAndroidTestShaders
+> Task :capacitor-cordova-android-plugins:compileDebugAndroidTestShaders NO-SOURCE
+> Task :capacitor-cordova-android-plugins:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:mergeDebugAndroidTestAssets
+> Task :capacitor-cordova-android-plugins:compressDebugAndroidTestAssets
+> Task :capacitor-cordova-android-plugins:desugarDebugAndroidTestFileDependencies
+> Task :capacitor-cordova-android-plugins:dexBuilderDebugAndroidTest
+> Task :capacitor-cordova-android-plugins:mergeDebugAndroidTestGlobalSynthetics
+> Task :capacitor-cordova-android-plugins:processDebugAndroidTestJavaRes NO-SOURCE
+> Task :capacitor-cordova-android-plugins:mergeDebugAndroidTestJavaResource
+> Task :capacitor-cordova-android-plugins:checkDebugAndroidTestDuplicateClasses
+> Task :capacitor-cordova-android-plugins:mergeExtDexDebugAndroidTest
+> Task :capacitor-cordova-android-plugins:mergeLibDexDebugAndroidTest
+> Task :capacitor-cordova-android-plugins:mergeProjectDexDebugAndroidTest
+> Task :capacitor-cordova-android-plugins:mergeDebugAndroidTestJniLibFolders
+> Task :capacitor-cordova-android-plugins:mergeDebugAndroidTestNativeLibs NO-SOURCE
+> Task :capacitor-cordova-android-plugins:stripDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :capacitor-cordova-android-plugins:validateSigningDebugAndroidTest
+> Task :capacitor-cordova-android-plugins:writeDebugAndroidTestSigningConfigVersions
+> Task :capacitor-cordova-android-plugins:packageDebugAndroidTest
+> Task :capacitor-cordova-android-plugins:createDebugAndroidTestApkListingFileRedirect
+> Task :capacitor-cordova-android-plugins:assembleDebugAndroidTest
+[Incubating] Problems report is available at: file:///work/repo/android/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 7m 49s
+329 actionable tasks: 325 executed, 4 up-to-date
+file:///work/repo/scripts/verify-apk-artifact.mjs:61
+  if (!appSource.includes(marker)) throw new Error(`APK reminder bundle is missing release marker: ${marker}`);
+                                         ^
+
+Error: APK reminder bundle is missing release marker: Repeat until handled
+    at file:///work/repo/scripts/verify-apk-artifact.mjs:61:42
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.23.2

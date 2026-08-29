@@ -1,0 +1,19 @@
+{
+  "first": {
+    "title": "Critical Alert Lane — reminders that wait for an answer",
+    "h1": "KEEP CRITICAL ANDROID REMINDERS REPEATING.",
+    "body": "Skip to reminders\nCRITICAL / LANE\nOn device\nSettings\n\nONE LANE. NO FEED.\n\nKEEP CRITICAL ANDROID REMINDERS REPEATING.\n\nFor Android users overwhelmed by notifications, keep medicine, deadlines, and calls visible until you handle them.\n\nTry it with sample data\nAdd critical reminder\nPrivate: data stays on this device.\nOffline after the first visit.\nUS$4.99 once for unlimited reminders.\nOne protected signal, pulled out of the noise.\n\nTRACK 01 / NOW\n\nANSWER THIS\n✓\nThe lane is clear.\n\nAdd the first reminder worth breaking through the noise.\n\nTRACK 02 / QUEUE\n\nYOUR CRITICAL LANE\n0 / 3 free active\nA / 00:00\nNo reminders recorded\n\nKeep this list short on purpose. Add medicine, a deadline, or the one call you must make.\n\n30-DAY SIGNAL CHECK\n\nBUILD A RELIABLE STREAK\n\nYour acknowledgement rate appears here after you handle a reminder. History stays on this device.\n\nPrivate by default. No account, ads, tracking, calendar, or contacts.\n\nPrivacy\nTerms\nOriginal generated collage · A Sociobot utility",
+    "demoCount": 1
+  },
+  "demo": {
+    "url": "http://127.0.0.1:4180/demo/",
+    "banner": true,
+    "rows": 3,
+    "due": "● REPEATING NOW\nTake evening medicine\n\nTake the blue inhaler after dinner.\n\nSTARTED\nSat, Aug 29, 9:42 AM\nESCALATION WINDOW\n3 hr\nAcknowledge\nSnooze for\n10 minutes\n30 minutes\n1 hour\n3 hours\nSnooze",
+    "acknowledge": true,
+    "snooze": true
+  },
+  "axeTotal": 0,
+  "seriousCritical": [],
+  "errors": []
+}

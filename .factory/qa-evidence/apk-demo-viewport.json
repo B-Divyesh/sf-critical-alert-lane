@@ -1,0 +1,32 @@
+{
+  "url": "http://127.0.0.1:4180/demo/",
+  "scrollY": 0,
+  "banner": {
+    "x": 14,
+    "y": 8,
+    "width": 281.765625,
+    "height": 20.140625
+  },
+  "dueTitle": {
+    "x": 54,
+    "y": 1573.359375,
+    "width": 296,
+    "height": 27.4375
+  },
+  "acknowledge": {
+    "x": 54,
+    "y": 1825.171875,
+    "width": 296,
+    "height": 64
+  },
+  "snooze": {
+    "x": 54,
+    "y": 1993.3125,
+    "width": 296,
+    "height": 50.796875
+  },
+  "viewport": {
+    "width": 390,
+    "height": 844
+  }
+}

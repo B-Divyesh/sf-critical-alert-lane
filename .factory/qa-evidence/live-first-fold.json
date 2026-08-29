@@ -1,0 +1,103 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "first": {
+    "headline": {
+      "text": "KEEP CRITICAL ANDROID REMINDERS REPEATING.",
+      "box": {
+        "x": 20,
+        "y": 158.140625,
+        "width": 350,
+        "height": 257.96875
+      }
+    },
+    "who": {
+      "text": "REPEATING ANDROID REMINDERS",
+      "box": {
+        "x": 19.75807762145996,
+        "y": 99.5855484008789,
+        "width": 277.4369602203369,
+        "height": 34.96953582763672
+      }
+    },
+    "action": {
+      "text": "Try it with sample data",
+      "box": {
+        "x": 20,
+        "y": 603.5625,
+        "width": 350,
+        "height": 50.796875
+      }
+    },
+    "explanation": {
+      "text": "Opens three isolated sample reminders.",
+      "box": {
+        "x": 20,
+        "y": 666.359375,
+        "width": 234.796875,
+        "height": 35.09375
+      }
+    },
+    "facts": [
+      {
+        "text": "Private: data stays on this device.",
+        "box": {
+          "x": 20,
+          "y": 715.453125,
+          "width": 350,
+          "height": 20.140625
+        }
+      },
+      {
+        "text": "Offline after the first visit.",
+        "box": {
+          "x": 20,
+          "y": 739.59375,
+          "width": 350,
+          "height": 20.140625
+        }
+      },
+      {
+        "text": "US$4.99 once for unlimited reminders.",
+        "box": {
+          "x": 20,
+          "y": 763.734375,
+          "width": 350,
+          "height": 20.140625
+        }
+      }
+    ]
+  },
+  "demo": {
+    "url": "https://critical-alert-lane.sociobot.in/?demo=1",
+    "title": {
+      "text": "Take evening medicine",
+      "box": {
+        "x": 37,
+        "y": 416.296875,
+        "width": 325,
+        "height": 27.4375
+      }
+    },
+    "ack": {
+      "text": "Acknowledge",
+      "box": {
+        "x": 37,
+        "y": 565.609375,
+        "width": 325,
+        "height": 53.890625
+      }
+    },
+    "snooze": {
+      "text": "Snooze",
+      "box": {
+        "x": 232.203125,
+        "y": 657.640625,
+        "width": 129.796875,
+        "height": 50.796875
+      }
+    }
+  }
+}

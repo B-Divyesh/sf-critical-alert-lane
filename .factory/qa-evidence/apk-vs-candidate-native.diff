@@ -1,0 +1,21 @@
+Files dist-native/404.html and [temporary APK extraction]/assets/public/404.html differ
+Only in [temporary APK extraction]/assets/public/assets: legal-CWIX1WLT.css
+Only in dist-native/assets: main-CF9DTGQe.css
+Only in [temporary APK extraction]/assets/public/assets: main-Cuhk3SfZ.css
+Only in dist-native/assets: main-D-Oe7V2t.js
+Only in [temporary APK extraction]/assets/public/assets: main-DnYDl98e.js
+Only in dist-native/assets: modulepreload-polyfill-B5Qt9EMX.js
+Only in dist-native/assets: route-focus-B1h9aYdw.css
+Only in dist-native/assets: route-focus-BrFkafHo.js
+Only in [temporary APK extraction]/assets/public: cordova.js
+Only in [temporary APK extraction]/assets/public: cordova_plugins.js
+Files dist-native/demo/index.html and [temporary APK extraction]/assets/public/demo/index.html differ
+Files dist-native/index.html and [temporary APK extraction]/assets/public/index.html differ
+Files dist-native/manifest.webmanifest and [temporary APK extraction]/assets/public/manifest.webmanifest differ
+Files dist-native/offline.html and [temporary APK extraction]/assets/public/offline.html differ
+Files dist-native/privacy/index.html and [temporary APK extraction]/assets/public/privacy/index.html differ
+Files dist-native/sw.js and [temporary APK extraction]/assets/public/sw.js differ
+Files dist-native/terms/index.html and [temporary APK extraction]/assets/public/terms/index.html differ
+DIFF_EXIT=1
+CURRENT_NATIVE_FILES=26
+APK_EMBEDDED_FILES=26

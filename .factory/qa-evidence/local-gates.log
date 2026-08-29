@@ -1,0 +1,99 @@
+GATE: npm test
+
+> critical-alert-lane@1.0.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /work/repo
+
+ ✓ tests/schedule.test.ts (6 tests) 7ms
+ ✓ tests/data.test.ts (9 tests) 10ms
+ ✓ tests/release-policy.test.ts (8 tests) 365ms
+
+ Test Files  3 passed (3)
+      Tests  23 passed (23)
+   Start at  09:40:12
+   Duration  1.99s (transform 616ms, setup 0ms, collect 915ms, tests 382ms, environment 46ms, prepare 1.08s)
+
+RESULT: rc=0
+GATE: npm run typecheck
+
+> critical-alert-lane@1.0.0 typecheck
+> tsc --noEmit
+
+RESULT: rc=0
+GATE: npm run lint
+
+> critical-alert-lane@1.0.0 lint
+> tsc --noEmit
+
+RESULT: rc=0
+GATE: npm run test:copy
+
+> critical-alert-lane@1.0.0 test:copy
+> node scripts/copy-audit.mjs --check
+
+RESULT: rc=0
+GATE: npm run build
+
+> critical-alert-lane@1.0.0 build
+> tsc --noEmit && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 19 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/demo/index.html                             1.98 kB │ gzip:  0.69 kB
+dist/index.html                                  2.09 kB │ gzip:  0.71 kB
+dist/404.html                                    2.62 kB │ gzip:  0.98 kB
+dist/offline.html                                2.63 kB │ gzip:  0.97 kB
+dist/terms/index.html                            3.94 kB │ gzip:  1.51 kB
+dist/privacy/index.html                          4.60 kB │ gzip:  1.73 kB
+dist/assets/route-focus-B1h9aYdw.css             2.72 kB │ gzip:  1.11 kB
+dist/assets/main-CF9DTGQe.css                   17.15 kB │ gzip:  4.47 kB
+dist/assets/modulepreload-polyfill-B5Qt9EMX.js   0.77 kB │ gzip:  0.44 kB │ map:   0.12 kB
+dist/assets/route-focus-BrFkafHo.js              0.90 kB │ gzip:  0.51 kB │ map:   2.37 kB
+dist/assets/main-CAsESLM5.js                    45.33 kB │ gzip: 15.46 kB │ map: 122.97 kB
+✓ built in 714ms
+RESULT: rc=0
+404.html	2616 bytes
+art/hero-cassette-512.webp	39344 bytes
+art/hero-cassette-768.avif	44626 bytes
+art/hero-cassette-768.jpg	91289 bytes
+art/hero-cassette-768.webp	95174 bytes
+art/social-preview.png	908254 bytes
+assets/app-CpDUS7Z0.js.map	96 bytes
+assets/demo-CpDUS7Z0.js.map	97 bytes
+assets/main-CAsESLM5.js	45333 bytes
+assets/main-CAsESLM5.js.map	122970 bytes
+assets/main-CF9DTGQe.css	17147 bytes
+assets/modulepreload-polyfill-B5Qt9EMX.js	771 bytes
+assets/modulepreload-polyfill-B5Qt9EMX.js.map	115 bytes
+assets/notFound-CiwmldTd.js.map	101 bytes
+assets/offline-CiwmldTd.js.map	100 bytes
+assets/privacy-CiwmldTd.js.map	100 bytes
+assets/route-focus-B1h9aYdw.css	2715 bytes
+assets/route-focus-BrFkafHo.js	898 bytes
+assets/route-focus-BrFkafHo.js.map	2371 bytes
+assets/terms-CiwmldTd.js.map	98 bytes
+demo/index.html	1981 bytes
+downloads/critical-alert-lane-1.0.2.apk	3677870 bytes
+downloads/critical-alert-lane-1.0.3.apk	3676178 bytes
+downloads/critical-alert-lane-1.0.4.apk	4597434 bytes
+downloads/critical-alert-lane-1.0.5.apk	4596635 bytes
+icons/icon-180.png	5250 bytes
+icons/icon-192.png	2601 bytes
+icons/icon-512.png	11308 bytes
+icons/icon-maskable-512.png	11308 bytes
+icons/icon.svg	586 bytes
+index.html	2091 bytes
+manifest.webmanifest	715 bytes
+offline.html	2631 bytes
+privacy/index.html	4604 bytes
+robots.txt	85 bytes
+sitemap.xml	389 bytes
+staticwebapp.config.json	1567 bytes
+sw.js	2601 bytes
+terms/index.html	3942 bytes
+GATE_SUMMARY failures=0

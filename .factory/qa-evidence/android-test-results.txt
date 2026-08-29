@@ -1,0 +1,70 @@
+android/app/build/test-results/testDebugUnitTest/TEST-com.getcapacitor.myapp.ExampleUnitTest.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.getcapacitor.myapp.ExampleUnitTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-29T09:58:10" hostname="factory-worker-kwnst5d-dv7vc" time="0.003">
+  <properties/>
+  <testcase name="addition_isCorrect" classname="com.getcapacitor.myapp.ExampleUnitTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
+android/app/build/test-results/testDebugUnitTest/TEST-in.sociobot.criticalalertlane.ReminderSchedulerTest.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="in.sociobot.criticalalertlane.ReminderSchedulerTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-29T09:58:11" hostname="factory-worker-kwnst5d-dv7vc" time="19.541">
+  <properties/>
+  <testcase name="realSchedulingPathRunsOnApi30AndParsesOffsetTimestamps" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="9.753"/>
+  <testcase name="duplicateReminderIdsAreRejectedBeforeNativeReplacement" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="5.979"/>
+  <testcase name="replacementClearsEveryPostedNotificationFromTheOldState" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.155"/>
+  <testcase name="usesExactAlarmOnAllSupportedPreAndroid12Devices" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.091"/>
+  <testcase name="realSchedulingPathRunsOnApi23AndParsesUtcTimestamps" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="2.804"/>
+  <testcase name="claim_lifecycle_recovery_rearms_after_boot_clock_and_timezone_changes" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.193"/>
+  <testcase name="distinctAaAndBbHashCollisionsScheduleIndependentPendingIntents" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.08"/>
+  <testcase name="needsExactAlarmPermissionOnlyOnAndroid12AndLater" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.093"/>
+  <testcase name="postedNotificationAndReconciliationUseTheSamePersistedIdentity" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.05"/>
+  <testcase name="claim_native_background_repeat_rearms_from_persisted_state" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.339"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
+android/app/build/test-results/testDebugUnitTest/TEST-in.sociobot.criticalalertlane.ReminderSchedulePolicyTest.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="in.sociobot.criticalalertlane.ReminderSchedulePolicyTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-29T09:58:10" hostname="factory-worker-kwnst5d-dv7vc" time="0.023">
+  <properties/>
+  <testcase name="repeats_after_the_selected_interval_until_the_web_view_acknowledges_it" classname="in.sociobot.criticalalertlane.ReminderSchedulePolicyTest" time="0.0"/>
+  <testcase name="schedules_a_due_reminder_immediately_after_a_restart" classname="in.sociobot.criticalalertlane.ReminderSchedulePolicyTest" time="0.022"/>
+  <testcase name="defers_a_due_repeat_to_the_end_of_quiet_hours" classname="in.sociobot.criticalalertlane.ReminderSchedulePolicyTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
+android/app/build/test-results/testReleaseUnitTest/TEST-com.getcapacitor.myapp.ExampleUnitTest.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.getcapacitor.myapp.ExampleUnitTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-29T09:58:41" hostname="factory-worker-kwnst5d-dv7vc" time="0.035">
+  <properties/>
+  <testcase name="addition_isCorrect" classname="com.getcapacitor.myapp.ExampleUnitTest" time="0.035"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
+android/app/build/test-results/testReleaseUnitTest/TEST-in.sociobot.criticalalertlane.ReminderSchedulerTest.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="in.sociobot.criticalalertlane.ReminderSchedulerTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-29T09:58:41" hostname="factory-worker-kwnst5d-dv7vc" time="15.043">
+  <properties/>
+  <testcase name="realSchedulingPathRunsOnApi30AndParsesOffsetTimestamps" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="5.305"/>
+  <testcase name="duplicateReminderIdsAreRejectedBeforeNativeReplacement" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="6.653"/>
+  <testcase name="replacementClearsEveryPostedNotificationFromTheOldState" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.211"/>
+  <testcase name="usesExactAlarmOnAllSupportedPreAndroid12Devices" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.076"/>
+  <testcase name="realSchedulingPathRunsOnApi23AndParsesUtcTimestamps" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="2.032"/>
+  <testcase name="claim_lifecycle_recovery_rearms_after_boot_clock_and_timezone_changes" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.215"/>
+  <testcase name="distinctAaAndBbHashCollisionsScheduleIndependentPendingIntents" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.092"/>
+  <testcase name="needsExactAlarmPermissionOnlyOnAndroid12AndLater" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.084"/>
+  <testcase name="postedNotificationAndReconciliationUseTheSamePersistedIdentity" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.075"/>
+  <testcase name="claim_native_background_repeat_rearms_from_persisted_state" classname="in.sociobot.criticalalertlane.ReminderSchedulerTest" time="0.3"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
+android/app/build/test-results/testReleaseUnitTest/TEST-in.sociobot.criticalalertlane.ReminderSchedulePolicyTest.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="in.sociobot.criticalalertlane.ReminderSchedulePolicyTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-29T09:58:41" hostname="factory-worker-kwnst5d-dv7vc" time="0.001">
+  <properties/>
+  <testcase name="repeats_after_the_selected_interval_until_the_web_view_acknowledges_it" classname="in.sociobot.criticalalertlane.ReminderSchedulePolicyTest" time="0.0"/>
+  <testcase name="schedules_a_due_reminder_immediately_after_a_restart" classname="in.sociobot.criticalalertlane.ReminderSchedulePolicyTest" time="0.0"/>
+  <testcase name="defers_a_due_repeat_to_the_end_of_quiet_hours" classname="in.sociobot.criticalalertlane.ReminderSchedulePolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

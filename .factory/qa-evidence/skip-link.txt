@@ -1,0 +1,32 @@
+BEFORE { width: 1280, height: 900 } { tag: 'A', id: '', text: 'Skip to reminders', hash: '', y: 0 }
+AFTER_ENTER { width: 1280, height: 900 } {
+  tag: 'H1',
+  id: 'page-title',
+  text: 'Keep critical Android reminders repeating.',
+  hash: '#main',
+  y: 78,
+  mainTabindex: null
+}
+AFTER_NEXT_TAB { width: 1280, height: 900 } {
+  tag: 'A',
+  id: 'try-demo',
+  text: 'Try it with sample data',
+  hash: '#main',
+  y: 78
+}
+BEFORE { width: 390, height: 844 } { tag: 'A', id: '', text: 'Skip to reminders', hash: '', y: 0 }
+AFTER_ENTER { width: 390, height: 844 } {
+  tag: 'H1',
+  id: 'page-title',
+  text: 'Keep critical Android reminders repeating.',
+  hash: '#main',
+  y: 78,
+  mainTabindex: null
+}
+AFTER_NEXT_TAB { width: 390, height: 844 } {
+  tag: 'A',
+  id: 'try-demo',
+  text: 'Try it with sample data',
+  hash: '#main',
+  y: 78
+}

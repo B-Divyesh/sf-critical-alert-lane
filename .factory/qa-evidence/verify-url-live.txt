@@ -1,0 +1,4 @@
+PASS: title, lang, main, and image alt text verified for https://critical-alert-lane.sociobot.in/
+PASS: title, lang, main, and image alt text verified for https://critical-alert-lane.sociobot.in/?demo=1
+PASS: title, lang, main, and image alt text verified for https://critical-alert-lane.sociobot.in/privacy/
+PASS: title, lang, main, and image alt text verified for https://critical-alert-lane.sociobot.in/terms/

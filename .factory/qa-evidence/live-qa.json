@@ -1,0 +1,580 @@
+{
+  "assertions": [
+    {
+      "label": "live root returns 200",
+      "pass": true,
+      "detail": "200"
+    },
+    {
+      "label": "root language is English",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "root has one main landmark",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "root has one h1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "root title is product-specific",
+      "pass": true,
+      "detail": "Critical Alert Lane — repeating Android reminders"
+    },
+    {
+      "label": "axe desktop root has no serious/critical findings",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "label": "first Tab focuses skip link",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "skip-link focus is visibly yellow",
+      "pass": true,
+      "detail": "{\"outline\":\"rgb(243, 200, 75) solid 4px\",\"background\":\"rgb(243, 200, 75)\"}"
+    },
+    {
+      "label": "skip link moves focus to the main heading",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "keyboard reaches Add critical reminder",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "focused Add button has designed outline",
+      "pass": true,
+      "detail": "rgb(243, 200, 75) solid 4px"
+    },
+    {
+      "label": "Enter opens reminder editor",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "editor moves focus to title",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "Escape returns focus to opener",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "blank title shows actionable inline error",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "blank title is marked invalid",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "boundary reminder saves with literal HTML-like title",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "HTML-like note is not injected",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "HTML-like note does not execute",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "weekday and 60-minute boundary persist",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "24-hour acknowledgement boundary renders",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "created reminder persists after reload",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "due reminder can be acknowledged",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "acknowledgement Undo restores due reminder",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "invalid quiet hours announce recovery",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "overnight quiet-hours boundary saves",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "malformed import gives actionable error",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "malformed import preserves existing data",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "axe desktop settings with recovery message has no serious/critical findings",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "label": "demo starts with three sample reminders",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "maximum snooze boundary works",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "demo acknowledgement works",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "demo acknowledgement can be undone",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "axe desktop populated demo has no serious/critical findings",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "label": "/privacy/ returns 200",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "/privacy/ has route title",
+      "pass": true,
+      "detail": "Privacy — Critical Alert Lane"
+    },
+    {
+      "label": "/privacy/ has one h1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "axe desktop /privacy/ has no serious/critical findings",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "label": "/terms/ returns 200",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "/terms/ has route title",
+      "pass": true,
+      "detail": "Terms — Critical Alert Lane"
+    },
+    {
+      "label": "/terms/ has one h1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "axe desktop /terms/ has no serious/critical findings",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "label": "normal desktop routes have no console errors",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "label": "normal desktop routes have no page errors",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "label": "unknown route returns HTTP 404",
+      "pass": true,
+      "detail": "404"
+    },
+    {
+      "label": "unknown route shows designed 404",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "axe desktop 404 has no serious/critical findings",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "label": "desktop flow has no unexpected console errors",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "label": "desktop flow has no page errors after 404",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390px demo has no horizontal overflow",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "390px visible controls meet 44px touch target",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "label": "reduced motion removes transitions",
+      "pass": true,
+      "detail": "{\"transitionMs\":0.01,\"animationMs\":0.01,\"scroll\":\"auto\"}"
+    },
+    {
+      "label": "reduced motion removes animation",
+      "pass": true,
+      "detail": "{\"transitionMs\":0.01,\"animationMs\":0.01,\"scroll\":\"auto\"}"
+    },
+    {
+      "label": "reduced motion disables smooth scrolling",
+      "pass": true,
+      "detail": "{\"transitionMs\":0.01,\"animationMs\":0.01,\"scroll\":\"auto\"}"
+    },
+    {
+      "label": "200% text keeps page within viewport",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "axe mobile demo at 200% text has no serious/critical findings",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "label": "live PWA reloads offline",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "offline demo remains usable",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "ordinary QA flow makes only same-origin requests",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "label": "ordinary QA flow loads no font requests",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 ()"
+  ],
+  "pageErrors": [],
+  "requests": [
+    {
+      "method": "GET",
+      "type": "document",
+      "url": "https://critical-alert-lane.sociobot.in/"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/main-CAsESLM5.js"
+    },
+    {
+      "method": "GET",
+      "type": "stylesheet",
+      "url": "https://critical-alert-lane.sociobot.in/assets/main-CF9DTGQe.css"
+    },
+    {
+      "method": "GET",
+      "type": "image",
+      "url": "https://critical-alert-lane.sociobot.in/art/hero-cassette-768.avif"
+    },
+    {
+      "method": "GET",
+      "type": "image",
+      "url": "https://critical-alert-lane.sociobot.in/art/hero-cassette-768.avif"
+    },
+    {
+      "method": "GET",
+      "type": "document",
+      "url": "https://critical-alert-lane.sociobot.in/"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/main-CAsESLM5.js"
+    },
+    {
+      "method": "GET",
+      "type": "stylesheet",
+      "url": "https://critical-alert-lane.sociobot.in/assets/main-CF9DTGQe.css"
+    },
+    {
+      "method": "GET",
+      "type": "image",
+      "url": "https://critical-alert-lane.sociobot.in/art/hero-cassette-768.avif"
+    },
+    {
+      "method": "GET",
+      "type": "document",
+      "url": "https://critical-alert-lane.sociobot.in/?demo=1"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/main-CAsESLM5.js"
+    },
+    {
+      "method": "GET",
+      "type": "stylesheet",
+      "url": "https://critical-alert-lane.sociobot.in/assets/main-CF9DTGQe.css"
+    },
+    {
+      "method": "GET",
+      "type": "document",
+      "url": "https://critical-alert-lane.sociobot.in/privacy/"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/route-focus-BrFkafHo.js"
+    },
+    {
+      "method": "GET",
+      "type": "stylesheet",
+      "url": "https://critical-alert-lane.sociobot.in/assets/route-focus-B1h9aYdw.css"
+    },
+    {
+      "method": "GET",
+      "type": "document",
+      "url": "https://critical-alert-lane.sociobot.in/terms/"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/route-focus-BrFkafHo.js"
+    },
+    {
+      "method": "GET",
+      "type": "stylesheet",
+      "url": "https://critical-alert-lane.sociobot.in/assets/route-focus-B1h9aYdw.css"
+    },
+    {
+      "method": "GET",
+      "type": "document",
+      "url": "https://critical-alert-lane.sociobot.in/not-a-real-route-qa"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/route-focus-BrFkafHo.js"
+    },
+    {
+      "method": "GET",
+      "type": "stylesheet",
+      "url": "https://critical-alert-lane.sociobot.in/assets/route-focus-B1h9aYdw.css"
+    },
+    {
+      "method": "GET",
+      "type": "document",
+      "url": "https://critical-alert-lane.sociobot.in/?demo=1"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/main-CAsESLM5.js"
+    },
+    {
+      "method": "GET",
+      "type": "stylesheet",
+      "url": "https://critical-alert-lane.sociobot.in/assets/main-CF9DTGQe.css"
+    },
+    {
+      "method": "GET",
+      "type": "document",
+      "url": "https://critical-alert-lane.sociobot.in/?demo=1"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js"
+    },
+    {
+      "method": "GET",
+      "type": "script",
+      "url": "https://critical-alert-lane.sociobot.in/assets/main-CAsESLM5.js"
+    },
+    {
+      "method": "GET",
+      "type": "stylesheet",
+      "url": "https://critical-alert-lane.sociobot.in/assets/main-CF9DTGQe.css"
+    }
+  ],
+  "responseHeaders": {
+    "root": {
+      "cache-control": "public, max-age=300, must-revalidate",
+      "content-encoding": "br",
+      "content-security-policy": "default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'; img-src 'self' data:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; upgrade-insecure-requests",
+      "content-type": "text/html",
+      "cross-origin-opener-policy": "same-origin",
+      "cross-origin-resource-policy": "same-origin",
+      "date": "Sat, 29 Aug 2026 09:48:10 GMT",
+      "etag": "\"19872397\"",
+      "last-modified": "Sat, 29 Aug 2026 09:18:40 GMT",
+      "permissions-policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "strict-transport-security": "max-age=10886400; includeSubDomains; preload",
+      "vary": "Accept-Encoding",
+      "x-content-type-options": "nosniff",
+      "x-dns-prefetch-control": "off",
+      "x-frame-options": "DENY",
+      "x-xss-protection": "1; mode=block"
+    },
+    "notFound": {
+      "cache-control": "public, max-age=300, must-revalidate",
+      "content-length": "2616",
+      "content-security-policy": "default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'; img-src 'self' data:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; upgrade-insecure-requests",
+      "content-type": "text/html",
+      "cross-origin-opener-policy": "same-origin",
+      "cross-origin-resource-policy": "same-origin",
+      "date": "Sat, 29 Aug 2026 09:48:19 GMT",
+      "etag": "\"19872397\"",
+      "last-modified": "Sat, 29 Aug 2026 09:18:40 GMT",
+      "permissions-policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "strict-transport-security": "max-age=10886400; includeSubDomains; preload",
+      "x-content-type-options": "nosniff",
+      "x-dns-prefetch-control": "off",
+      "x-frame-options": "DENY",
+      "x-xss-protection": "1; mode=block"
+    },
+    "mobileDemo": {
+      "cache-control": "public, max-age=300, must-revalidate",
+      "content-encoding": "br",
+      "content-security-policy": "default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self' https://api.sociobot.in; frame-ancestors 'none'; img-src 'self' data:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; upgrade-insecure-requests",
+      "content-type": "text/html",
+      "cross-origin-opener-policy": "same-origin",
+      "cross-origin-resource-policy": "same-origin",
+      "date": "Sat, 29 Aug 2026 09:48:19 GMT",
+      "etag": "\"19872397\"",
+      "last-modified": "Sat, 29 Aug 2026 09:18:40 GMT",
+      "permissions-policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "strict-transport-security": "max-age=10886400; includeSubDomains; preload",
+      "vary": "Accept-Encoding",
+      "x-content-type-options": "nosniff",
+      "x-dns-prefetch-control": "off",
+      "x-frame-options": "DENY",
+      "x-xss-protection": "1; mode=block"
+    }
+  },
+  "axe": [
+    {
+      "name": "desktop root",
+      "total": 0,
+      "seriousCritical": []
+    },
+    {
+      "name": "desktop settings with recovery message",
+      "total": 0,
+      "seriousCritical": []
+    },
+    {
+      "name": "desktop populated demo",
+      "total": 0,
+      "seriousCritical": []
+    },
+    {
+      "name": "desktop /privacy/",
+      "total": 0,
+      "seriousCritical": []
+    },
+    {
+      "name": "desktop /terms/",
+      "total": 0,
+      "seriousCritical": []
+    },
+    {
+      "name": "desktop 404",
+      "total": 0,
+      "seriousCritical": []
+    },
+    {
+      "name": "mobile demo at 200% text",
+      "total": 0,
+      "seriousCritical": []
+    }
+  ]
+}

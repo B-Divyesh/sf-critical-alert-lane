@@ -1,0 +1,249 @@
+STATUS 200
+URL https://critical-alert-lane.sociobot.in/
+TITLE Critical Alert Lane — repeating Android reminders
+FIRST_VIEWPORT_TEXT_BEGIN
+Skip to reminders
+CRITICAL / LANE
+On device
+Open settings
+
+REPEATING ANDROID REMINDERS
+
+KEEP CRITICAL ANDROID REMINDERS REPEATING.
+
+For Android users overwhelmed by notifications, repeat medicine, deadline, and call reminders until you snooze or acknowledge them.
+
+Try it with sample data
+Opens three isolated sample reminders.
+Private: data stays on this device.
+Offline after the first visit.
+US$4.99 once for unlimited reminders.
+Add critical reminder
+Download Android app (APK)
+Verify the APK download
+A cassette tape forms one lane ending at a checked reminder.
+
+DUE NOW
+
+REMINDER NEEDING ACKNOWLEDGEMENT
+✓
+No reminders need acknowledgement now.
+
+Add a reminder to see it here when it is due.
+
+SAVED REMINDERS
+
+YOUR REMINDERS
+0 / 3 free active
+NO SAVED REMINDERS
+No reminders saved
+
+Add medicine, a deadline, or the one call you must make.
+
+LAST 30 DAYS
+
+30-DAY ACKNOWLEDGEMENT RATE
+
+Your acknowledgement rate appears here after you acknowledge a reminder. History stays on this device.
+
+THREE STEPS
+
+HOW IT WORKS
+01
+Add a critical reminder
+
+Add the few reminders you cannot miss.
+
+02
+Choose the reminder schedule
+
+Choose a schedule and a 5–60 minute repeat.
+
+03
+Acknowledge the reminder
+
+Snooze or acknowledge each reminder when it appears.
+
+CLEAR LIMITS
+
+LIMITS AND PRIVACY
+Kept on your device
+
+Reminder data stays in this browser on this device during normal use.
+
+The app has no account, ads, analytics, calendar, or contacts.
+
+Android notification permission
+
+Android asks for notification access only after you choose it in settings.
+
+Without exact-alarm access, Android uses an inexact alarm.
+
+Not for emergencies
+
+Device power rules can delay alerts. Keep another safeguard for urgent or life-safety duties.
+
+ONE-TIME LICENSE
+
+THREE REMINDERS ARE FREE
+
+Free use arms three reminders and keeps extra imports paused.
+
+Pay US$4.99 once for unlimited active reminders. There is no subscription.
+
+Core reminder controls, accessibility, and data export stay free.
+
+Buy once · US$4.99
+Restore a license
+
+Dodo processes the payment and handles refunds through Sociobot checkout.
+
+Repeat critical Android reminders until you snooze or acknowledge them.
+
+Privacy
+Terms
+Built by Param Factory
+(external site)
+ · release 1.0.5 · polish 1 · Original generated collage
+Offline setup did not finish. The app still works while this page is open.
+FIRST_VIEWPORT_TEXT_END
+DEMO_ACTION_COUNT 1
+AFTER_ONE_CLICK_URL https://critical-alert-lane.sociobot.in/?demo=1
+AFTER_ONE_CLICK_TEXT_BEGIN
+Skip to reminders
+Demo — sample data, nothing is saved
+Reset demo
+Start for real
+CRITICAL / LANE
+On device
+Open settings
+TRY A REPEATING CRITICAL REMINDER.
+
+Acknowledge or snooze the due sample below.
+
+DUE NOW
+
+REMINDER NEEDING ACKNOWLEDGEMENT
+● REPEATING NOW
+Take evening medicine
+
+Take the blue inhaler after dinner.
+
+STARTED
+Sat, Aug 29, 9:20 AM
+ACKNOWLEDGEMENT WINDOW
+3 hr
+Acknowledge
+Snooze for
+10 minutes
+30 minutes
+1 hour
+3 hours
+Snooze
+
+SAVED REMINDERS
+
+YOUR REMINDERS
+3 / 3 free active
+Add critical reminder
+● DUE
+Take evening medicine
+
+Needs acknowledgement
+
+Daily · repeats every 5 min until acknowledged
+○ QUEUED
+Call the insurance case worker
+
+Next Sat, Aug 29, 11:05 AM
+
+One time · repeats every 10 min until acknowledged
+○ QUEUED
+Water the balcony plants
+
+Next Sun, Aug 30, 9:30 AM
+
+Weekly · repeats every 30 min until acknowledged
+
+LAST 30 DAYS
+
+30-DAY ACKNOWLEDGEMENT RATE
+
+Your acknowledgement rate appears here after you acknowledge a reminder. History stays on this device.
+
+THREE STEPS
+
+HOW IT WORKS
+01
+Add a critical reminder
+
+Add the few reminders you cannot miss.
+
+02
+Choose the reminder schedule
+
+Choose a schedule and a 5–60 minute repeat.
+
+03
+Acknowledge the reminder
+
+Snooze or acknowledge each reminder when it appears.
+
+CLEAR LIMITS
+
+LIMITS AND PRIVACY
+Kept on your device
+
+Reminder data stays in this browser on this device during normal use.
+
+The app has no account, ads, analytics, calendar, or contacts.
+
+Android notification permission
+
+Android asks for notification access only after you choose it in settings.
+
+Without exact-alarm access, Android uses an inexact alarm.
+
+Not for emergencies
+
+Device power rules can delay alerts. Keep another safeguard for urgent or life-safety duties.
+
+ONE-TIME LICENSE
+
+THREE REMINDERS ARE FREE
+
+Free use arms three reminders and keeps extra imports paused.
+
+Pay US$4.99 once for unlimited active reminders. There is no subscription.
+
+Core reminder controls, accessibility, and data export stay free.
+
+Buy once · US$4.99
+Restore a license
+
+Dodo processes the payment and handles refunds through Sociobot checkout.
+
+Repeat critical Android reminders until you snooze or acknowledge them.
+
+Privacy
+Terms
+Built by Param Factory
+(external site)
+ · release 1.0.5 · polish 1 · Original generated collage
+Try a repeating critical reminder.
+Offline setup did not finish. The app still works while this page is open.
+AFTER_ONE_CLICK_TEXT_END
+REQUESTS_BEGIN
+GET https://critical-alert-lane.sociobot.in/
+GET https://critical-alert-lane.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js
+GET https://critical-alert-lane.sociobot.in/assets/main-CAsESLM5.js
+GET https://critical-alert-lane.sociobot.in/assets/main-CF9DTGQe.css
+GET https://critical-alert-lane.sociobot.in/art/hero-cassette-768.avif
+GET https://critical-alert-lane.sociobot.in/?demo=1
+GET https://critical-alert-lane.sociobot.in/assets/modulepreload-polyfill-B5Qt9EMX.js
+GET https://critical-alert-lane.sociobot.in/assets/main-CAsESLM5.js
+GET https://critical-alert-lane.sociobot.in/assets/main-CF9DTGQe.css
+REQUESTS_END
+REQUEST_FAILURES []
+CONSOLE_ERRORS []
+PAGE_ERRORS []

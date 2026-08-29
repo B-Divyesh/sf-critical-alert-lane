@@ -1,0 +1,37 @@
+
+> critical-alert-lane@1.0.0 test:android:full
+> npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/gradle.mjs clean test lintDebug assembleDebug assembleRelease assembleDebugAndroidTest --no-daemon && node scripts/verify-apk-artifact.mjs android/app/build/outputs/apk/release/app-release-unsigned.apk --fresh-build && npm run test:android:update-signing
+
+
+> critical-alert-lane@1.0.0 android:sync
+> npm run build:native && npx cap sync android
+
+
+> critical-alert-lane@1.0.0 build:native
+> tsc --noEmit && vite build --mode native
+
+vite v7.3.6 building client environment for native...
+transforming...
+✓ 19 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-native/demo/index.html                             1.98 kB │ gzip:  0.69 kB
+dist-native/index.html                                  2.09 kB │ gzip:  0.71 kB
+dist-native/404.html                                    2.62 kB │ gzip:  0.98 kB
+dist-native/offline.html                                2.63 kB │ gzip:  0.97 kB
+dist-native/terms/index.html                            3.94 kB │ gzip:  1.51 kB
+dist-native/privacy/index.html                          4.60 kB │ gzip:  1.73 kB
+dist-native/assets/route-focus-B1h9aYdw.css             2.72 kB │ gzip:  1.11 kB
+dist-native/assets/main-CF9DTGQe.css                   17.15 kB │ gzip:  4.47 kB
+dist-native/assets/modulepreload-polyfill-B5Qt9EMX.js   0.71 kB │ gzip:  0.40 kB
+dist-native/assets/route-focus-BrFkafHo.js              0.85 kB │ gzip:  0.47 kB
+dist-native/assets/main-D-Oe7V2t.js                    44.81 kB │ gzip: 15.16 kB
+✓ built in 555ms
+✔ Copying web assets from dist-native to android/app/src/main/assets/public in 22.22ms
+✔ Creating capacitor.config.json in android/app/src/main/assets in 20.34ms
+✔ copy android in 54.28ms
+✔ Updating Android plugins in 1.98ms
+✔ update android in 29.51ms
+[info] Sync finished in 0.095s
+Native bundle check passed: 28 files, no nested APK or downloads directory.
+A JDK is required for Android checks. Install JDK 17+ or set JAVA_HOME.

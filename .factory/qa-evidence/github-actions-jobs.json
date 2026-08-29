@@ -1,0 +1,109 @@
+[
+  {
+    "id": 99081218458,
+    "name": "Build, unit test, lint, and package Android",
+    "status": "completed",
+    "conclusion": "failure",
+    "started_at": "2026-08-29T09:17:36Z",
+    "completed_at": "2026-08-29T09:21:10Z",
+    "html_url": "https://github.com/B-Divyesh/sf-critical-alert-lane/actions/runs/33245145717/job/99081218458",
+    "steps": [
+      {
+        "number": 1,
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-08-29T09:17:37Z",
+        "completed_at": "2026-08-29T09:17:38Z"
+      },
+      {
+        "number": 2,
+        "name": "Run actions/checkout@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-08-29T09:17:38Z",
+        "completed_at": "2026-08-29T09:17:40Z"
+      },
+      {
+        "number": 3,
+        "name": "Run actions/setup-node@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-08-29T09:17:40Z",
+        "completed_at": "2026-08-29T09:17:42Z"
+      },
+      {
+        "number": 4,
+        "name": "Run actions/setup-java@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-08-29T09:17:42Z",
+        "completed_at": "2026-08-29T09:17:42Z"
+      },
+      {
+        "number": 5,
+        "name": "Run android-actions/setup-android@v3",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-08-29T09:17:42Z",
+        "completed_at": "2026-08-29T09:18:01Z"
+      },
+      {
+        "number": 6,
+        "name": "Install the pinned Android platform",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-08-29T09:18:01Z",
+        "completed_at": "2026-08-29T09:18:04Z"
+      },
+      {
+        "number": 7,
+        "name": "Run npm ci",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-08-29T09:18:04Z",
+        "completed_at": "2026-08-29T09:18:06Z"
+      },
+      {
+        "number": 8,
+        "name": "Build, lint, test, and assemble the Capacitor APK",
+        "status": "completed",
+        "conclusion": "failure",
+        "started_at": "2026-08-29T09:18:06Z",
+        "completed_at": "2026-08-29T09:21:08Z"
+      },
+      {
+        "number": 14,
+        "name": "Post Run actions/setup-java@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-08-29T09:21:08Z",
+        "completed_at": "2026-08-29T09:21:09Z"
+      },
+      {
+        "number": 15,
+        "name": "Post Run actions/setup-node@v4",
+        "status": "completed",
+        "conclusion": "skipped",
+        "started_at": "2026-08-29T09:21:09Z",
+        "completed_at": "2026-08-29T09:21:09Z"
+      },
+      {
+        "number": 16,
+        "name": "Post Run actions/checkout@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-08-29T09:21:09Z",
+        "completed_at": "2026-08-29T09:21:09Z"
+      },
+      {
+        "number": 17,
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-08-29T09:21:09Z",
+        "completed_at": "2026-08-29T09:21:09Z"
+      }
+    ]
+  }
+]
