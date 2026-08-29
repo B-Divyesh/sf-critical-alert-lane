@@ -119,6 +119,7 @@ describe('release policy regressions', () => {
     };
     const updateCheck = readFileSync(resolve('scripts/verify-update.mjs'), 'utf8');
     const artifactCheck = readFileSync(resolve('scripts/verify-apk-artifact.mjs'), 'utf8');
+    const artifactDemoCheck = readFileSync(resolve('scripts/verify-apk-demo.mjs'), 'utf8');
     const signingCheck = readFileSync(resolve('scripts/verify-android-update-signing.mjs'), 'utf8');
     const workflow = readFileSync(resolve('.github/workflows/android.yml'), 'utf8');
 
@@ -130,6 +131,9 @@ describe('release policy regressions', () => {
     expect(packageJson.scripts['test:android:artifact']).not.toContain('gradle');
     expect(artifactCheck).toContain('released native-source fingerprints');
     expect(packageJson.scripts['test:android:artifact']).toContain('test:android:update-signing');
+    expect(packageJson.scripts['test:android:artifact']).toContain('verify-apk-demo.mjs');
+    expect(artifactCheck).toContain('current native assets');
+    expect(artifactDemoCheck).toContain('inside 390x844');
     expect(signingCheck).toContain('record.signing.subject');
     expect(signingCheck).toContain('versionCode');
     expect(readFileSync(resolve('android/app/build.gradle'), 'utf8')).not.toContain('signingConfigs.debug');

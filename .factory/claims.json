@@ -134,10 +134,10 @@
   },
   {
     "id": "apk-source-identity",
-    "claim": "The downloadable Android APK contains the released v1.0.5 demo and reminder logic.",
+    "claim": "The downloadable Android APK contains the current demo and reminder logic, including its first-screen sample controls.",
     "where": "landing APK proof, README",
     "test": "npm run test:android:artifact",
-    "sandbox": "standard clean verifier; build and inspect the current native shell, then verify the immutable v1.0.5 APK digest, released native-source fingerprints, demo entry point, service-worker shell, reminder markers, and compiled DEX symbols; fresh-build asset equality runs in GitHub Actions"
+    "sandbox": "standard clean verifier; build and inspect the current native shell, then verify the immutable APK digest, every embedded asset, released native-source fingerprints, current acknowledgement copy, service-worker shell, reminder markers, and compiled DEX symbols; execute the APK's embedded demo at 390x844 and assert the due title, Acknowledge, and Snooze are inside the first viewport"
   },
   {
     "id": "apk-update-signing",

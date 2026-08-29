@@ -79,10 +79,10 @@ exported by `scripts/copy-audit.mjs` and checked by `npm test`.
 | It is for Android users who miss medicine, deadline, or call alerts in a busy notification list. | 17 | Pass |
 | Live app: <https://critical-alert-lane.sociobot.in> | 4 | Pass |
 | Sample demo: <https://critical-alert-lane.sociobot.in/?demo=1> | 6 | Pass |
-| Android app: [Critical Alert Lane 1.0.5 APK](./public/downloads/critical-alert-lane-1.0.5.apk) | 8 | Pass |
+| Android app: [Critical Alert Lane 1.0.6 APK](./public/downloads/critical-alert-lane-1.0.6.apk) | 8 | Pass |
 | <summary>Verify the APK download</summary> | 6 | Pass |
 | Compare this SHA-256 value with the downloaded file to check that it arrived unchanged. | 14 | Pass |
-| `af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8` | 1 | Pass |
+| `e902da576a34ede089010c2fbce721d811ea587106abe024eebcd33c47a5289e` | 1 | Pass |
 | Try the demo | 3 | Pass |
 | Open the sample demo in one click. | 7 | Pass |
 | It starts with three realistic reminders in a separate browser database. | 11 | Pass |
@@ -119,12 +119,12 @@ exported by `scripts/copy-audit.mjs` and checked by `npm test`.
 | `npm run build` writes the static site to `dist/`. | 9 | Pass |
 | Playwright 1.58.2 runs desktop and 390 px mobile checks. | 9 | Pass |
 | The browser tests build and start their own preview server. | 10 | Pass |
-| The native checks inspect the current shell and immutable v1.0.5 APK. | 11 | Pass |
+| The native checks inspect the current shell and immutable v1.0.6 APK. | 11 | Pass |
 | GitHub Actions installs JDK 21 and Android API 35 for full Gradle checks. | 13 | Pass |
 | Run `npm run android:sync` after changing the web app. | 9 | Pass |
 | Android release identity | 3 | Pass |
 | The Android application ID is `in.sociobot.criticalalertlane`. | 6 | Pass |
-| Version 1.0.5 uses build code 6. | 6 | Pass |
+| Version 1.0.6 uses build code 7. | 6 | Pass |
 | Its signer matches the public v1.0.3 factory signer. | 8 | Pass |
 | That identity lets Android install this APK over v1.0.3. | 9 | Pass |
 | This repository does not contain Android signing keys or credentials. | 10 | Pass |

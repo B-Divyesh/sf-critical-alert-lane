@@ -21,9 +21,9 @@ let undoSnapshot: AppData | null = null;
 let undoTimer = 0;
 let nativeStatus: NativeSchedulerStatus | null = null;
 let editorReturnTarget: { kind: 'add' } | { kind: 'edit'; id: string } | null = null;
-const ANDROID_APK = '/downloads/critical-alert-lane-1.0.5.apk';
+const ANDROID_APK = '/downloads/critical-alert-lane-1.0.6.apk';
 const ANDROID_APK_SHA256 = __ANDROID_APK_SHA256__;
-const BUILD_ID = 'release 1.0.5 · polish 1';
+const BUILD_ID = 'release 1.0.6 · repair 14';
 const ROUTE_FOCUS_KEY = 'critical-alert-lane:focus-heading';
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, char => ({

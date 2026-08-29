@@ -1,10 +1,10 @@
 {
   "apk": {
-    "path": "public/downloads/critical-alert-lane-1.0.5.apk",
-    "sha256": "af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8",
+    "path": "public/downloads/critical-alert-lane-1.0.6.apk",
+    "sha256": "e902da576a34ede089010c2fbce721d811ea587106abe024eebcd33c47a5289e",
     "applicationId": "in.sociobot.criticalalertlane",
-    "versionName": "1.0.5",
-    "versionCode": 6
+    "versionName": "1.0.6",
+    "versionCode": 7
   },
   "signing": {
     "subject": "CN = Sociobot Factory Android Signing",
@@ -17,7 +17,7 @@
     }
   },
   "nativeSource": {
-    "android/app/build.gradle": "9e50f55a8f7e794a9e3543757263ae718871f5b749d17a1259fec591fcb0c55d",
+    "android/app/build.gradle": "98e0ed5d5d153863c248fccf053219a5d8c3752972e8bdfec03dcdb59b866d29",
     "android/app/src/main/AndroidManifest.xml": "b6d9c2945043c3b917f657823ff65ba7362a54ada8843763c1a470732706d5a6",
     "android/app/src/main/java/in/sociobot/criticalalertlane/ReminderAlarmReceiver.java": "c17b5ff838e5ae822fc3f2771b87948e61f782a5dbe5d8dd65f474f0cbec5b65",
     "android/app/src/main/java/in/sociobot/criticalalertlane/ReminderRescheduleReceiver.java": "ed1fbeb60ac5ec1615df9a52f0e2fc9c7c76939df4ff78c56d8faaf3da94ba27",

@@ -6,14 +6,14 @@ It is for Android users who miss medicine, deadline, or call alerts in a busy no
 
 - Live app: <https://critical-alert-lane.sociobot.in>
 - Sample demo: <https://critical-alert-lane.sociobot.in/?demo=1>
-- Android app: [Critical Alert Lane 1.0.5 APK](./public/downloads/critical-alert-lane-1.0.5.apk)
+- Android app: [Critical Alert Lane 1.0.6 APK](./public/downloads/critical-alert-lane-1.0.6.apk)
 
 <details>
 <summary>Verify the APK download</summary>
 
 Compare this SHA-256 value with the downloaded file to check that it arrived unchanged.
 
-`af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8`
+`e902da576a34ede089010c2fbce721d811ea587106abe024eebcd33c47a5289e`
 
 </details>
 
@@ -94,7 +94,7 @@ Playwright 1.58.2 runs desktop and 390 px mobile checks.
 
 The browser tests build and start their own preview server.
 
-The native checks inspect the current shell and immutable v1.0.5 APK.
+The native checks inspect the current shell and immutable v1.0.6 APK.
 
 GitHub Actions installs JDK 21 and Android API 35 for full Gradle checks.
 
@@ -104,7 +104,7 @@ Run `npm run android:sync` after changing the web app.
 
 The Android application ID is `in.sociobot.criticalalertlane`.
 
-Version 1.0.5 uses build code 6.
+Version 1.0.6 uses build code 7.
 
 Its signer matches the public v1.0.3 factory signer.
 

@@ -1,9 +1,9 @@
 {
-  "id": "/?source=pwa-v6",
+  "id": "/?source=pwa-v7",
   "name": "Critical Alert Lane",
   "short_name": "Alert Lane",
   "description": "Offline reminders that repeat until you acknowledge or snooze them.",
-  "start_url": "/?v=6",
+  "start_url": "/?v=7",
   "scope": "/",
   "display": "standalone",
   "background_color": "#F2E9D0",

@@ -733,12 +733,12 @@ test('restores the required landing order and shared factory build metadata', as
   await expect(page.locator('.how-list > li')).toHaveCount(3);
   await expect(page.locator('footer')).toContainText('Repeat critical Android reminders until you snooze or acknowledge them.');
   await expect(page.locator('footer')).toContainText('Built by Param Factory');
-  await expect(page.locator('footer')).toContainText('release 1.0.5 · polish 1');
+  await expect(page.locator('footer')).toContainText('release 1.0.6 · repair 14');
   for (const path of ['/privacy/', '/terms/']) {
     await page.goto(path);
     await expect(page.locator('.legal-header .brand')).toHaveAttribute('href', '/');
     await expect(page.locator('footer')).toContainText('Built by Param Factory');
-    await expect(page.locator('footer')).toContainText('release 1.0.5 · polish 1');
+    await expect(page.locator('footer')).toContainText('release 1.0.6 · repair 14');
     await expect(page.locator('footer').getByRole('link', { name: 'Privacy' })).toBeVisible();
     await expect(page.locator('footer').getByRole('link', { name: 'Terms' })).toBeVisible();
   }
@@ -747,7 +747,7 @@ test('restores the required landing order and shared factory build metadata', as
 test('@claim:apk-download publishes an installable Android package with its integrity digest', async ({ page, request }) => {
   await page.goto('/');
   const download = page.getByRole('link', { name: 'Download Android app (APK)' });
-  await expect(download).toHaveAttribute('href', /critical-alert-lane-1\.0\.5\.apk$/);
+  await expect(download).toHaveAttribute('href', /critical-alert-lane-1\.0\.6\.apk$/);
   await expect(page.locator('.apk-proof code')).toHaveText(/^[a-f0-9]{64}$/);
   const href = await download.getAttribute('href');
   if (!href) throw new Error('Android download link has no URL.');

@@ -37,17 +37,15 @@ const apkEntries = execFileSync('unzip', ['-Z1', apkPath], { encoding: 'utf8' })
   .map(entry => entry.slice('assets/public/'.length)).sort();
 const nativeEntries = walk(nativeRoot).sort();
 
-if (freshBuild) {
-  if (JSON.stringify(apkEntries) !== JSON.stringify(nativeEntries)) {
-    const onlyApk = apkEntries.filter(entry => !nativeEntries.includes(entry));
-    const onlyNative = nativeEntries.filter(entry => !apkEntries.includes(entry));
-    throw new Error(`Fresh APK web bundle differs from native assets. Only in APK: ${onlyApk.join(', ') || 'none'}; only in native bundle: ${onlyNative.join(', ') || 'none'}.`);
-  }
-  for (const entry of nativeEntries) {
-    const expected = readFileSync(join(nativeRoot, entry));
-    const actual = execFileSync('unzip', ['-p', apkPath, `assets/public/${entry}`]);
-    if (!actual.equals(expected)) throw new Error(`Fresh APK asset differs from native bundle: ${entry}`);
-  }
+if (JSON.stringify(apkEntries) !== JSON.stringify(nativeEntries)) {
+  const onlyApk = apkEntries.filter(entry => !nativeEntries.includes(entry));
+  const onlyNative = nativeEntries.filter(entry => !apkEntries.includes(entry));
+  throw new Error(`APK web bundle differs from the current native assets. Only in APK: ${onlyApk.join(', ') || 'none'}; only in native bundle: ${onlyNative.join(', ') || 'none'}.`);
+}
+for (const entry of nativeEntries) {
+  const expected = readFileSync(join(nativeRoot, entry));
+  const actual = execFileSync('unzip', ['-p', apkPath, `assets/public/${entry}`]);
+  if (!actual.equals(expected)) throw new Error(`APK asset differs from the current native bundle: ${entry}`);
 }
 
 const demo = execFileSync('unzip', ['-p', apkPath, 'assets/public/demo/index.html'], { encoding: 'utf8' });
@@ -57,7 +55,7 @@ if (!/const VERSION = 'cal-v\d+'/.test(serviceWorker)) throw new Error('APK has 
 const index = execFileSync('unzip', ['-p', apkPath, 'assets/public/index.html'], { encoding: 'utf8' });
 const appAssets = [...index.matchAll(/(?:src|href)="(\/assets\/[^"?]+\.js)"/g)].map(match => match[1].slice(1));
 const appSource = appAssets.map(entry => execFileSync('unzip', ['-p', apkPath, `assets/public/${entry}`], { encoding: 'utf8' })).join('\n');
-for (const marker of ['Try it with sample data', 'Repeat until handled', 'Take evening medicine']) {
+for (const marker of ['Try it with sample data', 'Repeat until acknowledged', 'Take evening medicine']) {
   if (!appSource.includes(marker)) throw new Error(`APK reminder bundle is missing release marker: ${marker}`);
 }
 
@@ -105,4 +103,4 @@ if (process.argv.includes('--instrumentation-source')) {
 
 console.log(freshBuild
   ? `Fresh APK/source identity passed: ${basename(apkPath)}; ${nativeEntries.length} embedded assets match ${relative(process.cwd(), nativeRoot)}; required native symbols match; SHA-256 ${apkHash}.`
-  : `Published APK/source identity passed: ${basename(apkPath)}; immutable digest pins ${apkEntries.length} v1.0.5 web assets; ${Object.keys(releaseRecord.nativeSource).length} native source fingerprints and required DEX symbols match; SHA-256 ${apkHash}.`);
+  : `Published APK/source identity passed: ${basename(apkPath)}; immutable digest pins ${apkEntries.length} current web assets; ${Object.keys(releaseRecord.nativeSource).length} native source fingerprints and required DEX symbols match; SHA-256 ${apkHash}.`);
