@@ -1,0 +1,42 @@
+[
+  {
+    "url": "https://api.sociobot.in/api/v1/products/critical-alert-lane/checkout",
+    "status": 303
+  },
+  {
+    "url": "https://critical-alert-lane.sociobot.in/",
+    "status": 200
+  },
+  {
+    "url": "https://critical-alert-lane.sociobot.in/404.html",
+    "status": 200
+  },
+  {
+    "url": "https://critical-alert-lane.sociobot.in/?demo=1",
+    "status": 200
+  },
+  {
+    "url": "https://critical-alert-lane.sociobot.in/downloads/critical-alert-lane-1.0.5.apk",
+    "status": 200
+  },
+  {
+    "url": "https://critical-alert-lane.sociobot.in/privacy/",
+    "status": 200
+  },
+  {
+    "url": "https://critical-alert-lane.sociobot.in/terms/",
+    "status": 200
+  },
+  {
+    "url": "https://sociobot.in/",
+    "status": 200
+  },
+  {
+    "url": "mailto:privacy@sociobot.in",
+    "status": "mailto"
+  },
+  {
+    "url": "mailto:support@sociobot.in",
+    "status": "mailto"
+  }
+]

@@ -1,0 +1,620 @@
+RUN offline-reload :: npm run test:e2e -- --grep @claim:offline-reload
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:offline-reload
+
+[WebServer] (node:10826) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:10858) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:10876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10877) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10877) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.5s)
+PASS offline-reload
+RUN safe-import :: npm run test:e2e -- --grep @claim:safe-import
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:safe-import
+
+[WebServer] (node:11082) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11114) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:11133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.7s)
+PASS safe-import
+RUN free-limit :: npm run test:e2e -- --grep @claim:free-limit
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:free-limit
+
+[WebServer] (node:11327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11358) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:11376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.2s)
+PASS free-limit
+RUN local-private :: npm run test:e2e -- --grep @claim:local-private
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:local-private
+
+[WebServer] (node:11596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11629) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:11647) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11648) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11647) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11648) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.7s)
+PASS local-private
+RUN repeat-until-handled :: npm run test:e2e -- --grep @claim:repeat-until-handled
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:repeat-until-handled
+
+[WebServer] (node:11854) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11886) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:11904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11905) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11905) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.4s)
+PASS repeat-until-handled
+RUN demo-isolation :: npm run test:e2e -- --grep @claim:demo-isolation
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:demo-isolation
+
+[WebServer] (node:12095) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12127) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:12146) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12145) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12145) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12146) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (14.2s)
+PASS demo-isolation
+RUN demo-ready :: npm run test:e2e -- --grep @claim:demo-ready
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:demo-ready
+
+[WebServer] (node:12400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:12450) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12451) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12450) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12451) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.4s)
+PASS demo-ready
+RUN data-portability :: npm run test:e2e -- --grep @claim:data-portability
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:data-portability
+
+[WebServer] (node:12646) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12678) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:12697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12696) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12696) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.2s)
+PASS data-portability
+RUN rolling-score :: npm run test:e2e -- --grep @claim:rolling-score
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:rolling-score
+
+[WebServer] (node:12887) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12919) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:12937) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12938) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12938) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12937) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.3s)
+PASS rolling-score
+RUN schedule-and-undo :: npm run test:e2e -- --grep @claim:schedule-and-undo
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:schedule-and-undo
+
+[WebServer] (node:13150) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13181) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:13199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13200) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13200) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.7s)
+PASS schedule-and-undo
+RUN quiet-hours :: npm run test:e2e -- --grep @claim:quiet-hours
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:quiet-hours
+
+[WebServer] (node:13395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13426) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:13444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13445) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13445) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.2s)
+PASS quiet-hours
+RUN repeat-range :: npm run test:e2e -- --grep @claim:repeat-range
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:repeat-range
+
+[WebServer] (node:13638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13669) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:13687) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13688) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13687) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13688) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.8s)
+PASS repeat-range
+RUN pwa-installable :: npm run test:e2e -- --grep @claim:pwa-installable
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:pwa-installable
+
+[WebServer] (node:13887) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13918) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:13955) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13955) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (9.9s)
+PASS pwa-installable
+RUN android-permission-boundary :: npm run test:e2e -- --grep @claim:android-permission-boundary
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:android-permission-boundary
+
+[WebServer] (node:14156) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:14188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:14206) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14206) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.2s)
+PASS android-permission-boundary
+RUN timing-limits :: npm run test:e2e -- --grep @claim:timing-limits
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:timing-limits
+
+[WebServer] (node:14403) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:14434) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:14453) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14452) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14452) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14453) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (9.9s)
+PASS timing-limits
+RUN core-free :: npm run test:e2e -- --grep @claim:core-free
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:core-free
+
+[WebServer] (node:14653) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:14684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:14720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14721) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14721) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (13.7s)
+PASS core-free
+RUN native-background-repeat :: npm run test:android:claim
+
+> critical-alert-lane@1.0.0 test:android:claim
+> npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/verify-apk-artifact.mjs public/downloads/critical-alert-lane-1.0.5.apk --claim native-background-repeat && npm run test:android:update-signing
+
+
+> critical-alert-lane@1.0.0 android:sync
+> npm run build:native && npx cap sync android
+
+
+> critical-alert-lane@1.0.0 build:native
+> tsc --noEmit && vite build --mode native
+
+vite v7.3.6 building client environment for native...
+transforming...
+✓ 19 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-native/demo/index.html                             1.98 kB │ gzip:  0.69 kB
+dist-native/index.html                                  2.09 kB │ gzip:  0.71 kB
+dist-native/404.html                                    2.62 kB │ gzip:  0.98 kB
+dist-native/offline.html                                2.63 kB │ gzip:  0.97 kB
+dist-native/terms/index.html                            3.94 kB │ gzip:  1.51 kB
+dist-native/privacy/index.html                          4.60 kB │ gzip:  1.73 kB
+dist-native/assets/route-focus-B1h9aYdw.css             2.72 kB │ gzip:  1.11 kB
+dist-native/assets/main-CF9DTGQe.css                   17.15 kB │ gzip:  4.47 kB
+dist-native/assets/modulepreload-polyfill-B5Qt9EMX.js   0.71 kB │ gzip:  0.40 kB
+dist-native/assets/route-focus-BrFkafHo.js              0.85 kB │ gzip:  0.47 kB
+dist-native/assets/main-D-Oe7V2t.js                    44.81 kB │ gzip: 15.16 kB
+✓ built in 310ms
+✔ Copying web assets from dist-native to android/app/src/main/assets/public in 12.11ms
+✔ Creating capacitor.config.json in android/app/src/main/assets in 751.80μs
+✔ copy android in 24.86ms
+✔ Updating Android plugins in 1.81ms
+✔ update android in 25.51ms
+[info] Sync finished in 0.061s
+Native bundle check passed: 28 files, no nested APK or downloads directory.
+Published APK/source identity passed: critical-alert-lane-1.0.5.apk; immutable digest pins 26 v1.0.5 web assets; 7 native source fingerprints and required DEX symbols match; SHA-256 af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8.
+
+> critical-alert-lane@1.0.0 test:android:update-signing
+> node scripts/verify-android-update-signing.mjs
+
+Android upgrade signing passed: installed 1.0.3/code 4 -> 1.0.5/code 6; CN = Sociobot Factory Android Signing; SHA-256 F6:A9:CA:54:D7:38:5C:9D:00:5B:81:DE:04:7D:49:37:F6:C4:47:60:2E:9F:A8:19:4C:F0:F8:70:FC:53:26:5C.
+PASS native-background-repeat
+RUN lifecycle-recovery :: npm run test:android:lifecycle-claim
+
+> critical-alert-lane@1.0.0 test:android:lifecycle-claim
+> npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/verify-apk-artifact.mjs public/downloads/critical-alert-lane-1.0.5.apk --claim lifecycle-recovery && npm run test:android:update-signing
+
+
+> critical-alert-lane@1.0.0 android:sync
+> npm run build:native && npx cap sync android
+
+
+> critical-alert-lane@1.0.0 build:native
+> tsc --noEmit && vite build --mode native
+
+vite v7.3.6 building client environment for native...
+transforming...
+✓ 19 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-native/demo/index.html                             1.98 kB │ gzip:  0.69 kB
+dist-native/index.html                                  2.09 kB │ gzip:  0.71 kB
+dist-native/404.html                                    2.62 kB │ gzip:  0.98 kB
+dist-native/offline.html                                2.63 kB │ gzip:  0.97 kB
+dist-native/terms/index.html                            3.94 kB │ gzip:  1.51 kB
+dist-native/privacy/index.html                          4.60 kB │ gzip:  1.73 kB
+dist-native/assets/route-focus-B1h9aYdw.css             2.72 kB │ gzip:  1.11 kB
+dist-native/assets/main-CF9DTGQe.css                   17.15 kB │ gzip:  4.47 kB
+dist-native/assets/modulepreload-polyfill-B5Qt9EMX.js   0.71 kB │ gzip:  0.40 kB
+dist-native/assets/route-focus-BrFkafHo.js              0.85 kB │ gzip:  0.47 kB
+dist-native/assets/main-D-Oe7V2t.js                    44.81 kB │ gzip: 15.16 kB
+✓ built in 311ms
+✔ Copying web assets from dist-native to android/app/src/main/assets/public in 14.27ms
+✔ Creating capacitor.config.json in android/app/src/main/assets in 752.30μs
+✔ copy android in 29.50ms
+✔ Updating Android plugins in 1.88ms
+✔ update android in 27.95ms
+[info] Sync finished in 0.069s
+Native bundle check passed: 28 files, no nested APK or downloads directory.
+Published APK/source identity passed: critical-alert-lane-1.0.5.apk; immutable digest pins 26 v1.0.5 web assets; 7 native source fingerprints and required DEX symbols match; SHA-256 af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8.
+
+> critical-alert-lane@1.0.0 test:android:update-signing
+> node scripts/verify-android-update-signing.mjs
+
+Android upgrade signing passed: installed 1.0.3/code 4 -> 1.0.5/code 6; CN = Sociobot Factory Android Signing; SHA-256 F6:A9:CA:54:D7:38:5C:9D:00:5B:81:DE:04:7D:49:37:F6:C4:47:60:2E:9F:A8:19:4C:F0:F8:70:FC:53:26:5C.
+PASS lifecycle-recovery
+RUN apk-download :: npm run test:e2e -- --grep @claim:apk-download
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:apk-download
+
+[WebServer] (node:15276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15307) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:15331) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15325) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15325) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15331) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.4s)
+PASS apk-download
+RUN apk-source-identity :: npm run test:android:artifact
+
+> critical-alert-lane@1.0.0 test:android:artifact
+> npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/verify-apk-artifact.mjs public/downloads/critical-alert-lane-1.0.5.apk && npm run test:android:update-signing
+
+
+> critical-alert-lane@1.0.0 android:sync
+> npm run build:native && npx cap sync android
+
+
+> critical-alert-lane@1.0.0 build:native
+> tsc --noEmit && vite build --mode native
+
+vite v7.3.6 building client environment for native...
+transforming...
+✓ 19 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-native/demo/index.html                             1.98 kB │ gzip:  0.69 kB
+dist-native/index.html                                  2.09 kB │ gzip:  0.71 kB
+dist-native/404.html                                    2.62 kB │ gzip:  0.98 kB
+dist-native/offline.html                                2.63 kB │ gzip:  0.97 kB
+dist-native/terms/index.html                            3.94 kB │ gzip:  1.51 kB
+dist-native/privacy/index.html                          4.60 kB │ gzip:  1.73 kB
+dist-native/assets/route-focus-B1h9aYdw.css             2.72 kB │ gzip:  1.11 kB
+dist-native/assets/main-CF9DTGQe.css                   17.15 kB │ gzip:  4.47 kB
+dist-native/assets/modulepreload-polyfill-B5Qt9EMX.js   0.71 kB │ gzip:  0.40 kB
+dist-native/assets/route-focus-BrFkafHo.js              0.85 kB │ gzip:  0.47 kB
+dist-native/assets/main-D-Oe7V2t.js                    44.81 kB │ gzip: 15.16 kB
+✓ built in 316ms
+✔ Copying web assets from dist-native to android/app/src/main/assets/public in 16.45ms
+✔ Creating capacitor.config.json in android/app/src/main/assets in 1.09ms
+✔ copy android in 29.82ms
+✔ Updating Android plugins in 1.91ms
+✔ update android in 28.39ms
+[info] Sync finished in 0.073s
+Native bundle check passed: 28 files, no nested APK or downloads directory.
+Published APK/source identity passed: critical-alert-lane-1.0.5.apk; immutable digest pins 26 v1.0.5 web assets; 7 native source fingerprints and required DEX symbols match; SHA-256 af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8.
+
+> critical-alert-lane@1.0.0 test:android:update-signing
+> node scripts/verify-android-update-signing.mjs
+
+Android upgrade signing passed: installed 1.0.3/code 4 -> 1.0.5/code 6; CN = Sociobot Factory Android Signing; SHA-256 F6:A9:CA:54:D7:38:5C:9D:00:5B:81:DE:04:7D:49:37:F6:C4:47:60:2E:9F:A8:19:4C:F0:F8:70:FC:53:26:5C.
+PASS apk-source-identity
+RUN apk-update-signing :: npm run test:android:update-signing
+
+> critical-alert-lane@1.0.0 test:android:update-signing
+> node scripts/verify-android-update-signing.mjs
+
+Android upgrade signing passed: installed 1.0.3/code 4 -> 1.0.5/code 6; CN = Sociobot Factory Android Signing; SHA-256 F6:A9:CA:54:D7:38:5C:9D:00:5B:81:DE:04:7D:49:37:F6:C4:47:60:2E:9F:A8:19:4C:F0:F8:70:FC:53:26:5C.
+PASS apk-update-signing
+RUN repo-no-signing-secrets :: npm run test:repo-secrets
+
+> critical-alert-lane@1.0.0 test:repo-secrets
+> vitest run -t @claim:repo-no-signing-secrets
+
+
+ RUN  v3.2.7 /tmp/cal-polish-claims-OaCFrw
+
+ ↓ tests/schedule.test.ts (6 tests | 6 skipped)
+ ↓ tests/data.test.ts (9 tests | 9 skipped)
+ ✓ tests/release-policy.test.ts (8 tests | 7 skipped) 19ms
+
+ Test Files  1 passed | 2 skipped (3)
+      Tests  1 passed | 22 skipped (23)
+   Start at  09:07:43
+   Duration  811ms (transform 361ms, setup 0ms, collect 509ms, tests 19ms, environment 1ms, prepare 585ms)
+
+PASS repo-no-signing-secrets
+RUN one-time-license :: npm run test:e2e -- --grep @claim:one-time-license
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:one-time-license
+
+[WebServer] (node:15890) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15921) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:15939) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15939) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.7s)
+PASS one-time-license
+RUN billing-data-boundary :: npm run test:e2e -- --grep @claim:billing-data-boundary
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:billing-data-boundary
+
+[WebServer] (node:16142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:16173) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:16192) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16191) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16192) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16191) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.2s)
+PASS billing-data-boundary
+RUN billing-processor-refunds :: npm run test:e2e -- --grep @claim:billing-processor-refunds
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:billing-processor-refunds
+
+[WebServer] (node:16404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:16435) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:16455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16454) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16454) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.5s)
+PASS billing-processor-refunds
+RUN license-recovery :: npm run test:e2e -- --grep @claim:license-recovery
+
+> critical-alert-lane@1.0.0 test:e2e
+> playwright test --grep @claim:license-recovery
+
+[WebServer] (node:16650) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:16681) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+(node:16700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16699) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16699) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+··
+  2 passed (10.9s)
+PASS license-recovery
+CLEAN_CLONE=/tmp/cal-polish-claims-OaCFrw

@@ -1,0 +1,6 @@
+{
+  "url": "https://api.sociobot.in/api/v1/products/critical-alert-lane/checkout",
+  "status": 303,
+  "redirectOrigin": "https://checkout.dodopayments.com",
+  "processor": "Dodo"
+}
