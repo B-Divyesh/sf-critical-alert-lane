@@ -175,6 +175,38 @@ test('rejects a corrupt backup without replacing device data', async ({ page }) 
   await expect(page.getByText('Broken reminder')).toHaveCount(0);
 });
 
+test('recovers from a syntactically malformed import without replacing device data', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Add critical reminder' }).click();
+  await page.getByLabel('What needs your answer?').fill('Keep this reminder');
+  await page.getByLabel('First alert').fill('2026-09-01T09:00');
+  await page.getByRole('button', { name: 'Arm reminder' }).click();
+
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.locator('#import-data').setInputFiles({
+    name: 'malformed-critical-alert-lane.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('{not-json')
+  });
+
+  await expect(page.locator('#toast')).toHaveText(
+    'This file is not a valid Critical Alert Lane export. Choose a Critical Alert Lane export and try again. Your current reminders were not changed.'
+  );
+  await expect(page.getByRole('heading', { name: 'Keep this reminder' })).toBeVisible();
+
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#import-data').setInputFiles({
+    name: 'later-valid-critical-alert-lane.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(importedBackup([
+      importedReminder('later-valid', 'Later valid import')
+    ])))
+  });
+  await expect(page.locator('#toast')).toHaveText('Import complete.');
+  await expect(page.getByRole('heading', { name: 'Later valid import' })).toBeVisible();
+  await expect(page.getByText('Keep this reminder')).toHaveCount(0);
+});
+
 test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision during import', async ({ page }) => {
   await page.goto('/demo');
   await page.getByRole('button', { name: 'Settings' }).click();
@@ -549,12 +581,12 @@ test('restores the required landing order and shared factory build metadata', as
   await expect(page.locator('.how-list > li')).toHaveCount(3);
   await expect(page.locator('footer')).toContainText('Repeating Android reminders that wait for your answer.');
   await expect(page.locator('footer')).toContainText('Built by Param Factory');
-  await expect(page.locator('footer')).toContainText('release 1.0.5 · repair 12');
+  await expect(page.locator('footer')).toContainText('release 1.0.5 · repair 13');
   for (const path of ['/privacy/', '/terms/']) {
     await page.goto(path);
     await expect(page.locator('.legal-header .brand')).toHaveAttribute('href', '/');
     await expect(page.locator('footer')).toContainText('Built by Param Factory');
-    await expect(page.locator('footer')).toContainText('release 1.0.5 · repair 12');
+    await expect(page.locator('footer')).toContainText('release 1.0.5 · repair 13');
     await expect(page.locator('footer').getByRole('link', { name: 'Privacy' })).toBeVisible();
     await expect(page.locator('footer').getByRole('link', { name: 'Terms' })).toBeVisible();
   }

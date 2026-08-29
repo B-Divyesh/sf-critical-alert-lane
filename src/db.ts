@@ -67,6 +67,14 @@ export async function clearData(): Promise<void> {
   });
 }
 
+export function parseImportText(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error('This file is not a valid Critical Alert Lane export. Choose a Critical Alert Lane export and try again. Your current reminders were not changed.');
+  }
+}
+
 export function validateData(value: unknown): AppData {
   const data = validateStructure(value);
   const ids = new Set<string>();

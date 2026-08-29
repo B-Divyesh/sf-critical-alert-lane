@@ -1,5 +1,5 @@
 import './styles.css';
-import { clearData, loadData, prepareImport, pruneExpiredHistory, saveData, useStorageNamespace } from './db';
+import { clearData, loadData, parseImportText, prepareImport, pruneExpiredHistory, saveData, useStorageNamespace } from './db';
 import { createDemoData } from './demo';
 import { buyUrl, captureLicense, isOptimisticallyUnlocked, removeLicense, setLicense, verifyLicense } from './license';
 import { icon } from './icons';
@@ -22,7 +22,7 @@ let nativeStatus: NativeSchedulerStatus | null = null;
 let editorReturnTarget: { kind: 'add' } | { kind: 'edit'; id: string } | null = null;
 const ANDROID_APK = '/downloads/critical-alert-lane-1.0.5.apk';
 const ANDROID_APK_SHA256 = __ANDROID_APK_SHA256__;
-const BUILD_ID = 'release 1.0.5 · repair 12';
+const BUILD_ID = 'release 1.0.5 · repair 13';
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
@@ -437,7 +437,7 @@ async function importData(event: Event): Promise<void> {
   const input = event.currentTarget as HTMLInputElement;
   const file = input.files?.[0]; if (!file) return;
   try {
-    const prepared = prepareImport(JSON.parse(await file.text()), unlocked ? undefined : 3);
+    const prepared = prepareImport(parseImportText(await file.text()), unlocked ? undefined : 3);
     const identityWarning = prepared.remappedReminderIds
       ? ` ${prepared.remappedReminderIds} unsafe reminder ID(s) will be repaired so Android alarms stay separate.`
       : '';

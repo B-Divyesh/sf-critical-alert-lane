@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HISTORY_WINDOW_MS, javaStringHash, prepareImport, pruneExpiredHistory, validateData } from '../src/db';
+import { HISTORY_WINDOW_MS, javaStringHash, parseImportText, prepareImport, pruneExpiredHistory, validateData } from '../src/db';
 import type { AppData } from '../src/types';
 
 const reminder = (id: string, title = id) => ({
@@ -24,6 +24,12 @@ const backup = (reminders: ReturnType<typeof reminder>[]) => ({
 });
 
 describe('import validation', () => {
+  it('replaces malformed JSON parser details with a stable recovery message', () => {
+    expect(() => parseImportText('{not-json')).toThrow(
+      'This file is not a valid Critical Alert Lane export. Choose a Critical Alert Lane export and try again. Your current reminders were not changed.'
+    );
+  });
+
   it('rejects unrelated JSON', () => {
     expect(() => validateData({ hello: 'world' })).toThrow(/does not contain|not supported/);
   });
