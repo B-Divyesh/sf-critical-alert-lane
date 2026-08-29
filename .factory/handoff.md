@@ -72,6 +72,21 @@ Final automated checks:
 - Lighthouse against the local production preview with the worker Chromium:
   Performance 100, Accessibility 100, LCP 1,655 ms, CLS 0.
 
+## Deployment evidence
+
+- Deployed static artifact from repair commit
+  `c94e6e614bf6155ecf33656d675f0e5f129b89d9` with
+  `/opt/fleet/lib/deploy-static.sh critical-alert-lane dist`.
+- Azure Static Web Apps deployment ID: `f75dc020-8485-412b-9740-e449eb534739`.
+  Production endpoint: <https://critical-alert-lane.sociobot.in>.
+- Live checks after deploy: `/` 200; `/demo/` 200 with title
+  `Demo — Critical Alert Lane`; `/not-a-real-route` 404 and renders the
+  designed page. Production security headers include the expected CSP,
+  `nosniff`, and strict-origin referrer policy.
+- The deployed `assets/main-DC97QBiw.js` SHA-256 is
+  `0d8fb477bdb14da19e2cae52bdef7df84ee2c19090a3de93af41fc9afaf558b9`,
+  byte-identical to `dist/`.
+
 Privacy and policy checks:
 
 - The `@claim:local-private` request recorder passes on `/demo`: ordinary
