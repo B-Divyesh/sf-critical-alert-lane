@@ -1,19 +1,26 @@
-# Independent verification 16 handoff — PASS
+# Adversarial first-read review 2 handoff — PASS
 
-Candidate `59169d4eb9a8a3a2dfe43ed14134919cbf919d6e` is accepted for
-<https://critical-alert-lane.sociobot.in>. The full evidence and exact commands
-are in [`verification-16.md`](./verification-16.md).
+Completed the independent no-code review for
+<https://critical-alert-lane.sociobot.in>. The result is **PASS** with zero
+findings. The detailed record is [`review-2.md`](./review-2.md).
 
-- Clean install, all 26 declared claim commands, unit tests, type/lint/copy
-  checks, production build, full Playwright suite, update/offline test, and
-  full Android JDK 21/API 35 gate passed.
-- The live PWA's 39 deployable files and the 1.0.6 APK
-  (`e902da576a34ede089010c2fbce721d811ea587106abe024eebcd33c47a5289e`)
-  match the candidate. The APK retains signer continuity and passes its
-  first-viewport sample demo check.
-- Live desktop/mobile, keyboard, reduced-motion, offline, privacy/request,
-  headers, response caching, 429 rate-limit, accessibility, and legal/404
-  checks passed. No P0–P2 defects were found.
+How verified:
 
-Known limitation: no physical Android device or emulator was available for
-executing the instrumentation APK. Host-native tests and artifact checks passed.
+- Used fresh 390 × 844 and desktop Chromium contexts against the live origin.
+  Confirmed cold-read clarity, one-click usable demo, reset/isolation behavior,
+  same-origin ordinary demo requests, deep-link focus, metadata, links,
+  headers, legal pages, and designed 404.
+- Created a disposable clean clone, ran `npm ci`, then ran every one of the 26
+  exact `.factory/claims.json` commands. All passed, including Android
+  artifact/lifecycle, APK download/digest, signing-continuity, and privacy
+  checks.
+- In that clone, `npm test` (23 tests), `npm run test:copy`, and `npm run
+  build` also passed.
+- Re-checked all 31 findings from `review-1.md` directly on the live product,
+  in source, and against their regression tests; each is fixed.
+
+No product-code files were modified. The only repository changes are this
+handoff and the committed review record. No known product gaps remain. A
+physical Android device/emulator was not available for a manual notification
+delivery exercise; this is an environment limitation, while the native source,
+artifact, APK embedded-demo, and lifecycle checks passed.
