@@ -13,6 +13,7 @@ demo**, which restores those samples, and **Start for real**, which discards
 the demo state and returns to an empty real lane. Demo records use IndexedDB
 database `demo:critical-alert-lane`; real records use
 `critical-alert-lane`. Demo mode does not read or write the real reminder
-database, local license token, or native Android scheduler.
+database, local license token, or native Android scheduler. Leaving through
+the brand, legal links, Sociobot link, or checkout also discards demo changes.
 
 All browser claim tests enter through `/demo` from a fresh context.

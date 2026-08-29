@@ -1,5 +1,5 @@
 import './styles.css';
-import { clearData, loadData, prepareImport, saveData, useStorageNamespace } from './db';
+import { clearData, loadData, prepareImport, pruneExpiredHistory, saveData, useStorageNamespace } from './db';
 import { createDemoData } from './demo';
 import { buyUrl, captureLicense, isOptimisticallyUnlocked, removeLicense, setLicense, verifyLicense } from './license';
 import { icon } from './icons';
@@ -77,6 +77,7 @@ function reminderRow(reminder: Reminder): string {
 }
 
 function render(): void {
+  if (pruneExpiredHistory(data)) void saveData(data).catch(() => undefined);
   const due = dueReminders();
   const current = due[0];
   const handled = data.history.length;
@@ -235,6 +236,19 @@ function bindEvents(): void {
     await clearData();
     window.location.assign('/');
   });
+  if (isDemo) {
+    document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach(link => {
+      const href = link.getAttribute('href') ?? '';
+      if (href.startsWith('#') || link.hasAttribute('download')) return;
+      link.addEventListener('click', event => {
+        event.preventDefault();
+        void (async () => {
+          try { await clearData(); }
+          finally { window.location.assign(link.href); }
+        })();
+      });
+    });
+  }
   document.querySelectorAll<HTMLElement>('.edit-reminder').forEach(button => button.addEventListener('click', () => openEditor(button.closest<HTMLElement>('[data-id]')!.dataset.id!)));
   document.querySelectorAll<HTMLElement>('.delete-reminder').forEach(button => button.addEventListener('click', async () => {
     const id = button.closest<HTMLElement>('[data-id]')!.dataset.id!;
@@ -303,7 +317,7 @@ async function acknowledgeCurrent(): Promise<void> {
   undoSnapshot = structuredClone(data);
   const handledAt = new Date();
   data.history.unshift({ id: crypto.randomUUID(), reminderId: reminder.id, title: reminder.title, scheduledAt: reminder.nextAt, handledAt: handledAt.toISOString(), withinWindow: handledAt.getTime() <= new Date(reminder.nextAt).getTime() + reminder.escalationMinutes * 60_000 });
-  data.history = data.history.filter(entry => Date.now() - new Date(entry.handledAt).getTime() < 30 * 86_400_000);
+  pruneExpiredHistory(data, handledAt.getTime());
   const next = nextOccurrence(reminder.nextAt, reminder.recurrence, handledAt);
   reminder.enabled = Boolean(next);
   if (next) reminder.nextAt = next;

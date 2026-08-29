@@ -3,6 +3,7 @@ import { DEFAULT_DATA, type AppData } from './types';
 const DB_NAME = 'critical-alert-lane';
 const STORE = 'state';
 const KEY = 'app-data';
+export const HISTORY_WINDOW_MS = 30 * 86_400_000;
 let databaseName = DB_NAME;
 
 /**
@@ -35,7 +36,7 @@ export async function loadData(): Promise<AppData> {
       // Repair backups accepted by versions before v1.0.3 in place. This
       // avoids losing a user's lane if duplicate or Java-hash-colliding IDs
       // already reached IndexedDB before the invariant was added.
-      if (prepared.remappedReminderIds > 0) transaction.objectStore(STORE).put(loaded, KEY);
+      if (prepared.remappedReminderIds > 0 || prepared.prunedHistoryEntries > 0) transaction.objectStore(STORE).put(loaded, KEY);
     };
     request.onerror = () => reject(request.error ?? new Error('Could not read reminders.'));
     transaction.oncomplete = () => { db.close(); resolve(loaded); };
@@ -44,6 +45,7 @@ export async function loadData(): Promise<AppData> {
 }
 
 export async function saveData(data: AppData): Promise<void> {
+  pruneExpiredHistory(data);
   data.updatedAt = new Date().toISOString();
   validateData(data);
   const db = await openDb();
@@ -103,6 +105,15 @@ export interface PreparedImport {
   data: AppData;
   remappedReminderIds: number;
   pausedReminderIds: string[];
+  prunedHistoryEntries: number;
+}
+
+/** Keep the reliability score rolling even when no new reminder is handled. */
+export function pruneExpiredHistory(data: AppData, now = Date.now()): boolean {
+  const cutoff = now - HISTORY_WINDOW_MS;
+  const before = data.history.length;
+  data.history = data.history.filter(entry => new Date(entry.handledAt).getTime() >= cutoff);
+  return data.history.length !== before;
 }
 
 /** Java's String.hashCode(), calculated over UTF-16 code units. */
@@ -119,8 +130,10 @@ export function javaStringHash(value: string): number {
  * saved. File order is the deterministic tie-breaker: the first safe ID stays
  * unchanged, and later duplicate/hash-colliding IDs receive stable suffixes.
  */
-export function prepareImport(value: unknown, activeLimit?: number): PreparedImport {
+export function prepareImport(value: unknown, activeLimit?: number, now = Date.now()): PreparedImport {
   const data = structuredClone(validateStructure(value));
+  const historyBeforePruning = data.history.length;
+  pruneExpiredHistory(data, now);
   const usedIds = new Set<string>();
   const usedHashes = new Set<number>();
   const firstCanonicalId = new Map<string, string>();
@@ -165,7 +178,12 @@ export function prepareImport(value: unknown, activeLimit?: number): PreparedImp
     }
   }
 
-  return { data: validateData(data), remappedReminderIds, pausedReminderIds };
+  return {
+    data: validateData(data),
+    remappedReminderIds,
+    pausedReminderIds,
+    prunedHistoryEntries: historyBeforePruning - data.history.length
+  };
 }
 
 const RECURRENCES = new Set(['once', 'daily', 'weekdays', 'weekly']);

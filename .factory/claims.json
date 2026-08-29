@@ -36,10 +36,38 @@
   },
   {
     "id": "demo-isolation",
-    "claim": "The sample demo keeps its reminder data separate from the real lane.",
+    "claim": "The sample demo keeps its reminder data separate from the real lane and discards changes on every exit.",
     "where": "demo banner, README",
     "test": "npm run test:e2e -- --grep @claim:demo-isolation",
-    "sandbox": "fresh browser opens /demo; seed a real-lane record, verify it is absent from the sample lane, leave demo, and verify it is intact in the real lane"
+    "sandbox": "fresh browser opens /demo; seed a real-lane record, verify isolation, then change the sample and leave through Start for real, brand, legal, external, and checkout links; every return starts with fresh samples"
+  },
+  {
+    "id": "data-portability",
+    "claim": "Exports download versioned JSON, and imports replace device data only after confirmation.",
+    "where": "Settings, Privacy, README",
+    "test": "npm run test:e2e -- --grep @claim:data-portability",
+    "sandbox": "fresh demo browser at /demo; download and parse all three sample reminders, then confirm a replacement import and assert only its reminder remains"
+  },
+  {
+    "id": "rolling-score",
+    "claim": "The handled-in-time score uses only acknowledgement history from the latest 30 days.",
+    "where": "30-day signal check, README",
+    "test": "npm run test:e2e -- --grep @claim:rolling-score",
+    "sandbox": "fresh demo browser; import acknowledgements from 29 and 31 days ago, then assert the score counts only the recent record before and after reload; the exact millisecond boundary has a unit regression"
+  },
+  {
+    "id": "schedule-and-undo",
+    "claim": "Reminders support one-time, daily, weekday, and weekly schedules, and an acknowledgement can be undone.",
+    "where": "reminder editor, reminder rows, README",
+    "test": "npm run test:e2e -- --grep @claim:schedule-and-undo",
+    "sandbox": "fresh demo browser at /demo; observe one-time, daily, and weekly samples, change weekly to weekdays, acknowledge the due reminder, then Undo and assert it is due again"
+  },
+  {
+    "id": "quiet-hours",
+    "claim": "Quiet hours mute notification repeats without hiding a due alert.",
+    "where": "Settings, due alert, README",
+    "test": "npm run test:e2e -- --grep @claim:quiet-hours",
+    "sandbox": "fresh demo browser with a fixed clock; import a due reminder inside quiet hours and assert it stays visible while the lane marks its notifications muted"
   },
   {
     "id": "native-background-repeat",
@@ -47,6 +75,13 @@
     "where": "landing APK proof, README",
     "test": "npm run test:android:claim",
     "sandbox": "Robolectric API 30; persist due native state, invoke the alarm receiver path, and assert AlarmManager holds the next five-minute repeat"
+  },
+  {
+    "id": "lifecycle-recovery",
+    "claim": "Android re-arms saved alarms after boot, clock changes, and time-zone changes.",
+    "where": "README, Android manifest",
+    "test": "npm run test:android:lifecycle-claim",
+    "sandbox": "Robolectric API 30; persist a future native alarm, invoke the registered boot, clock, and time-zone receiver actions, and assert the exact alarm is re-armed after each"
   },
   {
     "id": "apk-download",
@@ -60,6 +95,6 @@
     "claim": "US$4.99 is a one-time purchase for unlimited active reminders through Sociobot checkout.",
     "where": "landing page, Settings pricing, Terms, README",
     "test": "npm run test:e2e -- --grep @claim:one-time-license",
-    "sandbox": "fresh unlicensed demo browser at /demo; assert exact price, one-time copy, and the registered Sociobot checkout URL"
+    "sandbox": "fresh browser enters through /demo, starts a real lane, captures a returned fixture license, receives a recorded valid verification response, strips the token URL, imports four active reminders, and keeps all four active after reload"
   }
 ]

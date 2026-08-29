@@ -27,4 +27,24 @@ describe('release policy regressions', () => {
     });
     expect(new Date(due!.nextAt).getTime()).toBeLessThan(Date.now());
   });
+
+  it('publishes canonical, social-card, and Apple icon metadata with correctly sized images', () => {
+    const routes = [
+      ['index.html', 'https://critical-alert-lane.sociobot.in/'],
+      ['demo/index.html', 'https://critical-alert-lane.sociobot.in/demo/'],
+      ['privacy/index.html', 'https://critical-alert-lane.sociobot.in/privacy/'],
+      ['terms/index.html', 'https://critical-alert-lane.sociobot.in/terms/']
+    ];
+    for (const [file, canonical] of routes) {
+      const page = readFileSync(resolve(file), 'utf8');
+      expect(page).toContain(`<link rel="canonical" href="${canonical}"`);
+      expect(page).toContain('<meta property="og:image" content="https://critical-alert-lane.sociobot.in/art/social-preview.png"');
+      expect(page).toContain('<meta name="twitter:card" content="summary_large_image"');
+      expect(page).toContain('<link rel="apple-touch-icon" href="/icons/icon-180.png"');
+    }
+    const social = readFileSync(resolve('public/art/social-preview.png'));
+    const appleIcon = readFileSync(resolve('public/icons/icon-180.png'));
+    expect([social.readUInt32BE(16), social.readUInt32BE(20)]).toEqual([1200, 630]);
+    expect([appleIcon.readUInt32BE(16), appleIcon.readUInt32BE(20)]).toEqual([180, 180]);
+  });
 });

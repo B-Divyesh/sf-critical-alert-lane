@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { javaStringHash, prepareImport, validateData } from '../src/db';
+import { HISTORY_WINDOW_MS, javaStringHash, prepareImport, pruneExpiredHistory, validateData } from '../src/db';
+import type { AppData } from '../src/types';
 
 const reminder = (id: string, title = id) => ({
   id,
@@ -88,5 +89,18 @@ describe('import validation', () => {
     expect(prepared.data.reminders.filter(item => item.enabled)).toHaveLength(3);
     expect(prepared.pausedReminderIds).toEqual(['four']);
     expect(prepared.data.reminders[3]).toMatchObject({ id: 'four', enabled: false, pausedByFreeLimit: true });
+  });
+
+  it('keeps the exact 30-day boundary and removes history one millisecond older', () => {
+    const now = Date.parse('2026-08-29T12:00:00.000Z');
+    const value: AppData = backup([]);
+    value.history = [
+      { id: 'inside', reminderId: 'one', title: 'Inside boundary', scheduledAt: '2026-07-30T12:00:00.000Z', handledAt: new Date(now - HISTORY_WINDOW_MS).toISOString(), withinWindow: true },
+      { id: 'outside', reminderId: 'two', title: 'Outside boundary', scheduledAt: '2026-07-30T11:59:59.999Z', handledAt: new Date(now - HISTORY_WINDOW_MS - 1).toISOString(), withinWindow: false }
+    ];
+
+    expect(pruneExpiredHistory(value, now)).toBe(true);
+    expect(value.history.map(entry => entry.id)).toEqual(['inside']);
+    expect(pruneExpiredHistory(value, now)).toBe(false);
   });
 });

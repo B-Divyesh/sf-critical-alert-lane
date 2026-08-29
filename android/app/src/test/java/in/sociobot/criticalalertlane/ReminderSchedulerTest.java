@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 
 import android.app.AlarmManager;
 import android.content.Context;
+import android.content.Intent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -91,6 +92,24 @@ public class ReminderSchedulerTest {
         long triggerAt = Shadows.shadowOf(manager).getNextScheduledAlarm().triggerAtTime;
         assertTrue(triggerAt >= afterHandle + 5 * 60_000L - 1_000L);
         assertTrue(triggerAt <= afterHandle + 5 * 60_000L + 1_000L);
+    }
+
+    @Test @Config(sdk = 30)
+    public void claim_lifecycle_recovery_rearms_after_boot_clock_and_timezone_changes() throws Exception {
+        Context context = RuntimeEnvironment.getApplication();
+        context.getSharedPreferences("critical-alert-lane-native", Context.MODE_PRIVATE).edit().clear().commit();
+        JSONObject data = new JSONObject("{\"version\":1,\"reminders\":[{" +
+            "\"id\":\"recover-me\",\"title\":\"Recover me\",\"enabled\":true," +
+            "\"nextAt\":\"2099-08-28T05:30:39.123Z\",\"repeatMinutes\":5}]," +
+            "\"settings\":{\"quietEnabled\":false,\"quietStart\":\"22:00\",\"quietEnd\":\"07:00\"}}");
+        ReminderScheduler.replace(context, data);
+        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        String[] actions = { Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED };
+        for (String action : actions) {
+            new ReminderRescheduleReceiver().onReceive(context, new Intent(action));
+            assertEquals("Expected recovery for " + action, 1, Shadows.shadowOf(manager).getScheduledAlarms().size());
+            assertEquals(4091578239123L, Shadows.shadowOf(manager).getNextScheduledAlarm().triggerAtTime);
+        }
     }
 
     @Test public void duplicateReminderIdsAreRejectedBeforeNativeReplacement() throws Exception {

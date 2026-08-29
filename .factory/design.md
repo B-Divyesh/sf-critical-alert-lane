@@ -99,3 +99,6 @@ is clearer at launcher sizes.
   and misleading capability. No third-party source material is shipped.
 - Tape-lane icon and interface marks: original SVG/CSS artwork authored for
   Critical Alert Lane, 2026-08-28, MIT as part of the repository.
+- Social preview: a deterministic 1200×630 composition made on 2026-08-29
+  from the approved hero collage. Its blurred side fill uses only pixels from
+  that original asset; no new source material or generated text was added.

@@ -1,153 +1,118 @@
-# Independent verification 8 handoff — FAIL
+# Repair 6 handoff — ready for static deployment
 
 Date: 2026-08-29
 
-Candidate: `93ca408a9f65a26bf80728800a5a419409e81473`
+Work order: `critical-alert-lane-repair-6`
 
-Production: <https://critical-alert-lane.sociobot.in>
+Verifier report: `db697e66f3e0f5f5dec056cf49dfa5638fff20c4`
 
-**FAIL. Do not release.** Fresh production evidence disproves the rolling
-30-day score: a valid 40-day-old imported acknowledgement is still counted
-after reload. Leaving `/demo` through the visible brand link also preserves
-changed sample data despite the privacy promise that leaving discards it.
-The claims manifest omits published export, quiet-hours, recurrence/Undo,
-30-day score, and lifecycle-recovery promises; the paid claim checks only copy
-and an href. At 390 px, Reset demo and Start for real are 36 px tall rather
-than the required 44 px. Required canonical/social/apple-touch metadata is
-also absent.
-
-Positive evidence: the cold first-read and one-click populated demo pass; all
-9 listed claim entries pass after provisioning JDK 21/API 35; `npm ci`, 15/15
-unit tests, typecheck, lint, production build, 36/36 Playwright tests, full
-Android unit/lint/APK gate, and Android-test APK assembly pass. All 30 served
-build files match production. The signed v1.0.3 APK matches its displayed
-SHA-256. Axe has zero serious/critical findings, live normal paths have zero
-console/page errors, offline reload and controlled worker update pass, and the
-billing API enforces 30 requests before 429 with `Retry-After`.
-
-Full evidence and reproduction steps: [`.factory/verification-8.md`](./verification-8.md).
-
----
-
-# Previous repair handoff — ready for deployment
-
-Date: 2026-08-28
-
-Work order: `critical-alert-lane-repair-5`
-
-Base reviewed: `4b30b0f7b35374999090b3217412559d7abdf0fe` (verification 5,
-candidate `6d410a66fcecd5c28f12fc4835bb4700afe3439c`)
+Candidate repaired: `93ca408a9f65a26bf80728800a5a419409e81473`
 
 Artifact/deployment class: Android-capable local-first PWA; static `dist/`
-deployment. The Capacitor project remains intact.
+deployment. The Capacitor Android project and signed v1.0.3 download remain
+intact under the work order's PWA-first/static-deploy configuration.
 
-## Repaired release blockers
+## Release blockers repaired
 
-- Added a real `/demo/` static page and first-screen **Try it with sample
-  data** action. It seeds three realistic reminders, including an already-due
-  five-minute repeating medicine reminder.
-- Demo records use IndexedDB `demo:critical-alert-lane`; normal records remain
-  in `critical-alert-lane`. Demo mode never reads/writes the real database,
-  local license, or native scheduler. Its persistent banner has **Reset demo**
-  and **Start for real**; leaving clears the demo store.
-- Added `.factory/demo.md`, updated README/privacy/copy audit, and added
-  browser regression coverage for sample repeat/acknowledge/snooze and strict
-  demo-to-real isolation.
-- Made every browser claim command self-contained: Playwright builds before it
-  starts preview. Every browser claim now enters through `/demo`.
-- Restored native quality-gate execution in this worker with JDK 21 and Android
-  SDK API 35. `scripts/gradle.mjs` resolves and exports `JAVA_HOME`,
-  `ANDROID_HOME`, and `ANDROID_SDK_ROOT` for documented Android scripts.
-- Added a designed `404.html`, a Static Web Apps 404 response override, and a
-  real generated `demo/index.html`; unknown server paths no longer need a
-  catch-all app fallback. Added regression coverage for the response policy.
-- Added executable `scripts/verify-url.sh` for title, language, main landmark,
-  and image-alt checks. Service worker cache advanced to `cal-v7` and precaches
-  `/demo/` and the 404 page.
+- The 30-day score now prunes expired acknowledgement history on import,
+  IndexedDB load, every save, acknowledgement, and render. The exact boundary
+  is inclusive. A unit regression keeps a record exactly 30 days old and drops
+  one a millisecond older; browser coverage proves 29-day history is counted,
+  31-day history is removed, and the result survives reload.
+- Every demo navigation that leaves `/demo` now clears
+  `demo:critical-alert-lane` before navigating. Coverage exercises **Start for
+  real**, the brand, Privacy, Terms, the external Sociobot link, and checkout,
+  while proving the real IndexedDB lane remains untouched.
+- `.factory/claims.json` now contains 14 unique outcome claims. New dedicated
+  tests cover JSON export/replacement import, rolling score, all four schedules
+  plus Undo, quiet hours, and Android lifecycle recovery. The paid claim now
+  captures a returned fixture license, verifies it through a recorded gateway
+  response, strips the token from the URL, permits four active reminders, and
+  preserves that entitlement after reload.
+- Both demo-banner actions now measure at least 44×44 CSS px at a 390 px
+  viewport.
+- Root, demo, privacy, and terms documents now include canonical, Open Graph,
+  Twitter-card, favicon, and Apple touch metadata. The linked 1200×630 social
+  preview is composed from the approved original cassette collage; provenance
+  is recorded in `.factory/design.md`.
+- The service-worker cache advanced from `cal-v7` to `cal-v8`. A repeatable
+  update check confirms the installed page reports an update and reloads the
+  updated demo while offline.
 
 ## Verification evidence
 
-Clean state:
+Clean install and static web:
 
-- `npm ci` — PASS, 148 packages, 0 vulnerabilities.
-- Moved the ignored generated `dist/` aside, then ran
-  `npm run test:e2e -- --grep @claim:offline-reload` — PASS (2 projects). This
-  proves the documented browser command builds from a clean checkout.
-- Ran the remaining documented browser claim commands exactly (`safe-import`,
-  `free-limit`, `local-private`, `repeat-until-handled`, `demo-isolation`,
-  `apk-download`, and `one-time-license`) — PASS in both Chromium projects.
-- `npm run test:android:claim` — PASS: Robolectric report records 1 test, 0
-  failures, 0 errors for persisted-state native repeat re-arming.
-
-Final automated checks:
-
-- `npm test` — PASS, 15 tests.
-- `npm run lint` — PASS.
+- `npm ci` — PASS; 148 packages installed, 0 vulnerabilities.
+- `npm test` — PASS; 17/17 Vitest tests.
 - `npm run typecheck` — PASS.
-- `npm run build` — PASS. Output includes `dist/demo/index.html` and
-  `dist/404.html`; app JS 39,411 B (14.01 kB gzip), app CSS 13,307 B
-  (3.74 kB gzip), hero AVIF 44,626 B.
-- `npm run test:e2e` — PASS, 36/36 across configured desktop Chromium and
-  mobile Chromium. This covers 390px layout, keyboard dialog operation/focus
-  return, offline reload, private same-origin flow, demo isolation, import,
-  free limit, APK digest, billing copy, reduced-motion axe, and zero
-  serious/critical axe violations.
-- `npm run test:android` — PASS after final web sync: native unit tests, lint,
-  debug APK, and debug Android-test APK assembled. Unit XML reports 28 tests
-  across debug/release with 0 failures/errors; lint completed with 0 errors.
-- `npm run test:android:instrumentation` — PASS: debug Android-test APK
-  assembled. No emulator/device was supplied, so instrumentation execution and
-  physical APK installation remain a distribution-stage check.
-- `./scripts/verify-url.sh http://127.0.0.1:4174/`, `/demo/`, and `/404.html`
-  — PASS for title, `lang`, `<main>`, and image alt text.
-- Lighthouse against the local production preview with the worker Chromium:
-  Performance 100, Accessibility 100, LCP 1,655 ms, CLS 0.
+- `npm run lint` — PASS.
+- `npm run build` — PASS; `dist/` generated.
+- `npm run test:e2e` — PASS; 46/46 tests across desktop Chromium and mobile
+  Chromium. Coverage includes all 12 browser claims, keyboard dialog operation
+  and focus return, 390×844 layout/touch targets, root/demo/settings axe scans,
+  console errors, reduced motion, offline reload, and privacy request capture.
+- `npm run test:update` — PASS; `cal-v8` detected a replacement worker and the
+  updated demo reloaded offline.
+- `scripts/verify-url.sh` — PASS on `/`, `/demo/`, `/privacy/`, and `/terms/`.
+- Local Lighthouse 13.0.1 mobile against `/demo/`: performance 99,
+  accessibility 100, best practices 100, SEO 100; FCP 1.0 s, LCP 1.7 s,
+  TBT 90 ms, CLS 0.
+- Browser visual checks at 1440×900 and 390×844 found one `<h1>`, the correct
+  route title, and no horizontal overflow (`scrollWidth === clientWidth`).
 
-## Deployment evidence
+Native Android:
 
-- Deployed static artifact from repair commit
-  `c94e6e614bf6155ecf33656d675f0e5f129b89d9` with
-  `/opt/fleet/lib/deploy-static.sh critical-alert-lane dist`.
-- Azure Static Web Apps deployment ID: `f75dc020-8485-412b-9740-e449eb534739`.
-  Production endpoint: <https://critical-alert-lane.sociobot.in>.
-- Live checks after deploy: `/` 200; `/demo/` 200 with title
-  `Demo — Critical Alert Lane`; `/not-a-real-route` 404 and renders the
-  designed page. Production security headers include the expected CSP,
-  `nosniff`, and strict-origin referrer policy.
-- The deployed `assets/main-DC97QBiw.js` SHA-256 is
-  `0d8fb477bdb14da19e2cae52bdef7df84ee2c19090a3de93af41fc9afaf558b9`,
-  byte-identical to `dist/`.
+- Provisioned OpenJDK 21 and official Android API 35/build-tools in the worker.
+- `npm run test:android:claim` — PASS; persisted due state re-arms its
+  five-minute repeat without a running web timer.
+- `npm run test:android:lifecycle-claim` — PASS; boot, clock, and time-zone
+  broadcasts each re-arm the saved exact alarm at the expected timestamp.
+- `npm run test:android` — PASS; debug/release host tests, Android lint, debug
+  APK, and debug Android-test APK assembly completed.
+- `npm run test:android:instrumentation` — PASS; repository-wide Android-test
+  APK assembly completed. No emulator/device was available for execution.
+- Fresh debug APK: 5,906,994 bytes; SHA-256
+  `cd4b8222a7dbb9f680501b02f1af5e6af20363d4bf22713fd9879ac3ad011cd8`.
+- The existing signed v1.0.3 download remains byte-identical at 3,676,178
+  bytes and SHA-256
+  `06382ba158e7cd4a28222e14a81174150b574daabe17af9be62cac91213e3c16`.
 
-Privacy and policy checks:
+Budgets and privacy:
 
-- The `@claim:local-private` request recorder passes on `/demo`: ordinary
-  reminder actions make same-origin requests only. No analytics or third-party
-  fonts/scripts were added.
-- Demo explicitly bypasses license capture/verification and native scheduling;
-  its isolation test seeds normal IndexedDB and proves normal data is absent in
-  demo, then intact after Start for real.
-- `public/staticwebapp.config.json` retains the CSP/security headers and now
-  maps actual 404 responses to `/404.html`; no invalid `frame-ancestors` meta
-  policy was added.
+- Initial app JS is 39,907 bytes (14,124 bytes gzip); app CSS is 13,323 bytes
+  (3,759 bytes gzip); the mobile hero AVIF is 44,626 bytes.
+- Ordinary demo create/persist/reload traffic remains same-origin only. No
+  analytics, ads, CDN fonts, or third-party scripts were added. The only
+  allowed external runtime origin remains the Sociobot billing API.
+- This is a static PWA/Android artifact, not a published library, so a separate
+  package-consumer test is not applicable.
 
-## Run and deploy
+## Run and verify
 
 ```sh
 npm ci
 npm test
+npm run typecheck
+npm run lint
 npm run build
 npm run test:e2e
+npm run test:update # while preview runs on port 4174
 npm run test:android
+npm run test:android:lifecycle-claim
 npm run test:android:instrumentation
 ```
 
-Deploy the generated `dist/` directory with the repository static deployment
-configuration. `/demo/` is the catalog/verifier URL; `/demo` redirects to it
-on static hosts with directory-index behavior.
+## Deployment
 
-## Known non-blocking gaps
+Static deployment and production identity checks are pending the repair
+commit. Record the deployment ID and live byte identity below before final
+handoff.
 
-- The worker assembled Android APKs and ran Robolectric, but has no attached
-  emulator or physical device for an installed-app notification smoke test.
-- Android lint has existing splash-resource warnings but reports zero errors;
-  no new lint failures were introduced.
+## Known gap
+
+The worker has no Android device or emulator, so an installed-app notification
+smoke test could not run. Native evidence consists of host/Robolectric tests,
+lint, bundle inspection, and APK/test-APK assembly. Signed Android packaging is
+a later work order under the supplied stack decision; this static repair does
+not replace the existing signed v1.0.3 download.

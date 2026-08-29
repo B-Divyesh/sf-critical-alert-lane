@@ -10,7 +10,7 @@ Live app: <https://critical-alert-lane.sociobot.in>
 Try it safely first: <https://critical-alert-lane.sociobot.in/demo>. The demo
 opens with realistic sample reminders in a separate browser database. **Reset
 demo** restores the samples; **Start for real** discards them and opens your
-empty real lane.
+empty real lane. Any other link that leaves the demo also discards its changes.
 
 Android download: [Critical Alert Lane 1.0.3 APK](./public/downloads/critical-alert-lane-1.0.3.apk)
 (`SHA-256 06382ba158e7cd4a28222e14a81174150b574daabe17af9be62cac91213e3c16`).
@@ -51,7 +51,9 @@ npm run dev
 npm test
 npm run build
 npm run test:e2e
+npm run test:update
 npm run test:android
+npm run test:android:lifecycle-claim
 npm run test:android:instrumentation
 ```
 

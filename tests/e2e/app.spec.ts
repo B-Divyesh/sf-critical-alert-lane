@@ -94,6 +94,30 @@ test('@claim:demo-isolation keeps sample actions separate from a real reminder l
   await page.waitForURL('http://127.0.0.1:4173/');
   await expect(page.getByRole('heading', { name: 'Real reminder stays private' })).toBeVisible();
   await expect(page.getByText('Take evening medicine')).toHaveCount(0);
+
+  for (const exit of ['Brand', 'Privacy', 'Terms', 'Sociobot', 'Checkout']) {
+    await page.goto('/demo');
+    page.once('dialog', dialog => dialog.accept());
+    await page.getByRole('button', { name: 'Delete Water the balcony plants' }).click();
+    await expect(page.getByText('Water the balcony plants')).toHaveCount(0);
+
+    if (exit === 'Brand') await page.locator('.brand').click();
+    if (exit === 'Privacy') await page.getByRole('link', { name: 'Privacy' }).click();
+    if (exit === 'Terms') await page.getByRole('link', { name: 'Terms' }).click();
+    if (exit === 'Sociobot') {
+      await page.route('https://sociobot.in/**', route => route.fulfill({ contentType: 'text/html', body: '<title>Sociobot</title>' }));
+      await page.getByRole('link', { name: 'A Sociobot utility' }).click();
+    }
+    if (exit === 'Checkout') {
+      await page.route('https://api.sociobot.in/**', route => route.fulfill({ contentType: 'text/html', body: '<title>Checkout</title>' }));
+      await page.getByRole('button', { name: 'Settings' }).click();
+      await page.getByRole('link', { name: 'Buy once · US$4.99' }).click();
+    }
+
+    await page.waitForURL(url => !/^\/demo\/?$/.test(url.pathname));
+    await page.goto('/demo');
+    await expect(page.getByRole('heading', { name: 'Water the balcony plants' })).toBeVisible();
+  }
 });
 
 test('keeps whitespace-title recovery in the editor without a page error', async ({ page }) => {
@@ -122,6 +146,12 @@ test('keeps offline state visible and footer links touch-sized on a 390px phone'
   for (const link of [page.locator('.brand'), page.getByRole('link', { name: 'Privacy' }), page.getByRole('link', { name: 'Terms' }), page.getByRole('link', { name: 'A Sociobot utility' })]) {
     expect(await link.evaluate(element => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
     expect(await link.evaluate(element => element.getBoundingClientRect().width)).toBeGreaterThanOrEqual(44);
+  }
+  await context.setOffline(false);
+  await page.goto('/demo');
+  for (const button of [page.getByRole('button', { name: 'Reset demo' }), page.getByRole('button', { name: 'Start for real' })]) {
+    expect(await button.evaluate(element => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+    expect(await button.evaluate(element => element.getBoundingClientRect().width)).toBeGreaterThanOrEqual(44);
   }
 });
 
@@ -179,6 +209,85 @@ test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision
   await page.getByRole('button', { name: 'Save changes' }).click();
   await expect(page.getByRole('heading', { name: 'First duplicate' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Edited second only' })).toBeVisible();
+});
+
+test('@claim:data-portability exports the lane and replaces it only after confirmed import', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Settings' }).click();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export JSON' }).click();
+  const download = await downloadPromise;
+  const path = await download.path();
+  expect(path).not.toBeNull();
+  const exported = JSON.parse((await import('node:fs')).readFileSync(path!, 'utf8')) as { version: number; reminders: Array<{ title: string }> };
+  expect(exported.version).toBe(1);
+  expect(exported.reminders.map(item => item.title)).toEqual([
+    'Take evening medicine', 'Call the insurance case worker', 'Water the balcony plants'
+  ]);
+
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#import-data').setInputFiles({
+    name: 'replacement.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(importedBackup([importedReminder('replacement', 'Pay the electricity bill')])))
+  });
+  await expect(page.locator('#toast')).toContainText('Import complete.');
+  await expect(page.getByRole('heading', { name: 'Pay the electricity bill' })).toBeVisible();
+  await expect(page.getByText('Take evening medicine')).toHaveCount(0);
+});
+
+test('@claim:rolling-score counts only acknowledgements from the latest 30 days after import and reload', async ({ page }) => {
+  const now = Date.now();
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Settings' }).click();
+  const backup = {
+    ...importedBackup([]),
+    updatedAt: new Date(now).toISOString(),
+    history: [
+      { id: 'inside', reminderId: 'one', title: 'Inside window', scheduledAt: new Date(now - 29 * 86_400_000 - 3_600_000).toISOString(), handledAt: new Date(now - 29 * 86_400_000).toISOString(), withinWindow: true },
+      { id: 'too-old', reminderId: 'two', title: 'Too old', scheduledAt: new Date(now - 31 * 86_400_000 - 3_600_000).toISOString(), handledAt: new Date(now - 31 * 86_400_000).toISOString(), withinWindow: false }
+    ]
+  };
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#import-data').setInputFiles({ name: 'rolling-score.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(backup)) });
+  await expect(page.getByRole('heading', { name: '100% handled in time' })).toBeVisible();
+  await expect(page.getByText('1 of 1 acknowledged reminders were handled inside their escalation window.')).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('heading', { name: '100% handled in time' })).toBeVisible();
+  await expect(page.getByText('1 of 1 acknowledged reminders were handled inside their escalation window.')).toBeVisible();
+});
+
+test('@claim:schedule-and-undo supports every recurrence and restores an acknowledgement', async ({ page }) => {
+  await page.goto('/demo');
+  await expect(page.getByText('Daily · repeats every 5 min until handled')).toBeVisible();
+  await expect(page.getByText('One time · repeats every 10 min until handled')).toBeVisible();
+  await expect(page.getByText('Weekly · repeats every 30 min until handled')).toBeVisible();
+  await page.getByRole('button', { name: 'Edit Water the balcony plants' }).click();
+  await page.getByLabel('Schedule').selectOption('weekdays');
+  await page.getByRole('button', { name: 'Save changes' }).click();
+  await expect(page.getByText('Weekdays · repeats every 30 min until handled')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Acknowledge' }).click();
+  await expect(page.locator('.current-alert')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect(page.locator('.current-alert')).toContainText('Take evening medicine');
+});
+
+test('@claim:quiet-hours keeps a due alert visible while notification repeats are muted', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-08-29T12:00:00.000Z') });
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Settings' }).click();
+  const backup = importedBackup([{
+    ...importedReminder('quiet-due', 'Call the pharmacy'),
+    nextAt: '2026-08-29T11:00:00.000Z'
+  }]);
+  backup.updatedAt = '2026-08-29T12:00:00.000Z';
+  backup.settings = { quietEnabled: true, quietStart: '11:00', quietEnd: '13:00' };
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#import-data').setInputFiles({ name: 'quiet-hours.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(backup)) });
+  await expect(page.locator('.current-alert')).toContainText('Call the pharmacy');
+  await expect(page.getByText('Due · quiet hours active')).toBeVisible();
+  await expect(page.getByText('Quiet hours mute notifications. This alert remains visible here.')).toBeVisible();
 });
 
 test('@claim:free-limit imports all reminders but arms only three on the free tier', async ({ page }) => {
@@ -259,9 +368,31 @@ test('has no serious accessibility violations', async ({ page }) => {
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
-  const results = await new AxeBuilder({ page }).analyze();
+  let results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.filter(item => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
+  await page.goto('/demo');
+  results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.filter(item => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
+  await page.getByRole('button', { name: 'Settings' }).click();
+  results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter(item => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
   expect(errors).toEqual([]);
+});
+
+test('removes nonessential motion when reduced motion is requested', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/demo');
+  await expect(page.getByRole('button', { name: 'Add critical reminder' })).toBeVisible();
+  const motion = await page.evaluate(() => {
+    const button = document.querySelector('.primary-button');
+    if (!button) throw new Error('Primary button not found.');
+    const style = getComputedStyle(button);
+    const milliseconds = (duration: string) => duration.endsWith('ms') ? Number.parseFloat(duration) : Number.parseFloat(duration) * 1000;
+    return { transition: milliseconds(style.transitionDuration), animation: milliseconds(style.animationDuration), scroll: getComputedStyle(document.documentElement).scrollBehavior };
+  });
+  expect(motion.transition).toBeLessThanOrEqual(0.01);
+  expect(motion.animation).toBeLessThanOrEqual(0.01);
+  expect(motion.scroll).toBe('auto');
 });
 
 test('@claim:local-private keeps an ordinary reminder flow on the product origin', async ({ page }) => {
@@ -325,10 +456,27 @@ test('does not offer an APK download from inside the Android shell', async ({ pa
   await expect(page.locator('.apk-proof')).toHaveCount(0);
 });
 
-test('@claim:one-time-license offers the registered one-time unlimited purchase through Sociobot', async ({ page }) => {
+test('@claim:one-time-license accepts a verified return license and permits unlimited active reminders', async ({ page }) => {
   await page.goto('/demo');
+  await page.getByRole('button', { name: 'Start for real' }).click();
+  await page.waitForURL('http://127.0.0.1:4173/');
+  await page.route('https://api.sociobot.in/api/v1/products/critical-alert-lane/verify**', route => route.fulfill({
+    status: 200, contentType: 'application/json', body: JSON.stringify({ valid: true, reason: 'ok', expires_at: null })
+  }));
+  await page.goto('/?license=paid-fixture-token');
+  await expect.poll(() => page.url()).not.toContain('license=');
   await page.getByRole('button', { name: 'Settings' }).click();
-  const buy = page.getByRole('link', { name: 'Buy once · US$4.99' });
-  await expect(buy).toHaveAttribute('href', 'https://api.sociobot.in/api/v1/products/critical-alert-lane/checkout');
-  await expect(page.getByText('A US$4.99 one-time purchase adds unlimited active reminders. No subscription.')).toBeVisible();
+  await expect(page.getByText('✓ FULL DECK')).toBeVisible();
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#import-data').setInputFiles({
+    name: 'four-paid-reminders.json', mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(importedBackup([
+      importedReminder('paid-one', 'Paid one'), importedReminder('paid-two', 'Paid two'),
+      importedReminder('paid-three', 'Paid three'), importedReminder('paid-four', 'Paid four')
+    ])))
+  });
+  await expect(page.getByText('4 active')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Paid four' })).toBeVisible();
+  await page.reload();
+  await expect(page.getByText('4 active')).toBeVisible();
 });
