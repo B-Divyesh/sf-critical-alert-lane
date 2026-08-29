@@ -1,0 +1,8 @@
+{
+  "contractVersion": 1,
+  "product": "critical-alert-lane",
+  "checkoutOrigin": "https://api.sociobot.in",
+  "paymentProcessor": "Dodo",
+  "refundHandler": "Dodo",
+  "refundEntryPoint": "Sociobot checkout"
+}

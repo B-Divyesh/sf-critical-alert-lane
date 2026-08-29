@@ -1,0 +1,1 @@
+Keep critical Android reminders repeating until you snooze or acknowledge them.

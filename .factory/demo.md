@@ -1,7 +1,7 @@
 # Demo sandbox
 
-Open [the demo route](/demo) or use **Try it with sample data** from the first
-screen. It immediately loads three shipped sample reminders:
+Open [the demo route](/?demo=1) or use **Try it with sample data** from the
+first screen. One click opens three shipped sample reminders:
 
 - **Take evening medicine** is already due and repeats every five minutes until
   it is snoozed or acknowledged.
@@ -16,4 +16,5 @@ database `demo:critical-alert-lane`; real records use
 database, local license token, or native Android scheduler. Leaving through
 the brand, legal links, Sociobot link, or checkout also discards demo changes.
 
-All browser claim tests enter through `/demo` from a fresh context.
+Browser claim tests enter through `/?demo=1` or its `/demo/` alias from a
+fresh context.

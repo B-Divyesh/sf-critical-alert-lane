@@ -27,7 +27,7 @@ const importedBackup = (reminders: ReturnType<typeof importedReminder>[]) => ({
 test('creates, persists, and acknowledges a due reminder', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Add critical reminder' }).click();
-  await page.getByLabel('What needs your answer?').fill('Call the clinic');
+  await page.getByLabel('What needs acknowledgement?').fill('Call the clinic');
   await page.getByLabel('First alert').fill('2025-01-01T09:00');
   await page.getByLabel('Schedule').selectOption('daily');
   await page.getByRole('button', { name: 'Arm reminder' }).click();
@@ -41,8 +41,8 @@ test('creates, persists, and acknowledges a due reminder', async ({ page }) => {
 });
 
 test('@claim:offline-reload works offline after the first visit', async ({ page, context }) => {
-  await page.goto('/demo');
-  await expect(page.getByRole('heading', { name: /Keep critical Android reminders repeating/ })).toBeVisible();
+  await page.goto('/?demo=1');
+  await expect(page.getByRole('heading', { name: /Try a repeating critical reminder/ })).toBeVisible();
   await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
   await page.waitForFunction(() => Boolean(navigator.serviceWorker?.controller));
   await context.setOffline(true);
@@ -51,12 +51,37 @@ test('@claim:offline-reload works offline after the first visit', async ({ page,
   await expect(page.getByRole('button', { name: 'Add critical reminder' })).toBeVisible();
 });
 
+test('@claim:demo-ready opens an isolated, usable sample in one click', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await expect(page).toHaveURL(/\?demo=1$/);
+  await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
+  await expect(page.locator('.reminder-row')).toHaveCount(3);
+  for (const title of ['Take evening medicine', 'Call the insurance case worker', 'Water the balcony plants']) {
+    await expect(page.locator('.reminder-row').getByRole('heading', { name: title })).toBeVisible();
+  }
+  const databaseNames = await page.evaluate(async () => (await indexedDB.databases()).map(database => database.name));
+  expect(databaseNames).toContain('critical-alert-lane');
+  expect(databaseNames).toContain('demo:critical-alert-lane');
+  for (const control of [
+    page.locator('.current-alert').getByRole('heading', { name: 'Take evening medicine' }),
+    page.getByRole('button', { name: 'Acknowledge' }),
+    page.getByRole('button', { name: 'Snooze' })
+  ]) {
+    const box = await control.boundingBox();
+    expect(box, 'demo control must be rendered').not.toBeNull();
+    expect(box!.y).toBeGreaterThanOrEqual(0);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(844);
+  }
+});
+
 test('@claim:repeat-until-handled lets a sample reminder stay due until it is snoozed or acknowledged', async ({ page }) => {
   await page.goto('/demo');
   await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
   await expect(page.locator('.current-alert')).toContainText('Take evening medicine');
   await expect(page.locator('.current-alert')).toContainText('● REPEATING NOW');
-  await expect(page.getByText('Daily · repeats every 5 min until handled')).toBeVisible();
+  await expect(page.getByText('Daily · repeats every 5 min until acknowledged')).toBeVisible();
 
   await page.getByRole('button', { name: 'Snooze' }).click();
   await expect(page.getByText(/Snoozed “Take evening medicine” for 10 minutes/)).toBeVisible();
@@ -111,7 +136,7 @@ test('@claim:demo-isolation keeps sample actions separate from a real reminder l
     }
     if (exit === 'Checkout') {
       await page.route('https://api.sociobot.in/**', route => route.fulfill({ contentType: 'text/html', body: '<title>Checkout</title>' }));
-      await page.getByRole('button', { name: 'Settings' }).click();
+      await page.getByRole('button', { name: 'Open settings' }).click();
       await page.locator('#settings-dialog').getByRole('link', { name: 'Buy once · US$4.99' }).click();
     }
 
@@ -126,12 +151,12 @@ test('keeps whitespace-title recovery in the editor without a page error', async
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
   await page.getByRole('button', { name: 'Add critical reminder' }).click();
-  await page.getByLabel('What needs your answer?').fill('   ');
+  await page.getByLabel('What needs acknowledgement?').fill('   ');
   await page.getByLabel('First alert').fill('2026-09-01T09:00');
   await page.getByRole('button', { name: 'Arm reminder' }).click();
-  await expect(page.locator('#form-error')).toHaveText('Enter what needs your answer. A title cannot be blank.');
+  await expect(page.locator('#form-error')).toHaveText('Enter what needs acknowledgement. A title cannot be blank.');
   await expect(page.getByRole('dialog', { name: 'Add critical reminder' })).toBeVisible();
-  await page.getByLabel('What needs your answer?').fill('Call the clinic');
+  await page.getByLabel('What needs acknowledgement?').fill('Call the clinic');
   await page.getByRole('button', { name: 'Arm reminder' }).click();
   await expect(page.getByText('Call the clinic').first()).toBeVisible();
   expect(errors).toEqual([]);
@@ -159,9 +184,24 @@ test('keeps offline state visible and footer links touch-sized on a 390px phone'
   }
 });
 
+test('keeps all three first-screen facts visible on a 390px phone', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  for (const fact of [
+    'Private: data stays on this device.',
+    'Offline after the first visit.',
+    'US$4.99 once for unlimited reminders.'
+  ]) {
+    const item = page.getByText(fact, { exact: true });
+    await expect(item).toBeVisible();
+    const box = await item.boundingBox();
+    expect(box!.y + box!.height).toBeLessThanOrEqual(844);
+  }
+});
+
 test('rejects a corrupt backup without replacing device data', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Open settings' }).click();
   await page.locator('#import-data').setInputFiles({
     name: 'corrupt-critical-alert-lane.json',
     mimeType: 'application/json',
@@ -178,11 +218,11 @@ test('rejects a corrupt backup without replacing device data', async ({ page }) 
 test('recovers from a syntactically malformed import without replacing device data', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Add critical reminder' }).click();
-  await page.getByLabel('What needs your answer?').fill('Keep this reminder');
+  await page.getByLabel('What needs acknowledgement?').fill('Keep this reminder');
   await page.getByLabel('First alert').fill('2026-09-01T09:00');
   await page.getByRole('button', { name: 'Arm reminder' }).click();
 
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Open settings' }).click();
   await page.locator('#import-data').setInputFiles({
     name: 'malformed-critical-alert-lane.json',
     mimeType: 'application/json',
@@ -209,7 +249,7 @@ test('recovers from a syntactically malformed import without replacing device da
 
 test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision during import', async ({ page }) => {
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Open settings' }).click();
   const confirmation = new Promise<string>(resolve => page.once('dialog', async dialog => {
     const message = dialog.message();
     await dialog.accept();
@@ -241,7 +281,7 @@ test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision
   expect(new Set(ids).size).toBe(4);
 
   await page.getByRole('button', { name: 'Edit Second duplicate' }).click();
-  await page.getByLabel('What needs your answer?').fill('Edited second only');
+  await page.getByLabel('What needs acknowledgement?').fill('Edited second only');
   await page.getByRole('button', { name: 'Save changes' }).click();
   await expect(page.getByRole('heading', { name: 'First duplicate' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Edited second only' })).toBeVisible();
@@ -249,9 +289,9 @@ test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision
 
 test('@claim:data-portability exports the lane and replaces it only after confirmed import', async ({ page }) => {
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Open settings' }).click();
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Export JSON' }).click();
+  await page.getByRole('button', { name: 'Export backup' }).click();
   const download = await downloadPromise;
   const path = await download.path();
   expect(path).not.toBeNull();
@@ -275,7 +315,7 @@ test('@claim:data-portability exports the lane and replaces it only after confir
 test('@claim:rolling-score counts only acknowledgements from the latest 30 days after import and reload', async ({ page }) => {
   const now = Date.now();
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Open settings' }).click();
   const backup = {
     ...importedBackup([]),
     updatedAt: new Date(now).toISOString(),
@@ -286,22 +326,22 @@ test('@claim:rolling-score counts only acknowledgements from the latest 30 days 
   };
   page.once('dialog', dialog => dialog.accept());
   await page.locator('#import-data').setInputFiles({ name: 'rolling-score.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(backup)) });
-  await expect(page.getByRole('heading', { name: '100% handled in time' })).toBeVisible();
-  await expect(page.getByText('1 of 1 acknowledged reminders were handled inside their escalation window.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: '100% acknowledged in time' })).toBeVisible();
+  await expect(page.getByText('1 of 1 reminders were acknowledged inside their acknowledgement window.')).toBeVisible();
   await page.reload();
-  await expect(page.getByRole('heading', { name: '100% handled in time' })).toBeVisible();
-  await expect(page.getByText('1 of 1 acknowledged reminders were handled inside their escalation window.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: '100% acknowledged in time' })).toBeVisible();
+  await expect(page.getByText('1 of 1 reminders were acknowledged inside their acknowledgement window.')).toBeVisible();
 });
 
 test('@claim:schedule-and-undo supports every recurrence and restores an acknowledgement', async ({ page }) => {
   await page.goto('/demo');
-  await expect(page.getByText('Daily · repeats every 5 min until handled')).toBeVisible();
-  await expect(page.getByText('One time · repeats every 10 min until handled')).toBeVisible();
-  await expect(page.getByText('Weekly · repeats every 30 min until handled')).toBeVisible();
+  await expect(page.getByText('Daily · repeats every 5 min until acknowledged')).toBeVisible();
+  await expect(page.getByText('One time · repeats every 10 min until acknowledged')).toBeVisible();
+  await expect(page.getByText('Weekly · repeats every 30 min until acknowledged')).toBeVisible();
   await page.getByRole('button', { name: 'Edit Water the balcony plants' }).click();
   await page.getByLabel('Schedule').selectOption('weekdays');
   await page.getByRole('button', { name: 'Save changes' }).click();
-  await expect(page.getByText('Weekdays · repeats every 30 min until handled')).toBeVisible();
+  await expect(page.getByText('Weekdays · repeats every 30 min until acknowledged')).toBeVisible();
 
   await page.getByRole('button', { name: 'Acknowledge' }).click();
   await expect(page.locator('.current-alert')).toHaveCount(0);
@@ -312,21 +352,21 @@ test('@claim:schedule-and-undo supports every recurrence and restores an acknowl
 test('@claim:repeat-range saves the published 5–60 minute repeat range', async ({ page }) => {
   await page.goto('/demo');
   await page.getByRole('button', { name: 'Edit Call the insurance case worker' }).click();
-  const repeat = page.getByLabel('Repeat until handled');
+  const repeat = page.getByLabel('Repeat until acknowledged');
   await expect(repeat.locator('option')).toHaveText(['Every 5 min', 'Every 10 min', 'Every 15 min', 'Every 30 min', 'Every hour']);
   await repeat.selectOption('60');
   await page.getByRole('button', { name: 'Save changes' }).click();
-  await expect(page.getByText('One time · repeats every 60 min until handled')).toBeVisible();
+  await expect(page.getByText('One time · repeats every 60 min until acknowledged')).toBeVisible();
   await page.getByRole('button', { name: 'Edit Call the insurance case worker' }).click();
-  await page.getByLabel('Repeat until handled').selectOption('5');
+  await page.getByLabel('Repeat until acknowledged').selectOption('5');
   await page.getByRole('button', { name: 'Save changes' }).click();
-  await expect(page.getByText('One time · repeats every 5 min until handled')).toBeVisible();
+  await expect(page.getByText('One time · repeats every 5 min until acknowledged')).toBeVisible();
 });
 
 test('@claim:quiet-hours keeps a due alert visible while notification repeats are muted', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-08-29T12:00:00.000Z') });
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Open settings' }).click();
   const backup = importedBackup([{
     ...importedReminder('quiet-due', 'Call the pharmacy'),
     nextAt: '2026-08-29T11:00:00.000Z'
@@ -342,7 +382,7 @@ test('@claim:quiet-hours keeps a due alert visible while notification repeats ar
 
 test('@claim:free-limit imports all reminders but arms only three on the free tier', async ({ page }) => {
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Open settings' }).click();
   const confirmation = new Promise<string>(resolve => page.once('dialog', async dialog => {
     const message = dialog.message();
     await dialog.accept();
@@ -360,7 +400,7 @@ test('@claim:free-limit imports all reminders but arms only three on the free ti
   });
 
   const confirmationMessage = await confirmation;
-  expect(confirmationMessage).toContain('The free lane can arm 3 reminders');
+  expect(confirmationMessage).toContain('The free plan can arm 3 reminders');
   expect(confirmationMessage).toContain('1 additional reminder(s) will be imported paused, not deleted');
   await expect(page.locator('#toast')).toContainText('1 reminder(s) paused for the 3-active free limit');
   await expect(page.getByText('3 / 3 free active')).toBeVisible();
@@ -379,16 +419,16 @@ test('opens and closes dialogs from the keyboard', async ({ page }) => {
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog', { name: 'Add critical reminder' })).not.toBeVisible();
   await expect(add).toBeFocused();
-  const settings = page.getByRole('button', { name: 'Settings' });
+  const settings = page.getByRole('button', { name: 'Open settings' });
   await settings.focus();
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('dialog', { name: 'Settings & data' })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Settings and data' })).toBeVisible();
 });
 
 test('returns focus to an edited reminder after closing the editor', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Add critical reminder' }).click();
-  await page.getByLabel('What needs your answer?').fill('Check the oxygen tank');
+  await page.getByLabel('What needs acknowledgement?').fill('Check the oxygen tank');
   await page.getByLabel('First alert').fill('2026-09-01T09:00');
   await page.getByRole('button', { name: 'Arm reminder' }).click();
   const edit = page.getByRole('button', { name: 'Edit Check the oxygen tank' });
@@ -402,12 +442,12 @@ test('announces invalid quiet hours without mutating data or raising a page erro
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
   await expect(page.getByRole('button', { name: 'Add critical reminder' })).toBeEnabled();
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Open settings' }).click();
   await page.getByLabel('Start').fill('');
   await page.getByRole('button', { name: 'Save quiet hours' }).click();
   await expect(page.locator('#quiet-form-error')).toHaveText('Enter both a start and end time for quiet hours.');
   await expect(page.getByLabel('Start')).toHaveAttribute('aria-invalid', 'true');
-  await expect(page.getByRole('dialog', { name: 'Settings & data' })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Settings and data' })).toBeVisible();
   await page.getByLabel('Start').fill('21:30');
   await page.getByRole('button', { name: 'Save quiet hours' }).click();
   await expect(page.getByRole('status')).toContainText('Quiet hours saved.');
@@ -424,8 +464,8 @@ test('@claim:core-free keeps reminder controls, export, and accessibility availa
   await page.goto('/demo');
   results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter(item => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
-  await page.getByRole('button', { name: 'Settings' }).click();
-  await expect(page.getByRole('button', { name: 'Export JSON' })).toBeEnabled();
+  await page.getByRole('button', { name: 'Open settings' }).click();
+  await expect(page.getByRole('button', { name: 'Export backup' })).toBeEnabled();
   results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter(item => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
   expect(errors).toEqual([]);
@@ -465,8 +505,17 @@ test('@claim:android-permission-boundary requests notifications in context and k
   expect(appSource.match(/await requestNativeNotifications\(\)/g)).toHaveLength(1);
   await page.goto('/');
   await expect(page.getByRole('link', { name: /sign in|log in/i })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Open settings' }).click();
   await expect(page.getByRole('button', { name: 'Enable notifications' })).toBeVisible();
+});
+
+test('@claim:timing-limits shows the delay warning and uses the inexact Android fallback', async ({ page }) => {
+  const scheduler = readFileSync('android/app/src/main/java/in/sociobot/criticalalertlane/ReminderScheduler.java', 'utf8');
+  expect(scheduler).toContain('alarms.setAndAllowWhileIdle');
+  expect(scheduler).toMatch(/canScheduleExactAlarms[\s\S]+setExactAndAllowWhileIdle[\s\S]+setAndAllowWhileIdle/);
+  await page.goto('/');
+  await expect(page.getByText('Device power rules can delay alerts.')).toBeVisible();
+  await expect(page.getByText('Without exact-alarm access, Android uses an inexact alarm.')).toBeVisible();
 });
 
 test('removes nonessential motion when reduced motion is requested', async ({ page }) => {
@@ -487,21 +536,35 @@ test('removes nonessential motion when reduced motion is requested', async ({ pa
 
 test('@claim:local-private keeps an ordinary reminder flow on the product origin', async ({ page }) => {
   const externalRequests: string[] = [];
+  const fontRequests: string[] = [];
   page.on('request', request => {
     const url = new URL(request.url());
     if (url.origin !== 'http://127.0.0.1:4173') externalRequests.push(url.href);
+    if (request.resourceType() === 'font') fontRequests.push(url.href);
   });
-  await page.goto('/demo');
+  await page.goto('/?demo=1');
+  await expect(page.getByRole('link', { name: /sign in|log in|create account/i })).toHaveCount(0);
+  await expect(page.locator('iframe, [data-ad], [aria-label*="advertisement" i]')).toHaveCount(0);
   page.once('dialog', dialog => dialog.accept());
   await page.getByRole('button', { name: 'Delete Water the balcony plants' }).click();
   await expect(page.getByText('Water the balcony plants')).toHaveCount(0);
   await page.getByRole('button', { name: 'Add critical reminder' }).click();
-  await page.getByLabel('What needs your answer?').fill('Refill the medicine box');
+  await page.getByLabel('What needs acknowledgement?').fill('Refill the medicine box');
   await page.getByLabel('First alert').fill('2026-09-01T09:00');
   await page.getByRole('button', { name: 'Arm reminder' }).click();
   await expect(page.getByRole('heading', { name: 'Refill the medicine box' }).first()).toBeVisible();
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Refill the medicine box' }).first()).toBeVisible();
+  expect(await page.context().cookies()).toEqual([]);
+  expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
+  expect(await page.evaluate(async () => (await indexedDB.databases()).map(database => database.name))).toEqual(['demo:critical-alert-lane']);
+  const remoteFontSources = await page.evaluate(() => Array.from(document.styleSheets).flatMap(sheet => {
+    try {
+      return Array.from(sheet.cssRules).filter(rule => rule.cssText.startsWith('@font-face')).map(rule => rule.cssText);
+    } catch { return ['unreadable stylesheet']; }
+  }).filter(rule => /url\((?!["']?(?:data:|\/))/.test(rule)));
+  expect(remoteFontSources).toEqual([]);
+  expect(fontRequests).toEqual([]);
   expect(externalRequests).toEqual([]);
 });
 
@@ -528,18 +591,42 @@ test('@claim:billing-data-boundary stores only a token and daily verdict while b
   await expect(page.locator('input[type="email"], input[autocomplete="cc-number"]')).toHaveCount(0);
 });
 
+test('@claim:billing-processor-refunds matches the recorded Sociobot checkout contract', async ({ page }) => {
+  const contract = JSON.parse(readFileSync('tests/fixtures/sociobot-checkout-contract.json', 'utf8')) as {
+    checkoutOrigin: string; paymentProcessor: string; refundHandler: string; refundEntryPoint: string;
+  };
+  expect(contract).toEqual(expect.objectContaining({
+    checkoutOrigin: 'https://api.sociobot.in',
+    paymentProcessor: 'Dodo',
+    refundHandler: 'Dodo',
+    refundEntryPoint: 'Sociobot checkout'
+  }));
+  const statement = 'Dodo processes the payment and handles refunds through Sociobot checkout.';
+  for (const route of ['/', '/privacy/', '/terms/']) {
+    await page.goto(route);
+    await expect(page.getByText(statement, { exact: true }).first()).toBeVisible();
+  }
+  expect(readFileSync('README.md', 'utf8')).toContain(statement);
+  await page.goto('/');
+  const checkoutLinks = page.locator(`a[href^="${contract.checkoutOrigin}/api/v1/products/critical-alert-lane/checkout"]`);
+  expect(await checkoutLinks.count()).toBeGreaterThan(0);
+  for (const link of await checkoutLinks.all()) {
+    expect(new URL((await link.getAttribute('href'))!).origin).toBe(contract.checkoutOrigin);
+  }
+});
+
 test('@claim:license-recovery restores an active license and locks paid capacity after revocation', async ({ page }) => {
   let valid = true;
   await page.route('https://api.sociobot.in/api/v1/products/critical-alert-lane/verify**', route => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify({ valid, reason: valid ? 'ok' : 'revoked', expires_at: null })
   }));
   await page.goto('/');
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Open settings' }).click();
   await page.getByLabel('Have a license? Paste it').fill('restored-fixture-license');
   await page.getByRole('button', { name: 'Restore purchase' }).click();
   await expect(page.getByRole('status')).toContainText('Purchase restored.');
-  await page.getByRole('button', { name: 'Settings' }).click();
-  await expect(page.getByText('✓ FULL DECK')).toBeVisible();
+  await page.getByRole('button', { name: 'Open settings' }).click();
+  await expect(page.getByText('✓ PAID PLAN')).toBeVisible();
   page.once('dialog', dialog => dialog.accept());
   await page.locator('#import-data').setInputFiles({
     name: 'four-restored-reminders.json', mimeType: 'application/json',
@@ -569,6 +656,71 @@ test('legal pages are available', async ({ page }) => {
   }
 });
 
+test('sets route-specific titles, metadata, one h1, and legal links', async ({ page }) => {
+  const routes = [
+    ['/', 'Critical Alert Lane — repeating Android reminders'],
+    ['/?demo=1', 'Demo — Critical Alert Lane'],
+    ['/privacy/', 'Privacy — Critical Alert Lane'],
+    ['/terms/', 'Terms — Critical Alert Lane'],
+    ['/offline.html', 'Offline — Critical Alert Lane'],
+    ['/404.html', 'Page not found — Critical Alert Lane']
+  ];
+  for (const [path, title] of routes) {
+    await page.goto(path);
+    await expect(page).toHaveTitle(title);
+    await expect(page.locator('main h1')).toHaveCount(1);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /\S/);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /^https:\/\/critical-alert-lane\.sociobot\.in\//);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', 'https://critical-alert-lane.sociobot.in/art/social-preview.png');
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute('href', '/icons/icon-180.png');
+    await expect(page.locator('footer').getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '/privacy/');
+    await expect(page.locator('footer').getByRole('link', { name: 'Terms' })).toHaveAttribute('href', '/terms/');
+  }
+});
+
+test('renders the designed 404 with complete route metadata', async ({ page }) => {
+  const response = await page.goto('/404.html');
+  expect(response?.status()).toBe(200);
+  await expect(page).toHaveTitle('Page not found — Critical Alert Lane');
+  await expect(page.getByRole('heading', { level: 1, name: 'Page not found' })).toBeVisible();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://critical-alert-lane.sociobot.in/404.html');
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Page not found — Critical Alert Lane');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', 'https://critical-alert-lane.sociobot.in/art/social-preview.png');
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+  await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute('href', '/icons/icon-180.png');
+  await expect(page.getByRole('link', { name: 'Return to your reminders' })).toHaveAttribute('href', '/');
+});
+
+test('restores section scroll and heading focus for direct links, navigation, and Back', async ({ page }) => {
+  for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/');
+    await page.goto('/#how-it-works');
+    const howHeading = page.getByRole('heading', { name: 'How it works' });
+    await expect(howHeading).toBeFocused();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+    const directTop = await howHeading.evaluate(element => element.getBoundingClientRect().top);
+    expect(directTop).toBeGreaterThanOrEqual(0);
+    expect(directTop).toBeLessThan(viewport.height);
+
+    if (viewport.width > 760) {
+      await page.goto('/');
+      await page.getByRole('link', { name: 'How it works' }).click();
+      await expect(howHeading).toBeFocused();
+    }
+    await page.locator('footer').getByRole('link', { name: 'Privacy' }).click();
+    await expect(page).toHaveURL(/\/privacy\/$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Privacy' })).toBeFocused();
+    await page.goBack();
+    await expect(page).toHaveURL(/\/#how-it-works$/);
+    await expect(page.getByRole('heading', { name: 'How it works' })).toBeFocused();
+    await expect.poll(() => page.getByRole('heading', { name: 'How it works' }).evaluate(element => element.getBoundingClientRect().top))
+      .toBeGreaterThanOrEqual(0);
+    await expect.poll(() => page.getByRole('heading', { name: 'How it works' }).evaluate(element => element.getBoundingClientRect().top))
+      .toBeLessThan(viewport.height);
+  }
+});
+
 test('restores the required landing order and shared factory build metadata', async ({ page }) => {
   await page.goto('/');
   const headings = await page.locator('main h2').allTextContents();
@@ -579,21 +731,21 @@ test('restores the required landing order and shared factory build metadata', as
   expect(limits).toBeGreaterThan(how);
   expect(paid).toBeGreaterThan(limits);
   await expect(page.locator('.how-list > li')).toHaveCount(3);
-  await expect(page.locator('footer')).toContainText('Repeating Android reminders that wait for your answer.');
+  await expect(page.locator('footer')).toContainText('Repeat critical Android reminders until you snooze or acknowledge them.');
   await expect(page.locator('footer')).toContainText('Built by Param Factory');
-  await expect(page.locator('footer')).toContainText('release 1.0.5 · repair 13');
+  await expect(page.locator('footer')).toContainText('release 1.0.5 · polish 1');
   for (const path of ['/privacy/', '/terms/']) {
     await page.goto(path);
     await expect(page.locator('.legal-header .brand')).toHaveAttribute('href', '/');
     await expect(page.locator('footer')).toContainText('Built by Param Factory');
-    await expect(page.locator('footer')).toContainText('release 1.0.5 · repair 13');
+    await expect(page.locator('footer')).toContainText('release 1.0.5 · polish 1');
     await expect(page.locator('footer').getByRole('link', { name: 'Privacy' })).toBeVisible();
     await expect(page.locator('footer').getByRole('link', { name: 'Terms' })).toBeVisible();
   }
 });
 
 test('@claim:apk-download publishes an installable Android package with its integrity digest', async ({ page, request }) => {
-  await page.goto('/demo');
+  await page.goto('/');
   const download = page.getByRole('link', { name: 'Download Android app (APK)' });
   await expect(download).toHaveAttribute('href', /critical-alert-lane-1\.0\.5\.apk$/);
   await expect(page.locator('.apk-proof code')).toHaveText(/^[a-f0-9]{64}$/);
@@ -635,8 +787,8 @@ test('@claim:one-time-license accepts a verified return license and permits unli
   }));
   await page.goto('/?license=paid-fixture-token');
   await expect.poll(() => page.url()).not.toContain('license=');
-  await page.getByRole('button', { name: 'Settings' }).click();
-  await expect(page.getByText('✓ FULL DECK')).toBeVisible();
+  await page.getByRole('button', { name: 'Open settings' }).click();
+  await expect(page.getByText('✓ PAID PLAN')).toBeVisible();
   page.once('dialog', dialog => dialog.accept());
   await page.locator('#import-data').setInputFiles({
     name: 'four-paid-reminders.json', mimeType: 'application/json',

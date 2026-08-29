@@ -22,10 +22,10 @@
   },
   {
     "id": "local-private",
-    "claim": "Ordinary reminder data stays on the device without analytics or tracking requests.",
+    "claim": "Reminder data stays on the device without accounts, ads, analytics, tracking, or third-party fonts.",
     "where": "landing footer, Privacy, README",
     "test": "npm run test:e2e -- --grep @claim:local-private",
-    "sandbox": "fresh demo browser at /demo; record all requests while creating, persisting, and reloading a sample reminder; assert same-origin only"
+    "sandbox": "fresh browser at /?demo=1; inspect the rendered app, cookies, storage, stylesheets, and all requests while creating, persisting, and reloading a reminder; assert no account or ad controls, no cookies, only documented local keys, same-origin requests, and no remote fonts"
   },
   {
     "id": "repeat-until-handled",
@@ -40,6 +40,13 @@
     "where": "demo banner, README",
     "test": "npm run test:e2e -- --grep @claim:demo-isolation",
     "sandbox": "fresh browser opens /demo; seed a real-lane record, verify isolation, then change the sample and leave through Start for real, brand, legal, external, and checkout links; every return starts with fresh samples"
+  },
+  {
+    "id": "demo-ready",
+    "claim": "One click opens three realistic sample reminders in a separate demo database, with the due reminder ready to acknowledge or snooze.",
+    "where": "landing first screen, demo, README",
+    "test": "npm run test:e2e -- --grep @claim:demo-ready",
+    "sandbox": "fresh 390x844 browser starts on /, clicks Try it with sample data once, verifies /?demo=1, the three named samples, the demo database namespace, and the due title plus Acknowledge and Snooze controls inside the first viewport"
   },
   {
     "id": "data-portability",
@@ -91,6 +98,13 @@
     "sandbox": "fresh browser plus checked-in Android source; assert the only native notification call is bound to the Settings action, forbid personal-data manifest permissions, and require the inexact alarm branch"
   },
   {
+    "id": "timing-limits",
+    "claim": "Without exact-alarm access, Android uses inexact alarms, and device power rules can delay alerts.",
+    "where": "landing limits, Terms, README",
+    "test": "npm run test:e2e -- --grep @claim:timing-limits",
+    "sandbox": "fresh demo browser plus Android scheduler source; assert the delay warning stays visible and the declined exact-alarm branch calls the inexact setAndAllowWhileIdle scheduler"
+  },
+  {
     "id": "core-free",
     "claim": "Core reminder controls, accessibility, and JSON export remain available without a license.",
     "where": "landing paid tier, Settings, Terms, README",
@@ -133,6 +147,13 @@
     "sandbox": "clean checkout; compare the v1.0.3 and published APK certificate subjects and SHA-256 fingerprints, then assert the shared application ID and a higher recorded version code"
   },
   {
+    "id": "repo-no-signing-secrets",
+    "claim": "This repository does not contain Android signing keys or credentials.",
+    "where": "README Android release identity",
+    "test": "npm run test:repo-secrets",
+    "sandbox": "clean tracked checkout; inspect tracked file names and non-binary source for keystore files, private-key blocks, embedded store passwords, and Android signing credential assignments"
+  },
+  {
     "id": "one-time-license",
     "claim": "US$4.99 is a one-time purchase for unlimited active reminders through Sociobot checkout.",
     "where": "landing page, Settings pricing, Terms, README",
@@ -145,6 +166,13 @@
     "where": "landing paid tier, Settings, Privacy, README",
     "test": "npm run test:e2e -- --grep @claim:billing-data-boundary",
     "sandbox": "fresh real lane with a fixture verification response; assert the Sociobot checkout origin, token and dated verdict keys, no payment fields, and no second check within one day"
+  },
+  {
+    "id": "billing-processor-refunds",
+    "claim": "Dodo processes payments and handles refunds through Sociobot checkout.",
+    "where": "landing paid section, Privacy, Terms, README",
+    "test": "npm run test:e2e -- --grep @claim:billing-processor-refunds",
+    "sandbox": "fresh browser loads the published routes and a recorded Sociobot checkout contract fixture; assert Dodo is the named processor and refund handler, while every purchase action uses the Sociobot checkout URL"
   },
   {
     "id": "license-recovery",

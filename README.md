@@ -1,13 +1,21 @@
 # Critical Alert Lane
 
-Keep important Android reminders repeating until you answer them.
+Keep critical Android reminders repeating until you snooze or acknowledge them.
 
 It is for Android users who miss medicine, deadline, or call alerts in a busy notification list.
 
 - Live app: <https://critical-alert-lane.sociobot.in>
-- Sample demo: <https://critical-alert-lane.sociobot.in/demo/>
+- Sample demo: <https://critical-alert-lane.sociobot.in/?demo=1>
 - Android app: [Critical Alert Lane 1.0.5 APK](./public/downloads/critical-alert-lane-1.0.5.apk)
-- APK SHA-256: `af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8`
+
+<details>
+<summary>Verify the APK download</summary>
+
+Compare this SHA-256 value with the downloaded file to check that it arrived unchanged.
+
+`af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8`
+
+</details>
 
 ## Try the demo
 
@@ -19,22 +27,22 @@ It starts with three realistic reminders in a separate browser database.
 
 **Start for real** discards demo changes and opens your real reminder list.
 
-## What it does
+## Reminder schedules, repeats, and backups
 
 - Supports one-time, daily, weekday, and weekly reminders.
 - Repeats every 5–60 minutes until you snooze or acknowledge the alert.
 - Offers overnight quiet hours without hiding a due alert.
 - Shows a score from acknowledgement history in the latest 30 days.
-- Exports and imports versioned JSON with confirmation.
+- Exports and imports a backup file after confirmation.
 - Repairs unsafe duplicate or hash-colliding import IDs.
 - Keeps extra imports paused above the three-reminder free limit.
-- Installs as a PWA and reloads offline after the first visit.
+- Installs from supported browsers and reloads offline after the first visit.
 - Runs native Android alarms after the app closes.
 - Re-arms Android alarms after boot, clock changes, and time-zone changes.
 
 ## Privacy and permissions
 
-Reminder data stays in IndexedDB on this device during normal use.
+Reminder data stays in this browser on this device during normal use.
 
 The app uses no account, ads, analytics, tracking pixels, or third-party fonts.
 
@@ -56,7 +64,7 @@ US$4.99 once adds unlimited active reminders through Sociobot checkout.
 
 There is no subscription.
 
-Dodo is the merchant of record and handles refunds.
+Dodo processes the payment and handles refunds through Sociobot checkout.
 
 You can paste an active license on another device.
 
@@ -72,6 +80,7 @@ npm run dev
 npm test
 npm run typecheck
 npm run lint
+npm run test:copy
 npm run build
 npm run test:e2e
 npm run test:update
@@ -101,7 +110,7 @@ Its signer matches the public v1.0.3 factory signer.
 
 That identity lets Android install this APK over v1.0.3.
 
-The factory signing key and credentials stay outside this repository.
+This repository does not contain Android signing keys or credentials.
 
 Provide the four `ANDROID_RELEASE_*` variables to create a signed release.
 

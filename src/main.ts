@@ -11,6 +11,7 @@ declare const __NATIVE_BUILD__: boolean;
 declare const __ANDROID_APK_SHA256__: string;
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 const isDemo = /^\/demo\/?$/.test(window.location.pathname) || new URLSearchParams(window.location.search).get('demo') === '1';
 if (isDemo) useStorageNamespace('demo');
 let data: AppData;
@@ -22,7 +23,8 @@ let nativeStatus: NativeSchedulerStatus | null = null;
 let editorReturnTarget: { kind: 'add' } | { kind: 'edit'; id: string } | null = null;
 const ANDROID_APK = '/downloads/critical-alert-lane-1.0.5.apk';
 const ANDROID_APK_SHA256 = __ANDROID_APK_SHA256__;
-const BUILD_ID = 'release 1.0.5 · repair 13';
+const BUILD_ID = 'release 1.0.5 · polish 1';
+const ROUTE_FOCUS_KEY = 'critical-alert-lane:focus-heading';
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
@@ -33,7 +35,7 @@ const androidDownloadButton = () => showAndroidDownload()
   ? `<a class="secondary-button android-download" href="${ANDROID_APK}" download type="application/vnd.android.package-archive">Download Android app (APK)</a>`
   : '';
 const androidDownloadProof = () => showAndroidDownload()
-  ? `<p class="apk-proof">Native Android alarms repeat after the app closes. The signed APK contains v1.0.5 reminder logic and updates v1.0.3. APK SHA-256: <code>${ANDROID_APK_SHA256}</code></p>`
+  ? `<details class="apk-proof"><summary>Verify the APK download</summary><p>Compare this SHA-256 value with the downloaded file to check that it arrived unchanged.</p><code>${ANDROID_APK_SHA256}</code></details>`
   : '';
 
 const activeReminders = () => data.reminders.filter(reminder => reminder.enabled);
@@ -64,8 +66,8 @@ async function applyFreeLimit(): Promise<void> {
 
 function statusText(reminder: Reminder): string {
   if (reminder.pausedByFreeLimit) return 'Paused · free limit';
-  if (!reminder.enabled) return 'Handled · one-time';
-  if (isDue(reminder)) return isQuietTime(data.settings) ? 'Due · quiet hours active' : 'Needs your answer';
+  if (!reminder.enabled) return 'Acknowledged · one-time';
+  if (isDue(reminder)) return isQuietTime(data.settings) ? 'Due · quiet hours active' : 'Needs acknowledgement';
   if (reminder.snoozedUntil && new Date(reminder.snoozedUntil) > new Date(reminder.nextAt)) {
     return `Snoozed until ${formatDateTime(reminder.snoozedUntil)}`;
   }
@@ -74,7 +76,7 @@ function statusText(reminder: Reminder): string {
 
 function recurrenceLabel(reminder: Reminder): string {
   const labels = { once: 'One time', daily: 'Daily', weekdays: 'Weekdays', weekly: 'Weekly' };
-  return `${labels[reminder.recurrence]} · repeats every ${reminder.repeatMinutes} min until handled`;
+  return `${labels[reminder.recurrence]} · repeats every ${reminder.repeatMinutes} min until acknowledged`;
 }
 
 function reminderRow(reminder: Reminder): string {
@@ -101,22 +103,23 @@ function render(): void {
   const onTime = data.history.filter(entry => entry.withinWindow).length;
   const reliability = handled ? Math.round((onTime / handled) * 100) : 0;
 
-  app.innerHTML = `${isDemo ? `<aside class="demo-banner" aria-label="Demo mode"><strong>Demo — sample data, nothing is saved</strong><span>Try the repeating reminder below.</span><div><button id="reset-demo" class="demo-action" type="button">Reset demo</button><button id="start-real" class="demo-action" type="button">Start for real</button></div></aside>` : ''}<header class="site-header">
+  app.innerHTML = `${isDemo ? `<aside class="demo-banner" aria-label="Demo mode"><strong>Demo — sample data, nothing is saved</strong><div><button id="reset-demo" class="demo-action" type="button">Reset demo</button><button id="start-real" class="demo-action" type="button">Start for real</button></div></aside>` : ''}<header class="site-header">
       <a class="brand" href="/">${icon('tape')} <span>CRITICAL / LANE</span></a>
       <div class="header-actions">
         <span id="network-state" class="network-state" aria-live="polite">${navigator.onLine ? 'On device' : 'Offline · still working'}</span>
-        <button id="open-settings" class="text-button" type="button">${icon('settings')} Settings</button>
+        <button id="open-settings" class="text-button" type="button">${icon('settings')} Open settings</button>
       </div>
       <nav class="site-nav" aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="/privacy/">Privacy</a></nav>
     </header>
     <main id="main">
-      <section class="intro" aria-labelledby="page-title">
+      ${isDemo ? `<section class="demo-intro" aria-labelledby="page-title"><h1 id="page-title">Try a repeating critical reminder.</h1><p>Acknowledge or snooze the due sample below.</p></section>` : `<section class="intro" aria-labelledby="page-title">
         <div class="intro-copy">
-          <p class="eyebrow">ONE LANE. NO FEED.</p>
+          <p class="eyebrow">REPEATING ANDROID REMINDERS</p>
           <h1 id="page-title">Keep critical Android reminders repeating.</h1>
-          <p class="lede">For Android users overwhelmed by notifications, keep medicine, deadlines, and calls visible until you handle them.</p>
-          <div class="intro-actions">${isDemo ? '' : '<a id="try-demo" class="primary-button" href="/demo">Try it with sample data</a>'}<button id="add-reminder" class="${isDemo ? 'primary-button' : 'secondary-button'}" type="button">${icon('plus')} Add critical reminder</button>${androidDownloadButton()}</div>
+          <p class="lede">For Android users overwhelmed by notifications, repeat medicine, deadline, and call reminders until you snooze or acknowledge them.</p>
+          <div class="intro-primary"><a id="try-demo" class="primary-button" href="/?demo=1">Try it with sample data</a><span>Opens three isolated sample reminders.</span></div>
           <ul class="intro-facts" aria-label="Key facts"><li>Private: data stays on this device.</li><li>Offline after the first visit.</li><li>US$4.99 once for unlimited reminders.</li></ul>
+          <div class="intro-actions"><button id="add-reminder" class="secondary-button" type="button">${icon('plus')} Add critical reminder</button>${androidDownloadButton()}</div>
           ${androidDownloadProof()}
         </div>
         <figure class="hero-art">
@@ -126,13 +129,13 @@ function render(): void {
             <source srcset="/art/hero-cassette-768.webp" type="image/webp" />
             <img src="/art/hero-cassette-768.jpg" width="768" height="768" alt="A collage of a cassette feeding one straight tape lane into a checked paper tab" fetchpriority="high" decoding="async" />
           </picture>
-          <figcaption>One protected signal, pulled out of the noise.</figcaption>
+          <figcaption>A cassette tape forms one lane ending at a checked reminder.</figcaption>
         </figure>
-      </section>
+      </section>`}
 
       <section class="now-section" aria-labelledby="now-title">
         <div class="section-heading">
-          <div><p class="track-label">TRACK 01 / NOW</p><h2 id="now-title">Answer this</h2></div>
+          <div><p class="track-label">DUE NOW</p><h2 id="now-title">Reminder needing acknowledgement</h2></div>
           ${due.length > 1 ? `<span class="queue-count">+${due.length - 1} waiting</span>` : ''}
         </div>
         ${current ? `<article class="current-alert" data-id="${current.id}">
@@ -140,7 +143,7 @@ function render(): void {
             <span class="alert-state">● REPEATING NOW</span>
             <h3>${escapeHtml(current.title)}</h3>
             ${current.note ? `<p>${escapeHtml(current.note)}</p>` : ''}
-            <dl><div><dt>Started</dt><dd>${formatDateTime(current.nextAt)}</dd></div><div><dt>Escalation window</dt><dd>${current.escalationMinutes / 60} hr</dd></div></dl>
+            <dl><div><dt>Started</dt><dd>${formatDateTime(current.nextAt)}</dd></div><div><dt>Acknowledgement window</dt><dd>${current.escalationMinutes / 60} hr</dd></div></dl>
             ${isQuietTime(data.settings) ? '<p class="quiet-note">Quiet hours mute notifications. This alert remains visible here.</p>' : ''}
           </div>
           <div class="answer-actions">
@@ -149,21 +152,21 @@ function render(): void {
           </div>
         </article>` : `<div class="clear-state">
           <div class="clear-mark" aria-hidden="true">✓</div>
-          <div><h3>The lane is clear.</h3><p>${activeReminders().length ? 'Nothing needs an answer right now.' : 'Add the first reminder worth breaking through the noise.'}</p></div>
+          <div><h3>No reminders need acknowledgement now.</h3><p>${activeReminders().length ? 'Your next saved reminder is not due yet.' : 'Add a reminder to see it here when it is due.'}</p></div>
         </div>`}
       </section>
 
       <section class="list-section" aria-labelledby="list-title">
         <div class="section-heading">
-          <div><p class="track-label">TRACK 02 / QUEUE</p><h2 id="list-title">Your critical lane</h2></div>
-          <span>${activeReminders().length}${unlocked ? '' : ' / 3 free'} active</span>
+          <div><p class="track-label">SAVED REMINDERS</p><h2 id="list-title">Your reminders</h2></div>
+          <div class="list-summary"><span>${activeReminders().length}${unlocked ? '' : ' / 3 free'} active</span>${isDemo ? `<button id="add-reminder" class="secondary-button" type="button">${icon('plus')} Add critical reminder</button>` : ''}</div>
         </div>
-        ${data.reminders.length ? `<ul class="reminder-list">${data.reminders.slice().sort((a,b) => Number(b.enabled) - Number(a.enabled) || +new Date(a.nextAt) - +new Date(b.nextAt)).map(reminderRow).join('')}</ul>` : `<div class="empty-tape"><span aria-hidden="true">A / 00:00</span><h3>No reminders recorded</h3><p>Keep this list short on purpose. Add medicine, a deadline, or the one call you must make.</p></div>`}
+        ${data.reminders.length ? `<ul class="reminder-list">${data.reminders.slice().sort((a,b) => Number(b.enabled) - Number(a.enabled) || +new Date(a.nextAt) - +new Date(b.nextAt)).map(reminderRow).join('')}</ul>` : `<div class="empty-tape"><span>NO SAVED REMINDERS</span><h3>No reminders saved</h3><p>Add medicine, a deadline, or the one call you must make.</p></div>`}
       </section>
 
       <section class="reliability" aria-labelledby="reliability-title">
-        <div><p class="track-label">30-DAY SIGNAL CHECK</p><h2 id="reliability-title">${handled ? `${reliability}% handled in time` : 'Build a reliable streak'}</h2><p>${handled ? `${onTime} of ${handled} acknowledged reminders were handled inside their escalation window.` : 'Your acknowledgement rate appears here after you handle a reminder. History stays on this device.'}</p></div>
-        <progress class="meter" value="${reliability}" max="100" aria-label="${handled ? `${reliability} percent handled in time` : 'No acknowledgement history yet'}">${reliability}%</progress>
+        <div><p class="track-label">LAST 30 DAYS</p><h2 id="reliability-title">${handled ? `${reliability}% acknowledged in time` : '30-day acknowledgement rate'}</h2><p>${handled ? `${onTime} of ${handled} reminders were acknowledged inside their acknowledgement window.` : 'Your acknowledgement rate appears here after you acknowledge a reminder. History stays on this device.'}</p></div>
+        <progress class="meter" value="${reliability}" max="100" aria-label="${handled ? `${reliability} percent acknowledged in time` : 'No acknowledgement history yet'}">${reliability}%</progress>
       </section>
 
       <section id="how-it-works" class="info-section how-section" aria-labelledby="how-title">
@@ -171,8 +174,8 @@ function render(): void {
         <h2 id="how-title">How it works</h2>
         <ol class="how-list">
           <li><span>01</span><div><h3>Add a critical reminder</h3><p>Add the few reminders you cannot miss.</p></div></li>
-          <li><span>02</span><div><h3>Choose its repeat</h3><p>Choose a schedule and a 5–60 minute repeat.</p></div></li>
-          <li><span>03</span><div><h3>Answer the alert</h3><p>Snooze or acknowledge each alert when it appears.</p></div></li>
+          <li><span>02</span><div><h3>Choose the reminder schedule</h3><p>Choose a schedule and a 5–60 minute repeat.</p></div></li>
+          <li><span>03</span><div><h3>Acknowledge the reminder</h3><p>Snooze or acknowledge each reminder when it appears.</p></div></li>
         </ol>
       </section>
 
@@ -180,20 +183,21 @@ function render(): void {
         <p class="track-label">CLEAR LIMITS</p>
         <h2 id="limits-title">Limits and privacy</h2>
         <div class="plain-columns">
-          <div><h3>Kept on your device</h3><p>Reminder data stays on this device during normal use.</p><p>The app has no account, ads, analytics, calendar, or contacts.</p></div>
-          <div><h3>Permission when needed</h3><p>Android asks for notification access only after you choose it in Settings.</p><p>Without exact-alarm access, Android uses an inexact alarm.</p></div>
+          <div><h3>Kept on your device</h3><p>Reminder data stays in this browser on this device during normal use.</p><p>The app has no account, ads, analytics, calendar, or contacts.</p></div>
+          <div><h3>Android notification permission</h3><p>Android asks for notification access only after you choose it in settings.</p><p>Without exact-alarm access, Android uses an inexact alarm.</p></div>
           <div><h3>Not for emergencies</h3><p>Device power rules can delay alerts. Keep another safeguard for urgent or life-safety duties.</p></div>
         </div>
       </section>
 
       <section class="info-section paid-section" aria-labelledby="paid-title">
         <div><p class="track-label">ONE-TIME LICENSE</p><h2 id="paid-title">Three reminders are free</h2><p>Free use arms three reminders and keeps extra imports paused.</p><p>Pay US$4.99 once for unlimited active reminders. There is no subscription.</p><p>Core reminder controls, accessibility, and data export stay free.</p></div>
-        <div class="paid-actions"><a class="primary-button" href="${buyUrl()}">Buy once · US$4.99</a><button class="secondary-button open-license-settings" type="button">Restore a license</button><p>Sociobot checkout uses Dodo as merchant of record. Refunds are handled there.</p></div>
+        <div class="paid-actions"><a class="primary-button" href="${buyUrl()}">Buy once · US$4.99</a><button class="secondary-button open-license-settings" type="button">Restore a license</button><p>Dodo processes the payment and handles refunds through Sociobot checkout.</p></div>
       </section>
     </main>
-    <footer><p>Repeating Android reminders that wait for your answer.</p><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><small><a href="https://sociobot.in">Built by Param Factory</a> · ${BUILD_ID} · Original generated collage</small></footer>
+    <footer><p>Repeat critical Android reminders until you snooze or acknowledge them.</p><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><small><a href="https://sociobot.in">Built by Param Factory <span class="external-note">(external site)</span></a> · ${BUILD_ID} · Original generated collage</small></footer>
     ${editorDialog()}
     ${settingsDialog()}
+    <div id="route-status" class="sr-only" aria-live="polite"></div>
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>`;
   bindEvents();
 }
@@ -202,12 +206,12 @@ function editorDialog(): string {
   const reminder = editingId ? data.reminders.find(item => item.id === editingId) : undefined;
   return `<dialog id="reminder-dialog" aria-labelledby="editor-title">
     <form id="reminder-form" class="dialog-sheet">
-      <div class="dialog-heading"><div><p class="track-label">${reminder ? 'EDIT RECORDING' : 'NEW RECORDING'}</p><h2 id="editor-title">${reminder ? 'Edit reminder' : 'Add critical reminder'}</h2></div><button class="icon-button close-dialog" type="button" aria-label="Close">×</button></div>
+      <div class="dialog-heading"><div><p class="track-label">${reminder ? 'EDIT REMINDER' : 'NEW REMINDER'}</p><h2 id="editor-title">${reminder ? 'Edit reminder' : 'Add critical reminder'}</h2></div><button class="icon-button close-dialog" type="button" aria-label="Close">×</button></div>
       <input type="hidden" name="id" value="${reminder?.id ?? ''}" />
-      <label>What needs your answer?<input name="title" required maxlength="80" autocomplete="off" value="${escapeHtml(reminder?.title ?? '')}" /></label>
+      <label>What needs acknowledgement?<input name="title" required maxlength="80" autocomplete="off" value="${escapeHtml(reminder?.title ?? '')}" /></label>
       <label>Note <span>(optional)</span><textarea name="note" maxlength="240" rows="3">${escapeHtml(reminder?.note ?? '')}</textarea></label>
       <div class="form-grid"><label>First alert<input name="nextAt" type="datetime-local" required value="${toLocalInput(reminder?.nextAt)}" /></label><label>Schedule<select name="recurrence"><option value="once" ${reminder?.recurrence === 'once' ? 'selected' : ''}>One time</option><option value="daily" ${reminder?.recurrence === 'daily' ? 'selected' : ''}>Every day</option><option value="weekdays" ${reminder?.recurrence === 'weekdays' ? 'selected' : ''}>Weekdays</option><option value="weekly" ${reminder?.recurrence === 'weekly' ? 'selected' : ''}>Every week</option></select></label></div>
-      <div class="form-grid"><label>Repeat until handled<select name="repeatMinutes"><option value="5">Every 5 min</option><option value="10" ${!reminder || reminder.repeatMinutes === 10 ? 'selected' : ''}>Every 10 min</option><option value="15" ${reminder?.repeatMinutes === 15 ? 'selected' : ''}>Every 15 min</option><option value="30" ${reminder?.repeatMinutes === 30 ? 'selected' : ''}>Every 30 min</option><option value="60" ${reminder?.repeatMinutes === 60 ? 'selected' : ''}>Every hour</option></select></label><label>Escalation window<select name="escalationMinutes"><option value="60">1 hour</option><option value="180" ${!reminder || reminder.escalationMinutes === 180 ? 'selected' : ''}>3 hours</option><option value="360" ${reminder?.escalationMinutes === 360 ? 'selected' : ''}>6 hours</option><option value="720" ${reminder?.escalationMinutes === 720 ? 'selected' : ''}>12 hours</option><option value="1440" ${reminder?.escalationMinutes === 1440 ? 'selected' : ''}>24 hours</option></select></label></div>
+      <div class="form-grid"><label>Repeat until acknowledged<select name="repeatMinutes"><option value="5">Every 5 min</option><option value="10" ${!reminder || reminder.repeatMinutes === 10 ? 'selected' : ''}>Every 10 min</option><option value="15" ${reminder?.repeatMinutes === 15 ? 'selected' : ''}>Every 15 min</option><option value="30" ${reminder?.repeatMinutes === 30 ? 'selected' : ''}>Every 30 min</option><option value="60" ${reminder?.repeatMinutes === 60 ? 'selected' : ''}>Every hour</option></select></label><label>Acknowledgement window<select name="escalationMinutes"><option value="60">1 hour</option><option value="180" ${!reminder || reminder.escalationMinutes === 180 ? 'selected' : ''}>3 hours</option><option value="360" ${reminder?.escalationMinutes === 360 ? 'selected' : ''}>6 hours</option><option value="720" ${reminder?.escalationMinutes === 720 ? 'selected' : ''}>12 hours</option><option value="1440" ${reminder?.escalationMinutes === 1440 ? 'selected' : ''}>24 hours</option></select></label></div>
       <p id="form-error" class="form-error" role="alert"></p>
       <div class="dialog-actions"><button class="secondary-button close-dialog" type="button">Cancel</button><button class="primary-button" type="submit">${reminder ? 'Save changes' : 'Arm reminder'}</button></div>
     </form>
@@ -222,13 +226,13 @@ function settingsDialog(): string {
     ? `Android notifications: ${nativeNotifications ?? 'checking'}. ${nativeExactAlarms === 'granted' || nativeExactAlarms === 'not-required' ? 'Native alarms are armed in the background.' : 'Allow exact alarms for the most reliable timing.'}`
     : `Permission: <strong>${permission}</strong>. The web build checks while open; Android schedules reminders after installation.`;
   return `<dialog id="settings-dialog" aria-labelledby="settings-title"><div class="dialog-sheet settings-sheet">
-    <div class="dialog-heading"><div><p class="track-label">DECK CONTROLS</p><h2 id="settings-title">Settings & data</h2></div><button class="icon-button close-settings" type="button" aria-label="Close">×</button></div>
+    <div class="dialog-heading"><div><p class="track-label">REMINDER SETTINGS</p><h2 id="settings-title">Settings and data</h2></div><button class="icon-button close-settings" type="button" aria-label="Close">×</button></div>
     <section><h3>Notifications</h3><p>${notificationCopy}</p><div class="button-row"><button id="enable-notifications" class="secondary-button" type="button" ${(isNativeAndroid() ? nativeNotifications : permission) === 'granted' || permission === 'unsupported' ? 'disabled' : ''}>${isNativeAndroid() ? 'Enable Android notifications' : 'Enable notifications'}</button>${isNativeAndroid() && nativeExactAlarms === 'prompt' ? '<button id="enable-exact-alarms" class="secondary-button" type="button">Allow exact alarms</button>' : ''}</div></section>
     <form id="quiet-form" novalidate><h3>Quiet hours</h3><label class="check-line"><input name="quietEnabled" type="checkbox" ${data.settings.quietEnabled ? 'checked' : ''} /> Mute notification repeats overnight</label><div class="form-grid"><label>Start<input name="quietStart" type="time" required aria-describedby="quiet-form-error" value="${data.settings.quietStart}" /></label><label>End<input name="quietEnd" type="time" required aria-describedby="quiet-form-error" value="${data.settings.quietEnd}" /></label></div><p id="quiet-form-error" class="form-error" role="alert"></p><button class="secondary-button" type="submit">Save quiet hours</button></form>
-    <section><h3>Your data</h3><p>Reminders and history live in IndexedDB on this device. Export is always free.</p><div class="button-row"><button id="export-data" class="secondary-button" type="button">Export JSON</button><label class="file-button">Import JSON<input id="import-data" type="file" accept="application/json,.json" /></label></div></section>
-    <section class="license-panel"><span class="status-stamp">${unlocked ? '✓ FULL DECK' : 'FREE DECK'}</span><h3>${unlocked ? 'Unlimited lane unlocked' : 'Keep a bigger critical lane'}</h3><p>Free includes 3 active reminders and every safety feature. A US$4.99 one-time purchase adds unlimited active reminders. No subscription.</p>
+    <section><h3>Your data</h3><p>Reminders and history stay in this browser on this device. Export is always free.</p><div class="button-row"><button id="export-data" class="secondary-button" type="button">Export backup</button><label class="file-button">Import backup<input id="import-data" type="file" accept="application/json,.json" /></label></div></section>
+    <section class="license-panel"><span class="status-stamp">${unlocked ? '✓ PAID PLAN' : 'FREE PLAN'}</span><h3>${unlocked ? 'Unlimited reminders active' : 'Add more active reminders'}</h3><p>Free includes 3 active reminders and every safety feature. A US$4.99 one-time purchase adds unlimited active reminders. No subscription.</p>
       ${unlocked ? '<button id="remove-license" class="text-button" type="button">Remove license from this device</button>' : `<a class="primary-button buy-link" href="${buyUrl()}">Buy once · US$4.99</a><form id="license-form"><label>Have a license? Paste it<input name="license" required autocomplete="off" /></label><button class="secondary-button" type="submit">Restore purchase</button></form>`}
-      <p class="fine-print">Sociobot/Dodo is the merchant of record. Refunds are handled there and revoke the license automatically.</p></section>
+      <p class="fine-print">Dodo processes the payment and handles refunds through Sociobot checkout. A refund makes the license inactive.</p></section>
     <button class="secondary-button close-settings" type="button">Close settings</button>
   </div></dialog>`;
 }
@@ -243,6 +247,59 @@ function showToast(message: string, undo = false): void {
     if (!undoSnapshot) return;
     data = undoSnapshot; undoSnapshot = null; await saveAndSchedule(); render(); showToast('Action undone.');
   });
+}
+
+function announceRoute(label: string): void {
+  const status = document.querySelector<HTMLElement>('#route-status');
+  if (status) status.textContent = label;
+}
+
+function focusHeading(heading: HTMLElement): void {
+  heading.setAttribute('tabindex', '-1');
+  heading.focus({ preventScroll: true });
+  announceRoute(heading.textContent?.trim() ?? 'Page section');
+}
+
+function restoreHashTarget(): void {
+  if (!window.location.hash) return;
+  const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+  if (!target) return;
+  const heading = target.matches('h1, h2, h3') ? target : target.querySelector<HTMLElement>('h1, h2, h3');
+  const stickyOffset = document.querySelector<HTMLElement>('.demo-banner')?.getBoundingClientRect().height ?? 0;
+  const top = target.getBoundingClientRect().top + window.scrollY - stickyOffset;
+  const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+  document.documentElement.style.scrollBehavior = 'auto';
+  window.scrollTo({ top, behavior: 'auto' });
+  document.documentElement.style.scrollBehavior = previousScrollBehavior;
+  if (heading) focusHeading(heading);
+}
+
+function restoreRouteFocus(): void {
+  window.requestAnimationFrame(() => {
+    if (window.location.hash) {
+      restoreHashTarget();
+      return;
+    }
+    if (sessionStorage.getItem(ROUTE_FOCUS_KEY) !== '1') return;
+    sessionStorage.removeItem(ROUTE_FOCUS_KEY);
+    const heading = document.querySelector<HTMLElement>('main h1');
+    if (heading) focusHeading(heading);
+  });
+  if (window.location.hash) window.setTimeout(restoreHashTarget, 50);
+}
+
+function configureDemoMetadata(): void {
+  if (!isDemo) return;
+  document.title = 'Demo — Critical Alert Lane';
+  const description = 'Try three isolated sample reminders and acknowledge or snooze the due reminder.';
+  document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute('content', description);
+  document.querySelector<HTMLMetaElement>('meta[property="og:title"]')?.setAttribute('content', document.title);
+  document.querySelector<HTMLMetaElement>('meta[property="og:description"]')?.setAttribute('content', description);
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]')?.setAttribute('content', document.title);
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:description"]')?.setAttribute('content', description);
+  const demoUrl = 'https://critical-alert-lane.sociobot.in/?demo=1';
+  document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.setAttribute('href', demoUrl);
+  document.querySelector<HTMLMetaElement>('meta[property="og:url"]')?.setAttribute('content', demoUrl);
 }
 
 function bindEvents(): void {
@@ -283,6 +340,19 @@ function bindEvents(): void {
     await clearData();
     window.location.assign('/');
   });
+  document.querySelector('#how-title')?.setAttribute('tabindex', '-1');
+  document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach(link => {
+    const url = new URL(link.href, window.location.href);
+    if (url.origin !== window.location.origin || url.hash || link.hasAttribute('download')) return;
+    link.addEventListener('click', () => sessionStorage.setItem(ROUTE_FOCUS_KEY, '1'));
+  });
+  document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach(link => link.addEventListener('click', event => {
+    const hash = link.hash;
+    if (!hash) return;
+    event.preventDefault();
+    history.pushState(null, '', hash);
+    restoreHashTarget();
+  }));
   if (isDemo) {
     document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach(link => {
       const href = link.getAttribute('href') ?? '';
@@ -336,7 +406,7 @@ async function handleReminderSubmit(event: Event): Promise<void> {
   if (!title) {
     // `required` accepts spaces. Validate before changing in-memory data so the
     // editor remains usable and persistence can never be asked to save it.
-    error.textContent = 'Enter what needs your answer. A title cannot be blank.';
+    error.textContent = 'Enter what needs acknowledgement. A title cannot be blank.';
     titleInput.setAttribute('aria-invalid', 'true');
     titleInput.focus();
     return;
@@ -344,7 +414,7 @@ async function handleReminderSubmit(event: Event): Promise<void> {
   const id = String(values.get('id') || '');
   const existing = data.reminders.find(item => item.id === id);
   if (!unlocked && !existing?.enabled && activeReminders().length >= 3) {
-    error.textContent = 'The free deck holds 3 active reminders. Handle one, or unlock unlimited reminders in Settings.';
+    error.textContent = 'The free plan supports 3 active reminders. Acknowledge one, or buy unlimited reminders in settings.';
     return;
   }
   const now = new Date().toISOString();
@@ -415,12 +485,12 @@ async function requestNotifications(): Promise<void> {
   if (isNativeAndroid()) {
     nativeStatus = await requestNativeNotifications();
     render();
-    showToast(nativeStatus?.notifications === 'granted' ? 'Android notifications enabled. Background reminders are armed.' : 'Android notifications were not enabled. You can still use the in-app lane.');
+    showToast(nativeStatus?.notifications === 'granted' ? 'Android notifications enabled. Background reminders are armed.' : 'Android notifications were not enabled. You can still use the reminder list.');
     return;
   }
   if (!('Notification' in window)) { showToast('Notifications are not supported in this browser.'); return; }
   const permission = await Notification.requestPermission();
-  render(); showToast(permission === 'granted' ? 'Notifications enabled.' : 'Notifications were not enabled. You can still use the in-app lane.');
+  render(); showToast(permission === 'granted' ? 'Notifications enabled.' : 'Notifications were not enabled. You can still use the reminder list.');
 }
 
 async function requestExactAlarms(): Promise<void> {
@@ -442,7 +512,7 @@ async function importData(event: Event): Promise<void> {
       ? ` ${prepared.remappedReminderIds} unsafe reminder ID(s) will be repaired so Android alarms stay separate.`
       : '';
     const limitWarning = prepared.pausedReminderIds.length
-      ? ` The free lane can arm 3 reminders. ${prepared.pausedReminderIds.length} additional reminder(s) will be imported paused, not deleted.`
+      ? ` The free plan can arm 3 reminders. ${prepared.pausedReminderIds.length} additional reminder(s) will be imported paused, not deleted.`
       : '';
     if (!confirm(`Replace this device’s data with ${prepared.data.reminders.length} reminder(s)?${identityWarning}${limitWarning} Export first if you need a backup.`)) return;
     data = prepared.data;
@@ -486,6 +556,7 @@ async function checkNotifications(): Promise<void> {
 }
 
 async function init(): Promise<void> {
+  configureDemoMetadata();
   if (!isDemo) {
     captureLicense();
     unlocked = isOptimisticallyUnlocked();
@@ -501,8 +572,9 @@ async function init(): Promise<void> {
       await syncNativeSchedule(data);
     }
     render();
+    restoreRouteFocus();
   }
-  catch { data = { version: 1, reminders: [], history: [], settings: { quietEnabled: true, quietStart: '22:00', quietEnd: '07:00' }, updatedAt: new Date().toISOString() }; render(); showToast('Local storage could not be read. Reminders may not persist in this browser.'); }
+  catch { data = { version: 1, reminders: [], history: [], settings: { quietEnabled: true, quietStart: '22:00', quietEnd: '07:00' }, updatedAt: new Date().toISOString() }; render(); restoreRouteFocus(); showToast('Local storage could not be read. Reminders may not persist in this browser.'); }
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').then(registration => {
       registration.addEventListener('updatefound', () => {
@@ -512,7 +584,13 @@ async function init(): Promise<void> {
     }).catch(() => showToast('Offline setup did not finish. The app still works while this page is open.'));
   }
   window.addEventListener('online', () => { render(); showToast('Back online. Your reminders stayed on this device.'); });
-  window.addEventListener('offline', () => { render(); showToast('Offline. The lane and your saved data still work.'); });
+  window.addEventListener('offline', () => { render(); showToast('Offline. Your reminders and saved data still work.'); });
+  window.addEventListener('hashchange', restoreHashTarget);
+  window.addEventListener('popstate', restoreRouteFocus);
+  window.addEventListener('pageshow', () => {
+    restoreRouteFocus();
+    window.setTimeout(restoreHashTarget, 100);
+  });
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
       if (!isDemo) void nativeScheduleStatus().then(status => { if (status) { nativeStatus = status; render(); } });
@@ -528,7 +606,7 @@ async function init(): Promise<void> {
       unlocked = valid;
       if (!valid) await applyFreeLimit();
       render();
-      if (!valid) showToast('This license is no longer active. The free lane remains available.');
+      if (!valid) showToast('This license is no longer active. The free plan remains available.');
     }).catch(() => undefined);
   }
 }

@@ -11,6 +11,8 @@
     "lint": "tsc --noEmit",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
+    "test:repo-secrets": "vitest run -t @claim:repo-no-signing-secrets",
+    "test:copy": "node scripts/copy-audit.mjs --check",
     "test:e2e": "playwright test",
     "test:update": "npm run build && node scripts/verify-update.mjs",
     "test:android": "npm run test:android:artifact",

@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
 import { createDemoData } from '../src/demo';
 
@@ -10,14 +11,15 @@ describe('release policy regressions', () => {
     }>;
     const expectedIds = [
       'offline-reload', 'safe-import', 'free-limit', 'local-private', 'repeat-until-handled',
-      'demo-isolation', 'data-portability', 'rolling-score', 'schedule-and-undo', 'quiet-hours',
-      'repeat-range', 'pwa-installable', 'android-permission-boundary', 'core-free',
+      'demo-isolation', 'demo-ready', 'data-portability', 'rolling-score', 'schedule-and-undo', 'quiet-hours',
+      'repeat-range', 'pwa-installable', 'android-permission-boundary', 'timing-limits', 'core-free',
       'native-background-repeat', 'lifecycle-recovery', 'apk-download', 'apk-source-identity',
-      'apk-update-signing', 'one-time-license', 'billing-data-boundary', 'license-recovery'
+      'apk-update-signing', 'repo-no-signing-secrets', 'one-time-license', 'billing-data-boundary',
+      'billing-processor-refunds', 'license-recovery'
     ];
     expect(claims.map(item => item.id)).toEqual(expectedIds);
     const sources = [
-      'tests/e2e/app.spec.ts', 'scripts/verify-apk-artifact.mjs',
+      'tests/e2e/app.spec.ts', 'tests/release-policy.test.ts', 'scripts/verify-apk-artifact.mjs',
       'scripts/verify-android-update-signing.mjs'
     ].map(file => readFileSync(resolve(file), 'utf8')).join('\n');
     for (const claim of claims) {
@@ -44,6 +46,12 @@ describe('release policy regressions', () => {
     expect(readme).not.toMatch(/\b(?:leverage|seamless|effortless|robust|powerful|intuitive|reimagine|supercharge|delightful|journey|ecosystem)\b/i);
   });
 
+  it('reproduces copy-audit counts with the shared Unicode tokenizer', () => {
+    const generator = readFileSync(resolve('scripts/copy-audit.mjs'), 'utf8');
+    expect(generator).toContain("/[\\p{L}\\p{N}]+(?:[’'./:+–—-][\\p{L}\\p{N}]+)*/gu");
+    expect(() => execFileSync(process.execPath, ['scripts/copy-audit.mjs', '--check'], { encoding: 'utf8' })).not.toThrow();
+  });
+
   it('ships a static-host 404 response override and a designed fallback page', () => {
     const config = JSON.parse(readFileSync(resolve('public/staticwebapp.config.json'), 'utf8')) as {
       navigationFallback?: unknown;
@@ -55,6 +63,11 @@ describe('release policy regressions', () => {
     expect(config.navigationFallback).toBeUndefined();
     expect(page).toContain('<h1>Page not found</h1>');
     expect(page).toContain('href="/"');
+    expect(page).toContain('<link rel="canonical" href="https://critical-alert-lane.sociobot.in/404.html"');
+    expect(page).toContain('<meta property="og:title" content="Page not found — Critical Alert Lane"');
+    expect(page).toContain('<meta property="og:image" content="https://critical-alert-lane.sociobot.in/art/social-preview.png"');
+    expect(page).toContain('<meta name="twitter:card" content="summary_large_image"');
+    expect(page).toContain('<link rel="apple-touch-icon" href="/icons/icon-180.png"');
   });
 
   it('provides an immediately due, realistic reminder in every fresh demo', () => {
@@ -73,7 +86,9 @@ describe('release policy regressions', () => {
       ['index.html', 'https://critical-alert-lane.sociobot.in/'],
       ['demo/index.html', 'https://critical-alert-lane.sociobot.in/demo/'],
       ['privacy/index.html', 'https://critical-alert-lane.sociobot.in/privacy/'],
-      ['terms/index.html', 'https://critical-alert-lane.sociobot.in/terms/']
+      ['terms/index.html', 'https://critical-alert-lane.sociobot.in/terms/'],
+      ['offline.html', 'https://critical-alert-lane.sociobot.in/offline.html'],
+      ['404.html', 'https://critical-alert-lane.sociobot.in/404.html']
     ];
     for (const [file, canonical] of routes) {
       const page = readFileSync(resolve(file), 'utf8');
@@ -86,6 +101,16 @@ describe('release policy regressions', () => {
     const appleIcon = readFileSync(resolve('public/icons/icon-180.png'));
     expect([social.readUInt32BE(16), social.readUInt32BE(20)]).toEqual([1200, 630]);
     expect([appleIcon.readUInt32BE(16), appleIcon.readUInt32BE(20)]).toEqual([180, 180]);
+  });
+
+  it('@claim:repo-no-signing-secrets keeps Android signing secrets out of tracked files', () => {
+    const tracked = execFileSync('git', ['ls-files'], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+    expect(tracked.filter(file => /(?:^|\/)(?:[^/]+\.)?(?:jks|keystore|p12|pfx|pem|key)$/i.test(file))).toEqual([]);
+    const textFiles = tracked.filter(file => /\.(?:md|json|ts|js|mjs|html|css|xml|gradle|properties|yml|yaml|txt)$/i.test(file));
+    const source = textFiles.map(file => readFileSync(resolve(file), 'utf8')).join('\n');
+    expect(source).not.toMatch(/-----BEGIN (?:RSA |EC )?PRIVATE KEY-----/);
+    expect(source).not.toMatch(/(?:storePassword|keyPassword)\s+["'][^"']+["']/);
+    expect(source).not.toMatch(/ANDROID_RELEASE_(?:STORE_PASSWORD|KEY_PASSWORD)\s*=\s*[^\s$]+/);
   });
 
   it('keeps standalone update and native claim checks runnable in an SDK-less clean clone', () => {
