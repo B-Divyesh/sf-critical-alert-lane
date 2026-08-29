@@ -52,6 +52,14 @@ package ID, strictly higher code, and matching signing-certificate evidence.
   assembly — pass (329 Gradle tasks); fresh unsigned CI artifact passed its
   native-bundle identity check.
 
+## Deployment
+
+Deployed the static build with `/opt/fleet/lib/deploy-static.sh
+critical-alert-lane dist`. The live v1.0.5 download has SHA-256
+`af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8` and
+again verifies as the factory signer under APK v1/v2. Live root passed
+`scripts/verify-url.sh` (title, language, main landmark, image alternatives).
+
 ---
 
 # Verification 11 handoff — **FAIL**
