@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
   const outDir = nativeBuild ? 'dist-native' : 'dist';
   // Native builds receive an empty digest: an APK must not contain a hash of
   // itself. The public site reads the completed archive's digest instead.
-  const apk = resolve(__dirname, 'public/downloads/critical-alert-lane-1.0.4.apk');
+  const apk = resolve(__dirname, 'public/downloads/critical-alert-lane-1.0.5.apk');
   const apkDigest = nativeBuild ? '' : (() => {
     try { return createHash('sha256').update(readFileSync(apk)).digest('hex'); }
     catch { return ''; }

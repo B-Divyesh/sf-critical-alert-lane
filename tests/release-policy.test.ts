@@ -54,6 +54,7 @@ describe('release policy regressions', () => {
     };
     const updateCheck = readFileSync(resolve('scripts/verify-update.mjs'), 'utf8');
     const artifactCheck = readFileSync(resolve('scripts/verify-apk-artifact.mjs'), 'utf8');
+    const signingCheck = readFileSync(resolve('scripts/verify-android-update-signing.mjs'), 'utf8');
     const workflow = readFileSync(resolve('.github/workflows/android.yml'), 'utf8');
 
     expect(packageJson.scripts['test:update']).toContain('npm run build');
@@ -63,6 +64,10 @@ describe('release policy regressions', () => {
     expect(packageJson.scripts['test:android:lifecycle-claim']).not.toContain('gradle');
     expect(packageJson.scripts['test:android:artifact']).not.toContain('gradle');
     expect(artifactCheck).toContain('released native-source fingerprints');
+    expect(packageJson.scripts['test:android:artifact']).toContain('test:android:update-signing');
+    expect(signingCheck).toContain('record.signing.subject');
+    expect(signingCheck).toContain('versionCode');
+    expect(readFileSync(resolve('android/app/build.gradle'), 'utf8')).not.toContain('signingConfigs.debug');
     expect(workflow).toContain('npm run test:android:full');
     expect(workflow).toContain('platforms;android-35');
   });

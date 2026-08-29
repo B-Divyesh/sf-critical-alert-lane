@@ -20,7 +20,7 @@ let undoSnapshot: AppData | null = null;
 let undoTimer = 0;
 let nativeStatus: NativeSchedulerStatus | null = null;
 let editorReturnTarget: { kind: 'add' } | { kind: 'edit'; id: string } | null = null;
-const ANDROID_APK = '/downloads/critical-alert-lane-1.0.4.apk';
+const ANDROID_APK = '/downloads/critical-alert-lane-1.0.5.apk';
 const ANDROID_APK_SHA256 = __ANDROID_APK_SHA256__;
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, char => ({

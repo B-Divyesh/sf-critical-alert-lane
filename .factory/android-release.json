@@ -1,13 +1,23 @@
 {
   "apk": {
-    "path": "public/downloads/critical-alert-lane-1.0.4.apk",
-    "sha256": "2af8e0b60ce77aa729b82e465626d9b37778e38f22b4665c80e6301bcd6327bf",
+    "path": "public/downloads/critical-alert-lane-1.0.5.apk",
+    "sha256": "af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8",
     "applicationId": "in.sociobot.criticalalertlane",
-    "versionName": "1.0.4",
-    "versionCode": 5
+    "versionName": "1.0.5",
+    "versionCode": 6
+  },
+  "signing": {
+    "subject": "CN = Sociobot Factory Android Signing",
+    "sha256": "F6:A9:CA:54:D7:38:5C:9D:00:5B:81:DE:04:7D:49:37:F6:C4:47:60:2E:9F:A8:19:4C:F0:F8:70:FC:53:26:5C",
+    "upgradeFrom": {
+      "path": "public/downloads/critical-alert-lane-1.0.3.apk",
+      "sha256": "06382ba158e7cd4a28222e14a81174150b574daabe17af9be62cac91213e3c16",
+      "versionName": "1.0.3",
+      "versionCode": 4
+    }
   },
   "nativeSource": {
-    "android/app/build.gradle": "ab85e320c6ff78c13989da74eb476d4cd45b45c907b8a0836d84a44dd9490ed9",
+    "android/app/build.gradle": "9e50f55a8f7e794a9e3543757263ae718871f5b749d17a1259fec591fcb0c55d",
     "android/app/src/main/AndroidManifest.xml": "b6d9c2945043c3b917f657823ff65ba7362a54ada8843763c1a470732706d5a6",
     "android/app/src/main/java/in/sociobot/criticalalertlane/ReminderAlarmReceiver.java": "c17b5ff838e5ae822fc3f2771b87948e61f782a5dbe5d8dd65f474f0cbec5b65",
     "android/app/src/main/java/in/sociobot/criticalalertlane/ReminderRescheduleReceiver.java": "ed1fbeb60ac5ec1615df9a52f0e2fc9c7c76939df4ff78c56d8faaf3da94ba27",

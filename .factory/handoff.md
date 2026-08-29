@@ -1,3 +1,59 @@
+# Repair 9 handoff — Android signer continuity
+
+Date: 2026-08-29
+
+Candidate repaired from: `33cf5318c50e9c14b2b017cbd3cf6242a955a535`
+
+## Outcome
+
+Reproduced verification 11's exact release blocker before changing code:
+`critical-alert-lane-1.0.3.apk` was signed by `CN=Sociobot Factory Android
+Signing`, SHA-256 `F6:A9:CA:54:D7:38:5C:9D:00:5B:81:DE:04:7D:49:37:F6:C4:47:60:2E:9F:A8:19:4C:F0:F8:70:FC:53:26:5C`, while the served 1.0.4
+archive had `CN=Critical Alert Lane Release`, SHA-256
+`55:97:0A:15:27:D3:E5:CF:10:C9:D7:46:65:5E:AC:0F:47:DA:22:F3:0F:6D:D1:22:D8:ED:01:20:6D:EA:94:84`.
+
+Published release source is now v1.0.5 / code 6:
+
+- `public/downloads/critical-alert-lane-1.0.5.apk`
+- APK SHA-256: `af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8`
+- signer: `CN=Sociobot Factory Android Signing`
+- signer SHA-256: `F6:A9:CA:54:D7:38:5C:9D:00:5B:81:DE:04:7D:49:37:F6:C4:47:60:2E:9F:A8:19:4C:F0:F8:70:FC:53:26:5C`
+
+`aapt dump badging` confirms both the v1.0.3 baseline and v1.0.5 release use
+`in.sociobot.criticalalertlane`, with version codes 4 and 6 respectively.
+`apksigner` verified v1 and v2 signatures on v1.0.5. Android's update identity
+rules therefore accept v1.0.3 -> v1.0.5 in place. No physical/emulated device
+was attached in this worker, so this conclusion is recorded from the exact
+package ID, strictly higher code, and matching signing-certificate evidence.
+
+## Repair and regression coverage
+
+- Rebuilt the release with the existing factory private key and the public
+  v1.0.3 certificate; no new signing key was generated.
+- Removed the `signingConfigs.debug` release fallback. SDK-less builds now make
+  an explicitly unsigned verification APK; only supplied factory credentials
+  can produce a signed release artifact.
+- Added `npm run test:android:update-signing`. It checks the stored v1.0.3
+  digest, both APK certificate subjects/fingerprints, identical package ID, and
+  the release-record/Gradle version-code advance. It is also part of
+  `test:android:artifact` and declared as the `apk-update-signing` claim.
+- Updated download link, displayed digest, release record, and README to 1.0.5.
+
+## Verification
+
+- `npm ci` — pass (148 packages, 0 vulnerabilities)
+- `npm test` — pass (18 tests)
+- `npm run typecheck` and `npm run lint` — pass
+- `npm run build` — pass; `dist/` produced (39.91 kB JS / 14.19 kB gzip)
+- `npm run test:e2e` — pass (46 desktop and 390 px mobile tests)
+- `npm run test:update` — pass (`cal-v8` update then offline reload)
+- `npm run test:android:artifact` and `npm run test:android:update-signing` — pass
+- clean `test`, `lintDebug`, debug/release assembly, and Android-test APK
+  assembly — pass (329 Gradle tasks); fresh unsigned CI artifact passed its
+  native-bundle identity check.
+
+---
+
 # Verification 11 handoff — **FAIL**
 
 Date: 2026-08-29

@@ -18,8 +18,9 @@
     "test:android:claim": "npm run test:android:artifact -- --claim native-background-repeat",
     "test:android:lifecycle-claim": "npm run test:android:artifact -- --claim lifecycle-recovery",
     "android:sync": "npm run build:native && npx cap sync android",
-    "test:android:artifact": "npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/verify-apk-artifact.mjs public/downloads/critical-alert-lane-1.0.4.apk",
-    "test:android:full": "npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/gradle.mjs test lintDebug assembleDebug assembleRelease assembleDebugAndroidTest --no-daemon && node scripts/verify-apk-artifact.mjs android/app/build/outputs/apk/release/app-release.apk --fresh-build"
+    "test:android:update-signing": "node scripts/verify-android-update-signing.mjs",
+    "test:android:artifact": "npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/verify-apk-artifact.mjs public/downloads/critical-alert-lane-1.0.5.apk && npm run test:android:update-signing",
+    "test:android:full": "npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/gradle.mjs clean test lintDebug assembleDebug assembleRelease assembleDebugAndroidTest --no-daemon && node scripts/verify-apk-artifact.mjs android/app/build/outputs/apk/release/app-release-unsigned.apk --fresh-build && npm run test:android:update-signing"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",

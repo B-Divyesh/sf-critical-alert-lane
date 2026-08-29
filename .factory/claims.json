@@ -98,6 +98,13 @@
     "sandbox": "standard clean verifier; sync a fresh native bundle, compare every embedded asset with the already-published APK, verify its displayed digest and released native-source fingerprints, and require the demo entry point/current service-worker shell; a fresh native release build runs in GitHub Actions"
   },
   {
+    "id": "apk-update-signing",
+    "claim": "Android users on v1.0.3 can install the published APK as an update.",
+    "where": "README, Android release record",
+    "test": "npm run test:android:update-signing",
+    "sandbox": "clean checkout; compare the v1.0.3 and published APK certificate subjects and SHA-256 fingerprints, then assert the shared application ID and a higher recorded version code"
+  },
+  {
     "id": "one-time-license",
     "claim": "US$4.99 is a one-time purchase for unlimited active reminders through Sociobot checkout.",
     "where": "landing page, Settings pricing, Terms, README",
