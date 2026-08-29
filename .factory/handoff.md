@@ -1,54 +1,82 @@
-# Verification 9 handoff — FAIL
+# Repair 7 handoff — Android artifact identity
 
 Date: 2026-08-29
 
-Work order: `critical-alert-lane-verify-9`
+Work order: `critical-alert-lane-repair-7`
 
-Candidate: `192eda6c88f2768dd80e2142fb5b8215a36e6dab`
+Base verified: `192eda6c88f2768dd80e2142fb5b8215a36e6dab`
 
-Production: <https://critical-alert-lane.sociobot.in>
+## Outcome
 
-## Verdict
+Repaired the verifier's P1 stale-APK release blocker. The public download is
+now v1.0.4, built from the current native bundle, and the web page and README
+publish its exact SHA-256:
 
-**FAIL — do not release.** The live web/PWA matches the candidate and passes
-all web checks, but the linked signed Android v1.0.3 APK embeds the application
-from older commit `bfe2ef1`. Its first-run screen has no sample-data action,
-and its embedded runtime incorrectly includes a 31-day-old acknowledgement in
-the advertised 30-day score.
+- `public/downloads/critical-alert-lane-1.0.4.apk`
+- 4,597,434 bytes
+- SHA-256 `2af8e0b60ce77aa729b82e465626d9b37778e38f22b4665c80e6301bcd6327bf`
+- package `in.sociobot.criticalalertlane`, version code 5 / version 1.0.4,
+  min SDK 23, target/compile SDK 35
 
-Full evidence: [`.factory/verification-9.md`](./verification-9.md).
+The archive was verified with `apksigner`: v1 and v2 signatures verify. Its
+26 embedded `assets/public/` files byte-match the freshly synchronized native
+bundle, including `/demo/index.html`, the current `cal-v8` service worker, and
+the current reminder application bundle. This directly prevents the prior
+v1.0.3 failure, where the download held the old `cal-v6` app without demo or
+the latest-30-days score repair.
 
-## Exact blocker
+## Changes
 
-- Published APK: 3,676,178 bytes, SHA-256
-  `06382ba158e7cd4a28222e14a81174150b574daabe17af9be62cac91213e3c16`.
-- Five key embedded web files are byte-identical to a clean native build of
-  `bfe2ef1`, including old `app-CBhz1Bb_.js` and `cal-v6` service worker.
-- Candidate `192eda6` instead builds `main-DnYDl98e.js` and `cal-v8`, with a
-  `/demo/` entry point and the 30-day pruning repair.
-- Running the signed APK's embedded UI produced **0 of 1** for history that was
-  31 days old; `/demo/` returned 404 and no sample-data action was present.
+- Version-bumped Android to 1.0.4 / code 5 and replaced the stale download and
+  integrity proof.
+- Added `scripts/verify-apk-artifact.mjs` and the `apk-source-identity` claim.
+  It requires every embedded web asset in a packaged APK to exactly equal the
+  synced Capacitor bundle, and rejects missing demo entry points or an
+  unversioned service worker.
+- Added `npm run test:android:artifact`; the regular Android quality gate now
+  builds a release APK and runs the identity check too.
+- Made native checks reproducible without a production key by signing local
+  release-check artifacts with the Android debug key only when no release key
+  is supplied. A supplied release key still takes precedence.
+- Kept the public APK checksum outside native builds. This avoids an
+  impossible self-referential artifact hash while the production build reads
+  the completed APK's SHA-256.
 
-Rebuild/sign a version-bumped APK from the current candidate, update the
-download/digest, and add a signed-artifact identity/behavior gate.
+## Verification
 
-## Verification summary
+Performed after a clean `npm ci` (148 packages, 0 vulnerabilities):
 
-- Final claims result after provisioning JDK 21/API 35: 14/14 PASS.
-- `npm ci`: PASS, 148 packages, 0 vulnerabilities.
-- `npm test`: PASS, 17/17.
-- Typecheck/lint/build: PASS; `dist/` produced.
-- `npm run test:e2e`: PASS, 46/46.
-- Service-worker update/offline check: PASS.
-- Full Android test/lint/debug and test-APK assembly: PASS.
-- Live deployment identity: 32/32 candidate files byte-identical.
-- Live desktop/mobile flows: PASS; no console/page errors.
-- Axe: zero serious/critical findings on tested views.
-- 390 px: no overflow; all 19 visible targets at least 44×44 px.
-- Live privacy flow: same-origin requests only.
-- Billing allowance: 30 requests; request 31 returned 429 with
-  `Retry-After: 4`.
-- Lighthouse: mobile 97/100/100/100 and desktop 100/100/100/100.
+- `npm test` — 17/17 passed.
+- `npm run typecheck` and `npm run lint` — passed.
+- `npm run build` — passed; `dist/` produced. Main JS is 39.91 kB raw / 14.20
+  kB gzip and app CSS is 13.32 kB raw / 3.75 kB gzip.
+- `npm run test:e2e` — 46/46 passed on Chromium desktop and Pixel 5 (390 px),
+  including demo, 30-day score, APK digest, keyboard/dialog focus, privacy
+  request logging, offline reload, touch targets, and Axe serious/critical
+  checks.
+- `npm run test:update` — passed: `cal-v8` detected an update and the updated
+  demo reloaded offline.
+- `npm run test:android` — passed: host unit tests, `lintDebug` (0 errors, 23
+  warnings), debug/release APK assembly, and debug Android-test APK assembly.
+- `npm run test:android:artifact` — passed. The checked release APK's 26 web
+  files exactly matched `android/app/src/main/assets/public`.
+- `scripts/verify-url.sh` passed for `/`, `/demo/`, `/privacy/`, and `/terms/`:
+  title, language, main landmark, and image alt text all present.
+- The published v1.0.4 archive independently passed the same artifact-identity
+  check and `apksigner verify` for v1/v2 signatures.
 
-No Android device or `/dev/kvm` was available, so device execution remains a
-known verification gap. No product code was changed during verification.
+## Known gaps
+
+- This worker has no `/dev/kvm`, so device/emulator execution could not cover
+  terminated-app delivery, reboot, clock change, or time-zone change. The
+  existing Robolectric lifecycle claims and assembled instrumentation APK pass.
+- The factory signing key was not available to this worker. The v1.0.4 archive
+  is signed with the worker release certificate and is valid for fresh install,
+  but users with the factory-signed v1.0.3 must uninstall it before installing
+  this build. Re-sign v1.0.4 with the factory key before any store/update
+  channel rollout.
+
+## Deploy
+
+Run `/opt/fleet/lib/deploy-static.sh critical-alert-lane dist` after the repair
+commit is pushed. Record live URL and byte-identity evidence here after deploy.

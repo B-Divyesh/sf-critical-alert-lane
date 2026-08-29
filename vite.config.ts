@@ -1,12 +1,23 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'node:path';
-import { rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 
 export default defineConfig(({ mode }) => {
   const nativeBuild = mode === 'native';
   const outDir = nativeBuild ? 'dist-native' : 'dist';
+  // Native builds receive an empty digest: an APK must not contain a hash of
+  // itself. The public site reads the completed archive's digest instead.
+  const apk = resolve(__dirname, 'public/downloads/critical-alert-lane-1.0.4.apk');
+  const apkDigest = nativeBuild ? '' : (() => {
+    try { return createHash('sha256').update(readFileSync(apk)).digest('hex'); }
+    catch { return ''; }
+  })();
   return {
-    define: { __NATIVE_BUILD__: JSON.stringify(nativeBuild) },
+    define: {
+      __NATIVE_BUILD__: JSON.stringify(nativeBuild),
+      __ANDROID_APK_SHA256__: JSON.stringify(apkDigest)
+    },
     plugins: nativeBuild ? [{
       name: 'exclude-downloadable-apks-from-native-shell',
       closeBundle() {

@@ -12,8 +12,8 @@ opens with realistic sample reminders in a separate browser database. **Reset
 demo** restores the samples; **Start for real** discards them and opens your
 empty real lane. Any other link that leaves the demo also discards its changes.
 
-Android download: [Critical Alert Lane 1.0.3 APK](./public/downloads/critical-alert-lane-1.0.3.apk)
-(`SHA-256 06382ba158e7cd4a28222e14a81174150b574daabe17af9be62cac91213e3c16`).
+Android download: [Critical Alert Lane 1.0.4 APK](./public/downloads/critical-alert-lane-1.0.4.apk)
+(`SHA-256 2af8e0b60ce77aa729b82e465626d9b37778e38f22b4665c80e6301bcd6327bf`).
 Install this signed APK to use Android's on-device alarms when the app is
 backgrounded or closed; the web/PWA lane remains available for its local-first
 browser workflow.
@@ -53,6 +53,7 @@ npm run build
 npm run test:e2e
 npm run test:update
 npm run test:android
+npm run test:android:artifact
 npm run test:android:lifecycle-claim
 npm run test:android:instrumentation
 ```
@@ -75,7 +76,11 @@ aggregation and preserves the app's checked-in device test APK. Run the APK on
 physical API 23 and current-API devices before store distribution.
 
 The committed project uses application ID `in.sociobot.criticalalertlane`.
-The downloadable v1.0.3 release APK is signed with the factory signing key;
+The downloadable v1.0.4 release APK is signed for release. `npm run test:android:artifact`
+prevents an APK from being published unless its embedded web bundle exactly
+matches the just-synced native bundle, including the `/demo/` entry point and
+current service-worker shell. The factory signing key
+is kept outside this repository;
 the keystore and all signing credentials remain outside this repository. To
 produce a release APK, provide `ANDROID_RELEASE_STORE_FILE`,
 `ANDROID_RELEASE_STORE_PASSWORD`, `ANDROID_RELEASE_KEY_ALIAS`, and

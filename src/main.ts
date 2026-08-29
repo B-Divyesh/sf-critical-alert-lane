@@ -8,6 +8,7 @@ import { effectiveDueAt, formatDateTime, isDue, isQuietTime, nextOccurrence, toL
 import type { AppData, Reminder } from './types';
 
 declare const __NATIVE_BUILD__: boolean;
+declare const __ANDROID_APK_SHA256__: string;
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const isDemo = /^\/demo\/?$/.test(window.location.pathname) || new URLSearchParams(window.location.search).get('demo') === '1';
@@ -19,8 +20,8 @@ let undoSnapshot: AppData | null = null;
 let undoTimer = 0;
 let nativeStatus: NativeSchedulerStatus | null = null;
 let editorReturnTarget: { kind: 'add' } | { kind: 'edit'; id: string } | null = null;
-const ANDROID_APK = '/downloads/critical-alert-lane-1.0.3.apk';
-const ANDROID_APK_SHA256 = '06382ba158e7cd4a28222e14a81174150b574daabe17af9be62cac91213e3c16';
+const ANDROID_APK = '/downloads/critical-alert-lane-1.0.4.apk';
+const ANDROID_APK_SHA256 = __ANDROID_APK_SHA256__;
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'

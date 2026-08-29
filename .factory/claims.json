@@ -91,6 +91,13 @@
     "sandbox": "local production server demo route; download the linked APK, assert it is over 1 MB, and compare its bytes with the displayed digest"
   },
   {
+    "id": "apk-source-identity",
+    "claim": "The downloadable Android APK contains this release's demo and reminder logic.",
+    "where": "landing APK proof, README",
+    "test": "npm run test:android:artifact",
+    "sandbox": "clean native build; package a release APK, then compare every embedded web asset with the synced native bundle and require the demo entry point and current service-worker shell"
+  },
+  {
     "id": "one-time-license",
     "claim": "US$4.99 is a one-time purchase for unlimited active reminders through Sociobot checkout.",
     "where": "landing page, Settings pricing, Terms, README",

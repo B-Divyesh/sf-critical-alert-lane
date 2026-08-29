@@ -13,11 +13,12 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:update": "node scripts/verify-update.mjs",
-    "test:android": "npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/gradle.mjs test lintDebug assembleDebug assembleDebugAndroidTest --no-daemon",
+    "test:android": "npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/gradle.mjs test lintDebug assembleDebug assembleRelease assembleDebugAndroidTest --no-daemon && node scripts/verify-apk-artifact.mjs android/app/build/outputs/apk/release/app-release.apk",
     "test:android:instrumentation": "npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/gradle.mjs assembleDebugAndroidTest --no-daemon",
     "test:android:claim": "npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/gradle.mjs :app:testDebugUnitTest --tests '*ReminderSchedulerTest.claim_native_background_repeat_rearms_from_persisted_state' --no-daemon",
     "test:android:lifecycle-claim": "npm run android:sync && node scripts/verify-native-bundle.mjs && node scripts/gradle.mjs :app:testDebugUnitTest --tests '*ReminderSchedulerTest.claim_lifecycle_recovery_rearms_after_boot_clock_and_timezone_changes' --no-daemon",
-    "android:sync": "npm run build:native && npx cap sync android"
+    "android:sync": "npm run build:native && npx cap sync android",
+    "test:android:artifact": "npm run android:sync && node scripts/gradle.mjs assembleRelease --no-daemon && node scripts/verify-apk-artifact.mjs android/app/build/outputs/apk/release/app-release.apk"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
