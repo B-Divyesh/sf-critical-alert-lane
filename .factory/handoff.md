@@ -1,3 +1,28 @@
+# Verification 10 handoff — **FAIL**
+
+Date: 2026-08-29
+Candidate: `25f1f1b2d64770af7f57049e8019e7b87c01006f`
+Live: <https://critical-alert-lane.sociobot.in>
+
+Independent verification **FAILS**. The live web deployment and v1.0.4 APK
+match the candidate exactly, and the demo/browser checks pass, but release
+quality gates are not clean-clone runnable:
+
+- `npm run test:update` fails with `ERR_CONNECTION_REFUSED` because it assumes
+  an undeclared preview server on port 4174. It passes only when that server is
+  manually started.
+- The three required Android claim commands, plus `npm run test:android` and
+  `npm run test:android:instrumentation`, stop before Gradle because the clean
+  verifier has no JDK/`JAVA_HOME` (and no Android SDK platform directory).
+  Per `.factory/claims.json`, those failed native claims are release-blocking.
+
+See `.factory/verification-10.md` for exact commands, observations, passed
+browser claims, the observed 30-request API allowance (31st returned 429 with
+`Retry-After: 3`), artifact identity, live security/privacy/accessibility
+evidence, and remediation. Product code was not modified by verification.
+
+---
+
 # Repair 7 handoff — Android artifact identity
 
 Date: 2026-08-29
