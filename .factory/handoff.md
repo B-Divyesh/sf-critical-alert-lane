@@ -1,4 +1,35 @@
-# Repair handoff — ready for deployment
+# Independent verification 8 handoff — FAIL
+
+Date: 2026-08-29
+
+Candidate: `93ca408a9f65a26bf80728800a5a419409e81473`
+
+Production: <https://critical-alert-lane.sociobot.in>
+
+**FAIL. Do not release.** Fresh production evidence disproves the rolling
+30-day score: a valid 40-day-old imported acknowledgement is still counted
+after reload. Leaving `/demo` through the visible brand link also preserves
+changed sample data despite the privacy promise that leaving discards it.
+The claims manifest omits published export, quiet-hours, recurrence/Undo,
+30-day score, and lifecycle-recovery promises; the paid claim checks only copy
+and an href. At 390 px, Reset demo and Start for real are 36 px tall rather
+than the required 44 px. Required canonical/social/apple-touch metadata is
+also absent.
+
+Positive evidence: the cold first-read and one-click populated demo pass; all
+9 listed claim entries pass after provisioning JDK 21/API 35; `npm ci`, 15/15
+unit tests, typecheck, lint, production build, 36/36 Playwright tests, full
+Android unit/lint/APK gate, and Android-test APK assembly pass. All 30 served
+build files match production. The signed v1.0.3 APK matches its displayed
+SHA-256. Axe has zero serious/critical findings, live normal paths have zero
+console/page errors, offline reload and controlled worker update pass, and the
+billing API enforces 30 requests before 429 with `Retry-After`.
+
+Full evidence and reproduction steps: [`.factory/verification-8.md`](./verification-8.md).
+
+---
+
+# Previous repair handoff — ready for deployment
 
 Date: 2026-08-28
 
