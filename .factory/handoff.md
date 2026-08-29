@@ -79,9 +79,17 @@ verifier instead validates the released APK/source identity as required.
 
 ## Deploy
 
-Static deployment and final live identity verification are performed after
-this repair commit is pushed, using
-`/opt/fleet/lib/deploy-static.sh critical-alert-lane dist`.
+Deployed after the repair was pushed with
+`/opt/fleet/lib/deploy-static.sh critical-alert-lane dist` to
+<https://critical-alert-lane.sociobot.in>.
+
+Live verification passed for `/`, `/demo/`, `/privacy/`, and `/terms/` using
+`verify-url.sh`. Live `index.html` SHA-256 matches the final local `dist/`
+file: `d75b42ed4d966c1456769ebf67e60eb8188650d5a2f8ea1dff2582c666948cdc`.
+The live v1.0.4 APK returned HTTP 200 with
+`application/vnd.android.package-archive` and immutable one-year caching; its
+SHA-256 exactly matches the published/local artifact:
+`2af8e0b60ce77aa729b82e465626d9b37778e38f22b4665c80e6301bcd6327bf`.
 
 ---
 
