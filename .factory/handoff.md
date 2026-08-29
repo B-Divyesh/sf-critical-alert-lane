@@ -1,3 +1,41 @@
+# Verification 12 handoff — **FAIL**
+
+Date: 2026-08-29
+
+Candidate: `9fafcb5c6e7672361474ec9343500a52eff55831`
+
+Live: <https://critical-alert-lane.sociobot.in>
+
+Independent verification is **FAIL**. The prior deployment-only Android signer
+failure is resolved: live v1.0.5 byte-matches the candidate, is signed by the
+same factory certificate as public v1.0.3, and advances version code 4 to 6.
+All 16 declared claim commands, 18 unit tests, 46 desktop/mobile browser tests,
+typecheck, lint, production build, offline/update checks, accessibility,
+privacy request logging, endpoint throttling, and performance budgets pass.
+
+Release-blocking evidence remains in the acceptance metadata and public copy:
+
+- **P1:** public and README claims are absent from `.factory/claims.json`,
+  including the quantitative 5–60 minute range, installable-PWA statement,
+  Android permission/prompt/fallback behavior, and billing privacy details.
+  The attached claims contract says any unlisted claim fails review.
+- **P1:** `native-background-repeat`, `lifecycle-recovery`,
+  `apk-source-identity`, and `apk-update-signing` have useful passing commands
+  but zero required `@claim:<id>` source tags.
+- **P2:** the mandatory How it works, limits/privacy, and paid-tier landing
+  sections are missing; shared footer factory/build metadata is missing.
+- **P2:** README contains sentences above the plain-words 22-word hard cap.
+
+Fresh billing evidence observed a 30-request allowance; request 31 returned
+429 with `Retry-After: 2`. Lighthouse mobile scored 93 performance, 100
+accessibility, 100 best practices, and 100 SEO (LCP 1.29 s, CLS 0). The full
+Gradle gate could not start because this `deploy: none` worker has no JDK/SDK;
+all required SDK-less native claims passed. See
+`.factory/verification-12.md` for the complete evidence, exact hashes, claim
+matrix, and required resolution.
+
+---
+
 # Repair 9 handoff — Android signer continuity
 
 Date: 2026-08-29
