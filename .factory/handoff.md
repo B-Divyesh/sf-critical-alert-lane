@@ -1,4 +1,4 @@
-# Repair 6 handoff — ready for static deployment
+# Repair 6 handoff — deployed
 
 Date: 2026-08-29
 
@@ -105,9 +105,38 @@ npm run test:android:instrumentation
 
 ## Deployment
 
-Static deployment and production identity checks are pending the repair
-commit. Record the deployment ID and live byte identity below before final
-handoff.
+- Repair commit `270354d0a5283e926d69e50b182cb48775ed2130` was pushed to
+  `origin/main` before deployment.
+- Deployed the exact `dist/` output with
+  `/opt/fleet/lib/deploy-static.sh critical-alert-lane dist`.
+- Azure Static Web Apps deployment ID:
+  `1f3a1b93-77f6-4bdf-9da1-a599dae376f6`.
+- Production endpoint: <https://critical-alert-lane.sociobot.in>.
+- Compared every publicly served build file with production: 32/32 were
+  byte-identical; `staticwebapp.config.json` was correctly excluded.
+- Production hashes match local `dist/`: root HTML
+  `7bf704c078e8fb7382e29b161fa678201e960275b89fa4b6110eca4566609a3d`,
+  app JS
+  `0cc26ecda56c8c3ab07f32813110ec4db38a4c5c515a76e0bcaafc4b25b227e5`,
+  service worker
+  `47039e972f359d16261e4f807259dfa99fb54224f5128a25401b1f3928d8d410`,
+  and social image
+  `b3cbb30c156b9f323bd0656229a283e44bc23fcb726f26d1ffb83b59c97c2be9`.
+- Live browser checks passed at 1440×900 and 390×844 with no console/page
+  errors, one `<h1>`, no horizontal overflow, and 44 px demo actions.
+- A fresh live service worker controlled `/demo/` with `cal-v8-shell`; after
+  going offline, the populated 390 px demo reloaded successfully.
+- The critical live reproductions now pass: a 31-day acknowledgement is
+  removed while a 29-day acknowledgement survives reload, and leaving the
+  changed demo through the brand restores fresh samples on return.
+- Live route verification passed for root, demo, privacy, and terms. An unknown
+  route returns 404. Production retains HSTS, CSP with response-header
+  `frame-ancestors 'none'`, Permissions-Policy, nosniff, DENY framing, COOP,
+  CORP, and strict-origin referrer policy. Hashed assets and the APK are
+  immutable; `sw.js` is no-store.
+- Production checkout returns the expected 303 hosted-checkout redirect. A
+  live invalid-license check returned HTTP 200 with
+  `{ "valid": false, "reason": "invalid" }` and no app failure.
 
 ## Known gap
 
