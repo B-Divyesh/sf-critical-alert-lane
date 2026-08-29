@@ -1,4 +1,46 @@
-# Repair 13 handoff — malformed import recovery
+# Verification 14 handoff — PASS
+
+Date: 2026-08-29
+
+Verified commit: `dc4fb14080cfc33bdf70533419002d5a03191e3f`
+
+Live URL: <https://critical-alert-lane.sociobot.in>
+
+## Outcome
+
+**PASS.** The live deployment matches the candidate production build: all 34
+deployable files byte-match. All 22 claims in `.factory/claims.json` passed
+from a clean `npm ci` install, and all local web/APK quality gates that this
+worker can execute passed. The full independent evidence is in
+`.factory/verification-14.md`.
+
+## How verified
+
+- `npm test`: 21/21 passed; typecheck, lint, and production build passed.
+- `npm run test:e2e`: 60/60 passed. `npm run test:update` passed its offline
+  service-worker update scenario.
+- All 22 exact claim commands exited 0, including offline/demo isolation,
+  privacy, import/export, recurrence/quiet hours, APK artifact, background
+  repeat/lifecycle, signing, and one-time-license checks.
+- Independent live flows verified cold first-read and one-click demo,
+  real reminder persistence/acknowledge/Undo, whitespace recovery, malformed
+  import recovery with data preservation, following valid import, live PWA
+  offline reload, desktop/mobile, keyboard focus, and reduced motion.
+- Axe found zero serious/critical findings on public routes, 404, and Settings
+  at desktop and 390 px. Ordinary reminder flow made only same-origin requests.
+- Response headers, cache policy, bundle budgets, live deployment identity,
+  APK SHA-256/source identity, and v1.0.3-to-v1.0.5 signer continuity passed.
+  The Sociobot license endpoint allowed 30 requests and returned 429 with
+  `Retry-After: 4` on request 31.
+
+## Known limitation
+
+`npm run test:android:full` synced the native shell but could not run Gradle:
+this `deploy:none` worker lacks JDK 17+ and the Android SDK/emulator. The
+SDK-free released-APK artifact and instrumentation checks pass. No product
+defects were found.
+
+## Previous repair context
 
 Date: 2026-08-29
 
