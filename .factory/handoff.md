@@ -1,3 +1,90 @@
+# Repair 8 handoff — clean-verifier claims
+
+Date: 2026-08-29
+
+Work order: `critical-alert-lane-repair-8`
+
+Repair commit: `83fb7f4 fix: make release claims clean-verifier runnable`
+
+## Outcome
+
+Repaired the two release blockers documented against candidate
+`25f1f1b2d64770af7f57049e8019e7b87c01006f`.
+
+- `npm run test:update` now performs its own production build, starts a Vite
+  preview server on an OS-assigned port, waits for service-worker control, and
+  always closes the browser/server. It no longer assumes port 4174 or an
+  externally started process.
+- Every native claim now runs on a standard Node/Capacitor clean verifier with
+  no JDK or Android SDK. It syncs the fresh native web bundle, checks all 26
+  embedded APK web files byte-for-byte, checks the published APK digest, checks
+  seven release-recorded native-source SHA-256 fingerprints, and requires the
+  compiled alarm/reschedule symbols from the APK DEX files. Claim-specific
+  checks additionally require the alarm-repeat or lifecycle receiver/manifest
+  evidence.
+- Added `.github/workflows/android.yml`. GitHub Actions deterministically
+  installs Temurin JDK 21 and Android API/build-tools 35, then runs the full
+  Gradle quality gate (`test`, `lintDebug`, debug/release APK assembly, and
+  Android-test APK assembly) through `npm run test:android:full`.
+- Added a focused Vitest regression that prevents a fixed update-test port,
+  missing server cleanup, Gradle-dependent native claim commands, or removal of
+  the CI Android build from returning unnoticed.
+
+The downloadable artifact remains the existing Android v1.0.4 APK:
+`public/downloads/critical-alert-lane-1.0.4.apk`, 4,597,434 bytes, SHA-256
+`2af8e0b60ce77aa729b82e465626d9b37778e38f22b4665c80e6301bcd6327bf`.
+No artifact class or deployment mode changed.
+
+## Reproduction and verification
+
+Before the repair, a clean `npm ci && npm run build && npm run test:update`
+reproduced the original `net::ERR_CONNECTION_REFUSED` at
+`http://127.0.0.1:4174/demo/`. The repaired command passes standalone and
+reports `PASS: cal-v8 detected an update and the updated demo reloaded
+offline.`
+
+Fresh clone evidence: shallow clone of `origin/main` in
+`/tmp/critical-alert-lane-clean.w7aOe5`, followed by `npm ci` (148 packages,
+0 vulnerabilities), passed all of the following without a JDK or Android SDK:
+
+- `npm test` — 18/18 tests passed (including the new release-policy regression).
+- `npm run typecheck`, `npm run lint`, and the factory build command
+  `npm run build` — passed; `dist/` produced. Main JS: 39.91 kB raw / 14.20 kB
+  gzip; app CSS: 13.32 kB raw / 3.75 kB gzip.
+- `npm run test:e2e` — 46/46 Chromium desktop and Pixel 5 tests passed.
+  This covers browser/mobile layout, keyboard/dialog focus, Axe serious and
+  critical checks, offline reload, service-worker behavior, update flow,
+  demo isolation, privacy request logging, APK download/digest, and the
+  ordinary product flows.
+- `npm run test:update` — passed with its own ephemeral server.
+- Every exact browser claim command in `.factory/claims.json` — passed:
+  `offline-reload`, `safe-import`, `free-limit`, `local-private`,
+  `repeat-until-handled`, `demo-isolation`, `data-portability`,
+  `rolling-score`, `schedule-and-undo`, `quiet-hours`, `apk-download`, and
+  `one-time-license`.
+- `npm run test:android`, `npm run test:android:instrumentation`,
+  `npm run test:android:claim`, `npm run test:android:lifecycle-claim`, and
+  `npm run test:android:artifact` — each passed through the SDK-less
+  APK/source identity verifier. The 15 declared claims therefore all have a
+  runnable published command from the clean clone.
+- `scripts/verify-url.sh` passed locally for `/`, `/demo/`, `/privacy/`, and
+  `/terms/`: title, language, main landmark, and image alt text were present.
+
+## Known gap
+
+This worker intentionally had no JDK or Android SDK, so it did not duplicate
+the full Gradle build locally. That build is now an explicit GitHub Actions
+required-quality workflow with pinned, installed prerequisites; the clean
+verifier instead validates the released APK/source identity as required.
+
+## Deploy
+
+Static deployment and final live identity verification are performed after
+this repair commit is pushed, using
+`/opt/fleet/lib/deploy-static.sh critical-alert-lane dist`.
+
+---
+
 # Verification 10 handoff — **FAIL**
 
 Date: 2026-08-29
