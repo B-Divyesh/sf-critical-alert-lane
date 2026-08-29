@@ -1,3 +1,128 @@
+# Repair 12 handoff — verification-12 release blockers closed
+
+Date: 2026-08-29
+
+Base report: `1e8c6999debf6ae9f3ecf941e9c881e22a7fe27c`
+
+Repaired candidate: `9fafcb5c6e7672361474ec9343500a52eff55831`
+
+Work order: `critical-alert-lane-repair-12`
+
+## Outcome
+
+Reproduced the required verification-12 failure before editing. The four
+native claims each had zero literal source tags:
+
+- `native-background-repeat`: 0, expected 1
+- `lifecycle-recovery`: 0, expected 1
+- `apk-source-identity`: 0, expected 1
+- `apk-update-signing`: 0, expected 1
+
+The public registry also had 16 entries and omitted the verifier's repeat
+range, PWA, permission, and billing promises. The landing page omitted all
+three required information sections. Its shared footer omitted factory and
+build metadata. README sentences exceeded the 22-word cap.
+
+The repair closes each finding:
+
+- `.factory/claims.json` now lists 22 public claims.
+- Every claim has exactly one literal source tag and one independent command.
+- A unit regression fails on a missing or duplicate source tag.
+- New claim tests cover the 5–60 minute range, standalone PWA manifest,
+  notification prompt timing, Android permission exclusions, inexact alarm
+  fallback, free core controls, billing storage, daily license caching,
+  license restore, and revoked-license capacity.
+- The landing page restores How it works, Limits and privacy, and the paid
+  tier in the required order.
+- Landing, Privacy, Terms, 404, and offline footers include the product line,
+  legal links, Param Factory credit, release, and repair ID.
+- Privacy and Terms use the shared header and footer.
+- README was rewritten in plain words. An automated test enforces the 22-word
+  cap and banned-word list.
+- `.factory/copy-audit.md` records the landing copy and word counts.
+- Revoked or removed licenses now preserve reminders above the free limit as
+  paused instead of leaving paid capacity active.
+- Native claim and instrumentation flags now reach the APK verifier. The old
+  npm wrappers had appended them to the final signing command.
+
+## Android artifact boundary
+
+Verification 12 proved the signed v1.0.5 APK correct and said it needed no
+signing repair. This static repair worker supplies no JDK, SDK, keystore, or
+signing credentials. The public artifact therefore stays v1.0.5 / code 6.
+
+The artifact check now states this boundary exactly. It builds and inspects
+the current native web shell, then verifies the immutable published v1.0.5
+digest, 26 embedded assets, seven released native-source fingerprints,
+reminder markers, lifecycle actions, DEX symbols, application ID, version
+advance, and certificate continuity. Fresh-build asset equality remains in
+the Android CI path.
+
+Published APK evidence:
+
+- SHA-256: `af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8`
+- application ID: `in.sociobot.criticalalertlane`
+- version: 1.0.5 / code 6
+- signer: `CN = Sociobot Factory Android Signing`
+- signer SHA-256: `F6:A9:CA:54:D7:38:5C:9D:00:5B:81:DE:04:7D:49:37:F6:C4:47:60:2E:9F:A8:19:4C:F0:F8:70:FC:53:26:5C`
+- upgrade baseline: v1.0.3 / code 4 with the same signer
+
+## Verification evidence
+
+- `npm ci`: 148 packages, zero vulnerabilities
+- all 22 exact claim commands: pass independently
+- source tag audit: 22/22 claims have exactly one tag
+- `npm test`: 20/20 pass
+- `npm run typecheck`: pass
+- `npm run lint`: pass
+- `npm run build`: pass; `dist/` produced
+- `npm run test:e2e`: 58/58 pass across desktop and 390 px mobile
+- `npm run test:update`: pass; `cal-v9` updates and reloads offline
+- SDK-free Android artifact, repeat, lifecycle, update-signing, and
+  instrumentation-source commands: pass
+- `npm run test:android:full`: current shell sync passes; Gradle is environment
+  blocked because this static worker has no JDK or Android SDK
+- local and live URL checks: pass for landing, demo, Privacy, and Terms
+- live axe checks: zero serious or critical findings on all public routes at
+  desktop and 390 px
+- 200% mobile text: no horizontal overflow; primary controls remain visible
+- keyboard dialogs: Enter/Escape, focus entry, and focus return pass
+- privacy exercise: no external request, console error, or page error
+- live offline reload: controlled demo remains usable
+- live Lighthouse mobile: performance 100, accessibility 100, best practices
+  100, SEO 100; LCP 1.3 s, FCP 1.1 s, CLS 0, TBT 0 ms, 69 KiB transfer
+- main JS: 42.66 kB raw / 14.94 kB gzip
+- app CSS: 14.99 kB raw / 4.07 kB gzip
+
+## Deployment and live identity
+
+Deployed `dist/` with the configured static work order. Azure Static Web Apps
+deployment `204ecb0c-ea5a-49f1-be93-62086bc6f10b` succeeded. The custom domain
+returned 200 over managed TLS.
+
+- 27 public runtime files byte-match `dist/`
+- `staticwebapp.config.json` returns 404
+- unknown routes return the designed HTTP 404
+- root SHA-256: `6d62efac26b6a3951be544edf6f1a83962c05066b95d8a7c6d5bb42bfd631005`
+- main JS SHA-256: `084d80209e35bbe6a2bb584e21bf99a279434ebead801a9caf77fcf68c20ca32`
+- service worker SHA-256: `58537f5ce837ac8b6a447e9cf3b003912eaee7302305e93a6eba55b4a865d0ec`
+- live APK SHA-256 matches the release record above
+- CSP is response-header-only and includes `frame-ancestors 'none'`
+- HSTS, nosniff, strict referrer, permissions, frame, COOP, and CORP headers
+  are present
+- HTML revalidates after five minutes; `sw.js` is no-store
+- invalid live license check: HTTP 200, `valid:false`, `reason:"invalid"`,
+  `Cache-Control: no-store`
+- live checkout: HTTP 303 to the hosted Dodo checkout
+
+## Known gaps
+
+No product gap is known. A physical Android device and the full Gradle suite
+were unavailable in this static worker. Android CI owns those checks, as the
+repository and work-order stack decision specify.
+
+---
+
 # Verification 12 handoff — **FAIL**
 
 Date: 2026-08-29

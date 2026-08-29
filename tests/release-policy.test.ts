@@ -4,6 +4,46 @@ import { describe, expect, it } from 'vitest';
 import { createDemoData } from '../src/demo';
 
 describe('release policy regressions', () => {
+  it('registers every release promise and gives each claim exactly one source tag', () => {
+    const claims = JSON.parse(readFileSync(resolve('.factory/claims.json'), 'utf8')) as Array<{
+      id: string; claim: string; where: string; test: string; sandbox: string;
+    }>;
+    const expectedIds = [
+      'offline-reload', 'safe-import', 'free-limit', 'local-private', 'repeat-until-handled',
+      'demo-isolation', 'data-portability', 'rolling-score', 'schedule-and-undo', 'quiet-hours',
+      'repeat-range', 'pwa-installable', 'android-permission-boundary', 'core-free',
+      'native-background-repeat', 'lifecycle-recovery', 'apk-download', 'apk-source-identity',
+      'apk-update-signing', 'one-time-license', 'billing-data-boundary', 'license-recovery'
+    ];
+    expect(claims.map(item => item.id)).toEqual(expectedIds);
+    const sources = [
+      'tests/e2e/app.spec.ts', 'scripts/verify-apk-artifact.mjs',
+      'scripts/verify-android-update-signing.mjs'
+    ].map(file => readFileSync(resolve(file), 'utf8')).join('\n');
+    for (const claim of claims) {
+      expect(claim.claim.trim()).not.toBe('');
+      expect(claim.where.trim()).not.toBe('');
+      expect(claim.sandbox.trim()).not.toBe('');
+      const tag = ['@claim', claim.id].join(':');
+      expect(claim.test).toMatch(/^npm run /);
+      expect(sources.split(tag).length - 1, `${claim.id} must have exactly one source tag`).toBe(1);
+    }
+  });
+
+  it('keeps every README sentence within the 22-word plain-words limit', () => {
+    const readme = readFileSync(resolve('README.md'), 'utf8').replace(/```[\s\S]*?```/g, '');
+    const sentences = readme.split(/\r?\n/)
+      .map(line => line.replace(/^\s*(?:#{1,6}|[-*])\s+/, '').trim())
+      .filter(line => line && !/^[-|: ]+$/.test(line))
+      .flatMap(line => line.split(/(?<=[.!?])\s+/));
+    const overLimit = sentences.map(sentence => ({
+      sentence,
+      words: sentence.match(/[\p{L}\p{N}]+(?:[’'./:+-][\p{L}\p{N}]+)*/gu)?.length ?? 0
+    })).filter(item => item.words > 22);
+    expect(overLimit).toEqual([]);
+    expect(readme).not.toMatch(/\b(?:leverage|seamless|effortless|robust|powerful|intuitive|reimagine|supercharge|delightful|journey|ecosystem)\b/i);
+  });
+
   it('ships a static-host 404 response override and a designed fallback page', () => {
     const config = JSON.parse(readFileSync(resolve('public/staticwebapp.config.json'), 'utf8')) as {
       navigationFallback?: unknown;
@@ -13,7 +53,7 @@ describe('release policy regressions', () => {
 
     expect(config.responseOverrides?.[404]?.rewrite).toBe('/404.html');
     expect(config.navigationFallback).toBeUndefined();
-    expect(page).toContain('<h1>This page is not in your lane.</h1>');
+    expect(page).toContain('<h1>Page not found</h1>');
     expect(page).toContain('href="/"');
   });
 

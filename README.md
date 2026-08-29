@@ -1,123 +1,144 @@
 # Critical Alert Lane
 
-Critical Alert Lane is a tiny, local-first reminder lane for Android and the
-web. It is for people who have muted the notification flood but still need a
-few reminders—medicine, a deadline, a call—to keep repeating until they
-explicitly acknowledge or snooze them.
+Keep important Android reminders repeating until you answer them.
 
-Live app: <https://critical-alert-lane.sociobot.in>
+It is for Android users who miss medicine, deadline, or call alerts in a busy notification list.
 
-Try it safely first: <https://critical-alert-lane.sociobot.in/demo>. The demo
-opens with realistic sample reminders in a separate browser database. **Reset
-demo** restores the samples; **Start for real** discards them and opens your
-empty real lane. Any other link that leaves the demo also discards its changes.
+- Live app: <https://critical-alert-lane.sociobot.in>
+- Sample demo: <https://critical-alert-lane.sociobot.in/demo/>
+- Android app: [Critical Alert Lane 1.0.5 APK](./public/downloads/critical-alert-lane-1.0.5.apk)
+- APK SHA-256: `af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8`
 
-Android download: [Critical Alert Lane 1.0.5 APK](./public/downloads/critical-alert-lane-1.0.5.apk)
-(`SHA-256 af06a7f89d0afee99aa4fafe81d074ccd40a62c5d0d981dc46fda529d9b6c6e8`).
-Install this signed APK to use Android's on-device alarms when the app is
-backgrounded or closed; the web/PWA lane remains available for its local-first
-browser workflow.
+## Try the demo
 
-## What v1 includes
+Open the sample demo in one click.
 
-- One-time, daily, weekday, and weekly reminders
-- Configurable 5–60 minute repeat cadence until acknowledgement
-- Explicit acknowledge and snooze actions, with Undo after acknowledgement
-- Overnight quiet hours that mute notifications without hiding due alerts
-- A rolling 30-day “handled in time” reliability score
-- IndexedDB persistence, installable PWA, and tested offline reloads
-- Local JSON export/import with validation and replacement confirmation.
-  Unsafe duplicate or Android-hash-colliding IDs are repaired deterministically.
-  Free imports keep every reminder and pause active entries beyond the first three.
-- Free use for up to three active reminders; US$4.99 one-time license unlock
-  for unlimited active reminders through the Sociobot hosted checkout
-- Native Android alarms and local notifications that continue repeating after
-  the app is backgrounded or closed, then recover after boot, clock, and time
-  zone changes
+It starts with three realistic reminders in a separate browser database.
 
-The app requests no account, calendar, contacts, location, camera, or
-microphone access. Notification permission is requested only from the Settings
-button. On Android, the app also presents exact-alarm access from Settings when
-the OS requires it; without that access, Android's battery-aware inexact alarm
-fallback is used.
+**Reset demo** restores the samples.
 
-## Develop and verify
+**Start for real** discards demo changes and opens your real reminder list.
 
-Requires Node.js 20+.
+## What it does
+
+- Supports one-time, daily, weekday, and weekly reminders.
+- Repeats every 5–60 minutes until you snooze or acknowledge the alert.
+- Offers overnight quiet hours without hiding a due alert.
+- Shows a score from acknowledgement history in the latest 30 days.
+- Exports and imports versioned JSON with confirmation.
+- Repairs unsafe duplicate or hash-colliding import IDs.
+- Keeps extra imports paused above the three-reminder free limit.
+- Installs as a PWA and reloads offline after the first visit.
+- Runs native Android alarms after the app closes.
+- Re-arms Android alarms after boot, clock changes, and time-zone changes.
+
+## Privacy and permissions
+
+Reminder data stays in IndexedDB on this device during normal use.
+
+The app uses no account, ads, analytics, tracking pixels, or third-party fonts.
+
+It requests no contacts, calendar, location, camera, or microphone access.
+
+Notification access is requested only after you choose it in Settings.
+
+Android offers exact-alarm access from Settings when needed.
+
+Android uses an inexact alarm when you decline exact-alarm access.
+
+See [Privacy](./privacy/index.html) for export and billing details.
+
+## Price
+
+Free use supports three active reminders and all safety controls.
+
+US$4.99 once adds unlimited active reminders through Sociobot checkout.
+
+There is no subscription.
+
+Dodo is the merchant of record and handles refunds.
+
+You can paste an active license on another device.
+
+See [Terms](./terms/index.html) for purchase terms.
+
+## Run and test
+
+Use Node.js 20 or newer.
 
 ```sh
 npm ci
 npm run dev
 npm test
+npm run typecheck
+npm run lint
 npm run build
 npm run test:e2e
 npm run test:update
-npm run test:android
 npm run test:android:artifact
-npm run test:android:update-signing
-npm run test:android:lifecycle-claim
 npm run test:android:instrumentation
 ```
 
-`npm run build` is the factory build command. It writes the deployable static
-site to `dist/`, with `dist/index.html` at its root. Playwright is pinned to
-1.58.2 as required by the worker image. Browser claim commands are
-self-contained after `npm ci`: their Playwright server builds before previewing.
-The update check builds, starts, awaits, and stops its own ephemeral preview
-server. The ordinary Android commands are SDK-less release-identity checks:
-they sync a freshly built native web bundle, verify it byte-for-byte against
-the checked-in published APK, check the APK digest/native symbols, and verify
-the recorded native-source fingerprints. This makes every declared native
-claim runnable from a standard clean verifier without a local JDK or Android
-SDK. Full Android builds stay in GitHub Actions, where the workflow installs
-JDK 21 and Android API 35 deterministically.
+`npm run build` writes the static site to `dist/`.
 
-To refresh the Android shell after a web change:
+Playwright 1.58.2 runs desktop and 390 px mobile checks.
 
-```sh
-npm run android:sync
-```
+The browser tests build and start their own preview server.
 
-`npm run test:android:instrumentation` checks that the released APK is paired
-with the checked-in instrumentation source. GitHub Actions runs the actual
-Gradle unit, lint, debug/release assembly, and Android-test APK assembly via
-`npm run test:android:full`. Run the APK on physical API 23 and current-API
-devices before store distribution.
+The native checks inspect the current shell and immutable v1.0.5 APK.
 
-The committed project uses application ID `in.sociobot.criticalalertlane`.
-The downloadable v1.0.5 release APK is signed with the same factory identity as
-v1.0.3, so it installs as an update. `npm run test:android:artifact`
-checks its digest, source release record, compiled native symbols, and every
-embedded web asset against the just-synced native bundle, including the
-`/demo/` entry point and current service-worker shell. `npm run
-test:android:update-signing` compares the installed-v1.0.3 signer with the
-downloadable APK and verifies the package/version upgrade contract. The factory signing key is kept outside this repository;
-the keystore and all signing credentials remain outside this repository. To
-produce a release APK, provide `ANDROID_RELEASE_STORE_FILE`,
-`ANDROID_RELEASE_STORE_PASSWORD`, `ANDROID_RELEASE_KEY_ALIAS`, and
-`ANDROID_RELEASE_KEY_PASSWORD`, then run `cd android && ./gradlew assembleRelease`.
+GitHub Actions installs JDK 21 and Android API 35 for full Gradle checks.
+
+Run `npm run android:sync` after changing the web app.
+
+## Android release identity
+
+The Android application ID is `in.sociobot.criticalalertlane`.
+
+Version 1.0.5 uses build code 6.
+
+Its signer matches the public v1.0.3 factory signer.
+
+That identity lets Android install this APK over v1.0.3.
+
+The factory signing key and credentials stay outside this repository.
+
+Provide the four `ANDROID_RELEASE_*` variables to create a signed release.
+
+Then run `cd android && ./gradlew assembleRelease`.
 
 ## Storage and billing
 
-Reminder data is stored in the browser's IndexedDB database
-`critical-alert-lane`. License tokens use
-`localStorage["sb_license:critical-alert-lane"]`. The only external runtime
-request is a purchase/license check against the Sociobot billing API after a
-user buys or restores a license. The free experience never waits on that call.
+Real reminders use the IndexedDB database `critical-alert-lane`.
 
-The sample demo is separate: its data uses IndexedDB database
-`demo:critical-alert-lane`. It never reads or writes real reminder data,
-license tokens, or the Android scheduler. See [the demo guide](./.factory/demo.md).
+Demo reminders use the separate database `demo:critical-alert-lane`.
 
-The export format is versioned JSON. Exports are unencrypted, so users should
-store them somewhere they trust. See [Privacy](./privacy/index.html) and
-[Terms](./terms/index.html).
+License tokens use `localStorage["sb_license:critical-alert-lane"]`.
 
-## Project notes
+The app stores one daily license result beside the token.
+
+Only checkout and license checks contact the Sociobot billing API.
+
+Payment details never enter or stay in this app.
+
+Exports are unencrypted JSON files.
+
+Store exports somewhere you trust.
+
+## Project records
 
 - Product scope: [`.factory/brief.json`](./.factory/brief.json)
-- Visual system and asset provenance: [`.factory/design.md`](./.factory/design.md)
+- Visual system and asset sources: [`.factory/design.md`](./.factory/design.md)
 - Demo sandbox: [`.factory/demo.md`](./.factory/demo.md)
-- Build verification and known gaps: [`.factory/handoff.md`](./.factory/handoff.md)
+- Claims and tests: [`.factory/claims.json`](./.factory/claims.json)
+- Verification evidence: [`.factory/handoff.md`](./.factory/handoff.md)
 
-Licensed under the [MIT License](./LICENSE).
+## Deploy
+
+The factory deploys `dist/` as a static site.
+
+Do not change DNS, billing, or infrastructure from this repository.
+
+## License
+
+Released under the [MIT License](./LICENSE).

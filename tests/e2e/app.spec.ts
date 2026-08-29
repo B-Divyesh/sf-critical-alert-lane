@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 
 const importedReminder = (id: string, title: string) => ({
   id,
@@ -95,23 +96,23 @@ test('@claim:demo-isolation keeps sample actions separate from a real reminder l
   await expect(page.getByRole('heading', { name: 'Real reminder stays private' })).toBeVisible();
   await expect(page.getByText('Take evening medicine')).toHaveCount(0);
 
-  for (const exit of ['Brand', 'Privacy', 'Terms', 'Sociobot', 'Checkout']) {
+  for (const exit of ['Brand', 'Privacy', 'Terms', 'Factory', 'Checkout']) {
     await page.goto('/demo');
     page.once('dialog', dialog => dialog.accept());
     await page.getByRole('button', { name: 'Delete Water the balcony plants' }).click();
     await expect(page.getByText('Water the balcony plants')).toHaveCount(0);
 
     if (exit === 'Brand') await page.locator('.brand').click();
-    if (exit === 'Privacy') await page.getByRole('link', { name: 'Privacy' }).click();
-    if (exit === 'Terms') await page.getByRole('link', { name: 'Terms' }).click();
-    if (exit === 'Sociobot') {
+    if (exit === 'Privacy') await page.getByRole('link', { name: 'Privacy' }).first().click();
+    if (exit === 'Terms') await page.getByRole('link', { name: 'Terms' }).first().click();
+    if (exit === 'Factory') {
       await page.route('https://sociobot.in/**', route => route.fulfill({ contentType: 'text/html', body: '<title>Sociobot</title>' }));
-      await page.getByRole('link', { name: 'A Sociobot utility' }).click();
+      await page.getByRole('link', { name: 'Built by Param Factory' }).click();
     }
     if (exit === 'Checkout') {
       await page.route('https://api.sociobot.in/**', route => route.fulfill({ contentType: 'text/html', body: '<title>Checkout</title>' }));
       await page.getByRole('button', { name: 'Settings' }).click();
-      await page.getByRole('link', { name: 'Buy once · US$4.99' }).click();
+      await page.locator('#settings-dialog').getByRole('link', { name: 'Buy once · US$4.99' }).click();
     }
 
     await page.waitForURL(url => !/^\/demo\/?$/.test(url.pathname));
@@ -143,10 +144,13 @@ test('keeps offline state visible and footer links touch-sized on a 390px phone'
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByText('Offline · still working')).toBeVisible();
-  for (const link of [page.locator('.brand'), page.getByRole('link', { name: 'Privacy' }), page.getByRole('link', { name: 'Terms' }), page.getByRole('link', { name: 'A Sociobot utility' })]) {
+  for (const link of [page.locator('.brand'), page.locator('footer').getByRole('link', { name: 'Privacy' }), page.locator('footer').getByRole('link', { name: 'Terms' }), page.getByRole('link', { name: 'Built by Param Factory' })]) {
     expect(await link.evaluate(element => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
     expect(await link.evaluate(element => element.getBoundingClientRect().width)).toBeGreaterThanOrEqual(44);
   }
+  await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await expect(page.getByRole('button', { name: 'Add critical reminder' })).toBeVisible();
   await context.setOffline(false);
   await page.goto('/demo');
   for (const button of [page.getByRole('button', { name: 'Reset demo' }), page.getByRole('button', { name: 'Start for real' })]) {
@@ -273,6 +277,20 @@ test('@claim:schedule-and-undo supports every recurrence and restores an acknowl
   await expect(page.locator('.current-alert')).toContainText('Take evening medicine');
 });
 
+test('@claim:repeat-range saves the published 5–60 minute repeat range', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Edit Call the insurance case worker' }).click();
+  const repeat = page.getByLabel('Repeat until handled');
+  await expect(repeat.locator('option')).toHaveText(['Every 5 min', 'Every 10 min', 'Every 15 min', 'Every 30 min', 'Every hour']);
+  await repeat.selectOption('60');
+  await page.getByRole('button', { name: 'Save changes' }).click();
+  await expect(page.getByText('One time · repeats every 60 min until handled')).toBeVisible();
+  await page.getByRole('button', { name: 'Edit Call the insurance case worker' }).click();
+  await page.getByLabel('Repeat until handled').selectOption('5');
+  await page.getByRole('button', { name: 'Save changes' }).click();
+  await expect(page.getByText('One time · repeats every 5 min until handled')).toBeVisible();
+});
+
 test('@claim:quiet-hours keeps a due alert visible while notification repeats are muted', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-08-29T12:00:00.000Z') });
   await page.goto('/demo');
@@ -351,6 +369,7 @@ test('announces invalid quiet hours without mutating data or raising a page erro
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Add critical reminder' })).toBeEnabled();
   await page.getByRole('button', { name: 'Settings' }).click();
   await page.getByLabel('Start').fill('');
   await page.getByRole('button', { name: 'Save quiet hours' }).click();
@@ -363,7 +382,7 @@ test('announces invalid quiet hours without mutating data or raising a page erro
   expect(errors).toEqual([]);
 });
 
-test('has no serious accessibility violations', async ({ page }) => {
+test('@claim:core-free keeps reminder controls, export, and accessibility available without a license', async ({ page }) => {
   const errors: string[] = [];
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
   page.on('pageerror', error => errors.push(error.message));
@@ -374,9 +393,48 @@ test('has no serious accessibility violations', async ({ page }) => {
   results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter(item => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
   await page.getByRole('button', { name: 'Settings' }).click();
+  await expect(page.getByRole('button', { name: 'Export JSON' })).toBeEnabled();
   results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter(item => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
   expect(errors).toEqual([]);
+});
+
+test('@claim:pwa-installable publishes a standalone manifest and controlled offline shell', async ({ page, request }) => {
+  await page.goto('/demo');
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute('href', '/manifest.webmanifest');
+  const response = await request.get('/manifest.webmanifest');
+  expect(response.ok()).toBeTruthy();
+  const manifest = await response.json() as {
+    name: string; display: string; start_url: string; icons: Array<{ sizes: string; purpose: string }>;
+  };
+  expect(manifest.name).toBe('Critical Alert Lane');
+  expect(manifest.display).toBe('standalone');
+  expect(manifest.start_url).toMatch(/^\/?\?v=\d+$/);
+  expect(manifest.icons.some(icon => icon.sizes === '192x192')).toBe(true);
+  expect(manifest.icons.some(icon => icon.sizes === '512x512' && icon.purpose === 'any')).toBe(true);
+  expect(manifest.icons.some(icon => icon.sizes === '512x512' && icon.purpose === 'maskable')).toBe(true);
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker?.controller));
+});
+
+test('@claim:android-permission-boundary requests notifications in context and keeps Android permissions narrow', async ({ page }) => {
+  const manifest = readFileSync('android/app/src/main/AndroidManifest.xml', 'utf8');
+  const scheduler = readFileSync('android/app/src/main/java/in/sociobot/criticalalertlane/ReminderScheduler.java', 'utf8');
+  const plugin = readFileSync('android/app/src/main/java/in/sociobot/criticalalertlane/ReminderSchedulerPlugin.java', 'utf8');
+  const appSource = readFileSync('src/main.ts', 'utf8');
+  for (const forbidden of ['READ_CONTACTS', 'WRITE_CONTACTS', 'READ_CALENDAR', 'WRITE_CALENDAR', 'ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION', 'CAMERA', 'RECORD_AUDIO', 'GET_ACCOUNTS']) {
+    expect(manifest).not.toContain(`android.permission.${forbidden}`);
+  }
+  expect(manifest).toContain('android.permission.POST_NOTIFICATIONS');
+  expect(manifest).toContain('android.permission.SCHEDULE_EXACT_ALARM');
+  expect(scheduler).toContain('alarms.setAndAllowWhileIdle');
+  expect(plugin).toContain('@PluginMethod public void requestNotifications');
+  expect(plugin).toContain('putBoolean("asked-notifications", true)');
+  expect(appSource).toContain("querySelector('#enable-notifications')?.addEventListener('click', requestNotifications)");
+  expect(appSource.match(/await requestNativeNotifications\(\)/g)).toHaveLength(1);
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: /sign in|log in/i })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await expect(page.getByRole('button', { name: 'Enable notifications' })).toBeVisible();
 });
 
 test('removes nonessential motion when reduced motion is requested', async ({ page }) => {
@@ -415,11 +473,91 @@ test('@claim:local-private keeps an ordinary reminder flow on the product origin
   expect(externalRequests).toEqual([]);
 });
 
+test('@claim:billing-data-boundary stores only a token and daily verdict while billing stays on Sociobot', async ({ page }) => {
+  const billingRequests: string[] = [];
+  await page.route('https://api.sociobot.in/api/v1/products/critical-alert-lane/verify**', async route => {
+    billingRequests.push(route.request().url());
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ valid: true, reason: 'ok', expires_at: null }) });
+  });
+  await page.goto('/?license=billing-privacy-fixture');
+  await expect.poll(() => billingRequests.length).toBe(1);
+  const storage = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
+  expect(Object.keys(storage).sort()).toEqual(['sb_license:critical-alert-lane', 'sb_license_verdict:critical-alert-lane']);
+  expect(storage['sb_license:critical-alert-lane']).toBe('billing-privacy-fixture');
+  const verdict = JSON.parse(storage['sb_license_verdict:critical-alert-lane']) as { valid: boolean; checkedAt: number };
+  expect(verdict.valid).toBe(true);
+  expect(Date.now() - verdict.checkedAt).toBeLessThan(86_400_000);
+  expect(JSON.stringify(storage)).not.toMatch(/card|payment|email/i);
+  await page.reload();
+  await page.waitForTimeout(100);
+  expect(billingRequests).toHaveLength(1);
+  await expect(page.locator('.paid-section').getByRole('link', { name: 'Buy once · US$4.99' }))
+    .toHaveAttribute('href', 'https://api.sociobot.in/api/v1/products/critical-alert-lane/checkout');
+  await expect(page.locator('input[type="email"], input[autocomplete="cc-number"]')).toHaveCount(0);
+});
+
+test('@claim:license-recovery restores an active license and locks paid capacity after revocation', async ({ page }) => {
+  let valid = true;
+  await page.route('https://api.sociobot.in/api/v1/products/critical-alert-lane/verify**', route => route.fulfill({
+    status: 200, contentType: 'application/json', body: JSON.stringify({ valid, reason: valid ? 'ok' : 'revoked', expires_at: null })
+  }));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByLabel('Have a license? Paste it').fill('restored-fixture-license');
+  await page.getByRole('button', { name: 'Restore purchase' }).click();
+  await expect(page.getByRole('status')).toContainText('Purchase restored.');
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await expect(page.getByText('✓ FULL DECK')).toBeVisible();
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#import-data').setInputFiles({
+    name: 'four-restored-reminders.json', mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(importedBackup([
+      importedReminder('restore-one', 'Restore one'), importedReminder('restore-two', 'Restore two'),
+      importedReminder('restore-three', 'Restore three'), importedReminder('restore-four', 'Restore four')
+    ])))
+  });
+  await expect(page.getByText('4 active')).toBeVisible();
+  valid = false;
+  await page.evaluate(() => localStorage.setItem('sb_license_verdict:critical-alert-lane', JSON.stringify({ valid: true, checkedAt: 0 })));
+  await page.reload();
+  await expect(page.getByRole('status')).toContainText('This license is no longer active.');
+  await expect(page.getByText('3 / 3 free active')).toBeVisible();
+  await expect(page.locator('.reminder-row[data-id="restore-four"]')).toContainText('Paused · free limit');
+});
+
 test('legal pages are available', async ({ page }) => {
-  await page.goto('/privacy/');
-  await expect(page.getByRole('heading', { level: 1, name: 'Privacy' })).toBeVisible();
-  await page.goto('/terms/');
-  await expect(page.getByRole('heading', { level: 1, name: 'Terms' })).toBeVisible();
+  const routes = [['/privacy/', 'Privacy'], ['/terms/', 'Terms'], ['/404.html', 'Page not found'], ['/offline.html', 'You are offline']];
+  for (const [path, heading] of routes) {
+    await page.goto(path);
+    await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.locator('main')).toHaveCount(1);
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations.filter(item => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
+  }
+});
+
+test('restores the required landing order and shared factory build metadata', async ({ page }) => {
+  await page.goto('/');
+  const headings = await page.locator('main h2').allTextContents();
+  const how = headings.indexOf('How it works');
+  const limits = headings.indexOf('Limits and privacy');
+  const paid = headings.indexOf('Three reminders are free');
+  expect(how).toBeGreaterThan(-1);
+  expect(limits).toBeGreaterThan(how);
+  expect(paid).toBeGreaterThan(limits);
+  await expect(page.locator('.how-list > li')).toHaveCount(3);
+  await expect(page.locator('footer')).toContainText('Repeating Android reminders that wait for your answer.');
+  await expect(page.locator('footer')).toContainText('Built by Param Factory');
+  await expect(page.locator('footer')).toContainText('release 1.0.5 · repair 12');
+  for (const path of ['/privacy/', '/terms/']) {
+    await page.goto(path);
+    await expect(page.locator('.legal-header .brand')).toHaveAttribute('href', '/');
+    await expect(page.locator('footer')).toContainText('Built by Param Factory');
+    await expect(page.locator('footer')).toContainText('release 1.0.5 · repair 12');
+    await expect(page.locator('footer').getByRole('link', { name: 'Privacy' })).toBeVisible();
+    await expect(page.locator('footer').getByRole('link', { name: 'Terms' })).toBeVisible();
+  }
 });
 
 test('@claim:apk-download publishes an installable Android package with its integrity digest', async ({ page, request }) => {

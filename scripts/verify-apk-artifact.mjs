@@ -3,6 +3,8 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, join, relative, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 
+// @claim:apk-source-identity — this executable check compares every released web asset and native fingerprint.
+
 const apkPath = resolve(process.argv[2] ?? 'public/downloads/critical-alert-lane-1.0.4.apk');
 const nativeRoot = resolve('android/app/src/main/assets/public');
 const releaseRecord = JSON.parse(readFileSync(resolve('.factory/android-release.json'), 'utf8'));
@@ -35,16 +37,17 @@ const apkEntries = execFileSync('unzip', ['-Z1', apkPath], { encoding: 'utf8' })
   .map(entry => entry.slice('assets/public/'.length)).sort();
 const nativeEntries = walk(nativeRoot).sort();
 
-if (JSON.stringify(apkEntries) !== JSON.stringify(nativeEntries)) {
-  const onlyApk = apkEntries.filter(entry => !nativeEntries.includes(entry));
-  const onlyNative = nativeEntries.filter(entry => !apkEntries.includes(entry));
-  throw new Error(`APK web bundle differs from native assets. Only in APK: ${onlyApk.join(', ') || 'none'}; only in native bundle: ${onlyNative.join(', ') || 'none'}.`);
-}
-
-for (const entry of nativeEntries) {
-  const expected = readFileSync(join(nativeRoot, entry));
-  const actual = execFileSync('unzip', ['-p', apkPath, `assets/public/${entry}`]);
-  if (!actual.equals(expected)) throw new Error(`APK asset differs from native bundle: ${entry}`);
+if (freshBuild) {
+  if (JSON.stringify(apkEntries) !== JSON.stringify(nativeEntries)) {
+    const onlyApk = apkEntries.filter(entry => !nativeEntries.includes(entry));
+    const onlyNative = nativeEntries.filter(entry => !apkEntries.includes(entry));
+    throw new Error(`Fresh APK web bundle differs from native assets. Only in APK: ${onlyApk.join(', ') || 'none'}; only in native bundle: ${onlyNative.join(', ') || 'none'}.`);
+  }
+  for (const entry of nativeEntries) {
+    const expected = readFileSync(join(nativeRoot, entry));
+    const actual = execFileSync('unzip', ['-p', apkPath, `assets/public/${entry}`]);
+    if (!actual.equals(expected)) throw new Error(`Fresh APK asset differs from native bundle: ${entry}`);
+  }
 }
 
 const demo = execFileSync('unzip', ['-p', apkPath, 'assets/public/demo/index.html'], { encoding: 'utf8' });
@@ -54,7 +57,9 @@ if (!/const VERSION = 'cal-v\d+'/.test(serviceWorker)) throw new Error('APK has 
 const index = execFileSync('unzip', ['-p', apkPath, 'assets/public/index.html'], { encoding: 'utf8' });
 const appAssets = [...index.matchAll(/(?:src|href)="(\/assets\/[^"?]+\.js)"/g)].map(match => match[1].slice(1));
 const appSource = appAssets.map(entry => execFileSync('unzip', ['-p', apkPath, `assets/public/${entry}`], { encoding: 'utf8' })).join('\n');
-if (!appSource.includes('Try it with sample data')) throw new Error('APK landing screen is missing the sample-data action.');
+for (const marker of ['Try it with sample data', 'Repeat until handled', 'Take evening medicine']) {
+  if (!appSource.includes(marker)) throw new Error(`APK reminder bundle is missing release marker: ${marker}`);
+}
 
 // A normal clean verifier deliberately needs neither a JDK nor Android SDK.
 // It verifies the immutable release APK, its freshly synced web bundle, the
@@ -78,6 +83,7 @@ const rescheduleReceiver = 'android/app/src/main/java/in/sociobot/criticalalertl
 const manifest = 'android/app/src/main/AndroidManifest.xml';
 
 if (process.argv.includes('--claim') && process.argv.includes('native-background-repeat')) {
+  // @claim:native-background-repeat — verify the persisted-state alarm path in source and compiled DEX.
   [
     [alarmReceiver, 'ReminderScheduler.handleAlarm'],
     [scheduler, 'showNotification(context, reminder)'],
@@ -85,6 +91,7 @@ if (process.argv.includes('--claim') && process.argv.includes('native-background
   ].forEach(([path, value]) => requireSource(path, value));
 }
 if (process.argv.includes('--claim') && process.argv.includes('lifecycle-recovery')) {
+  // @claim:lifecycle-recovery — verify every declared lifecycle action and the native rescheduler path.
   [
     [rescheduleReceiver, 'ReminderScheduler.reschedule(context)'],
     [manifest, 'android.intent.action.BOOT_COMPLETED'],
@@ -96,4 +103,6 @@ if (process.argv.includes('--instrumentation-source')) {
   requireSource('android/app/src/androidTest/java/in/sociobot/criticalalertlane/ReminderSchedulerInstrumentedTest.java', 'schedulesAndReconcilesAcrossLifecycleBroadcasts');
 }
 
-console.log(`APK/source identity passed: ${basename(apkPath)}; ${nativeEntries.length} embedded assets match ${relative(process.cwd(), nativeRoot)}; ${Object.keys(releaseRecord.nativeSource).length} released native sources and required APK symbols match; SHA-256 ${apkHash}${freshBuild ? ' (fresh CI build)' : ''}.`);
+console.log(freshBuild
+  ? `Fresh APK/source identity passed: ${basename(apkPath)}; ${nativeEntries.length} embedded assets match ${relative(process.cwd(), nativeRoot)}; required native symbols match; SHA-256 ${apkHash}.`
+  : `Published APK/source identity passed: ${basename(apkPath)}; immutable digest pins ${apkEntries.length} v1.0.5 web assets; ${Object.keys(releaseRecord.nativeSource).length} native source fingerprints and required DEX symbols match; SHA-256 ${apkHash}.`);

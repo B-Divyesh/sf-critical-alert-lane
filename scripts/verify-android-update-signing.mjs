@@ -3,6 +3,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 
+// @claim:apk-update-signing — compare the installed baseline and release package, version, and signer identity.
+
 const root = process.cwd();
 const record = JSON.parse(readFileSync(resolve('.factory/android-release.json'), 'utf8'));
 const previous = record.signing?.upgradeFrom;

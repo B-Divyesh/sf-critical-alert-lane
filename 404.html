@@ -2,18 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <meta name="theme-color" content="#191815" />
     <meta name="description" content="The requested Critical Alert Lane page was not found." />
     <title>Page not found — Critical Alert Lane</title>
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/src/legal.css" />
   </head>
-  <body class="not-found">
-    <main class="not-found-card">
-      <p class="stamp">404 / PAGE NOT FOUND</p>
-      <h1>This page is not in your lane.</h1>
-      <p>The address may be wrong or the page may have moved. Return to your reminders or try the sample lane.</p>
-      <p><a class="not-found-link" href="/">Return to Critical Alert Lane</a></p>
-    </main>
+  <body class="system-page">
+    <a class="skip-link" href="#main">Skip to page message</a>
+    <header class="legal-header"><a class="brand" href="/">CRITICAL / LANE</a><nav aria-label="Main navigation"><a href="/demo/">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav></header>
+    <main id="main" class="not-found-card"><p class="stamp">404 / PAGE NOT FOUND</p><h1>Page not found</h1><p>The address may be wrong, or the page moved.</p><p><a class="not-found-link" href="/">Return to your reminders</a></p></main>
+    <footer><p>Repeating Android reminders that wait for your answer.</p><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><small><a href="https://sociobot.in">Built by Param Factory</a> · release 1.0.5 · repair 12</small></footer>
   </body>
 </html>

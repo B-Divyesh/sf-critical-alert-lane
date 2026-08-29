@@ -22,6 +22,7 @@ let nativeStatus: NativeSchedulerStatus | null = null;
 let editorReturnTarget: { kind: 'add' } | { kind: 'edit'; id: string } | null = null;
 const ANDROID_APK = '/downloads/critical-alert-lane-1.0.5.apk';
 const ANDROID_APK_SHA256 = __ANDROID_APK_SHA256__;
+const BUILD_ID = 'release 1.0.5 · repair 12';
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
@@ -32,7 +33,7 @@ const androidDownloadButton = () => showAndroidDownload()
   ? `<a class="secondary-button android-download" href="${ANDROID_APK}" download type="application/vnd.android.package-archive">Download Android app (APK)</a>`
   : '';
 const androidDownloadProof = () => showAndroidDownload()
-  ? `<p class="apk-proof">Native Android alarms repeat after the app closes. APK SHA-256: <code>${ANDROID_APK_SHA256}</code></p>`
+  ? `<p class="apk-proof">Native Android alarms repeat after the app closes. The signed APK contains v1.0.5 reminder logic and updates v1.0.3. APK SHA-256: <code>${ANDROID_APK_SHA256}</code></p>`
   : '';
 
 const activeReminders = () => data.reminders.filter(reminder => reminder.enabled);
@@ -44,6 +45,21 @@ async function saveAndSchedule(): Promise<void> {
   if (isDemo) return;
   try { nativeStatus = await syncNativeSchedule(data); }
   catch { /* Local browser data remains usable if the native bridge is unavailable. */ }
+}
+
+async function applyFreeLimit(): Promise<void> {
+  let activeCount = 0;
+  let changed = false;
+  for (const reminder of data.reminders) {
+    if (!reminder.enabled) continue;
+    activeCount += 1;
+    if (activeCount > 3) {
+      reminder.enabled = false;
+      reminder.pausedByFreeLimit = true;
+      changed = true;
+    }
+  }
+  if (changed) await saveAndSchedule();
 }
 
 function statusText(reminder: Reminder): string {
@@ -91,6 +107,7 @@ function render(): void {
         <span id="network-state" class="network-state" aria-live="polite">${navigator.onLine ? 'On device' : 'Offline · still working'}</span>
         <button id="open-settings" class="text-button" type="button">${icon('settings')} Settings</button>
       </div>
+      <nav class="site-nav" aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="/privacy/">Privacy</a></nav>
     </header>
     <main id="main">
       <section class="intro" aria-labelledby="page-title">
@@ -148,8 +165,33 @@ function render(): void {
         <div><p class="track-label">30-DAY SIGNAL CHECK</p><h2 id="reliability-title">${handled ? `${reliability}% handled in time` : 'Build a reliable streak'}</h2><p>${handled ? `${onTime} of ${handled} acknowledged reminders were handled inside their escalation window.` : 'Your acknowledgement rate appears here after you handle a reminder. History stays on this device.'}</p></div>
         <progress class="meter" value="${reliability}" max="100" aria-label="${handled ? `${reliability} percent handled in time` : 'No acknowledgement history yet'}">${reliability}%</progress>
       </section>
+
+      <section id="how-it-works" class="info-section how-section" aria-labelledby="how-title">
+        <p class="track-label">THREE STEPS</p>
+        <h2 id="how-title">How it works</h2>
+        <ol class="how-list">
+          <li><span>01</span><div><h3>Add a critical reminder</h3><p>Add the few reminders you cannot miss.</p></div></li>
+          <li><span>02</span><div><h3>Choose its repeat</h3><p>Choose a schedule and a 5–60 minute repeat.</p></div></li>
+          <li><span>03</span><div><h3>Answer the alert</h3><p>Snooze or acknowledge each alert when it appears.</p></div></li>
+        </ol>
+      </section>
+
+      <section class="info-section limits-section" aria-labelledby="limits-title">
+        <p class="track-label">CLEAR LIMITS</p>
+        <h2 id="limits-title">Limits and privacy</h2>
+        <div class="plain-columns">
+          <div><h3>Kept on your device</h3><p>Reminder data stays on this device during normal use.</p><p>The app has no account, ads, analytics, calendar, or contacts.</p></div>
+          <div><h3>Permission when needed</h3><p>Android asks for notification access only after you choose it in Settings.</p><p>Without exact-alarm access, Android uses an inexact alarm.</p></div>
+          <div><h3>Not for emergencies</h3><p>Device power rules can delay alerts. Keep another safeguard for urgent or life-safety duties.</p></div>
+        </div>
+      </section>
+
+      <section class="info-section paid-section" aria-labelledby="paid-title">
+        <div><p class="track-label">ONE-TIME LICENSE</p><h2 id="paid-title">Three reminders are free</h2><p>Free use arms three reminders and keeps extra imports paused.</p><p>Pay US$4.99 once for unlimited active reminders. There is no subscription.</p><p>Core reminder controls, accessibility, and data export stay free.</p></div>
+        <div class="paid-actions"><a class="primary-button" href="${buyUrl()}">Buy once · US$4.99</a><button class="secondary-button open-license-settings" type="button">Restore a license</button><p>Sociobot checkout uses Dodo as merchant of record. Refunds are handled there.</p></div>
+      </section>
     </main>
-    <footer><p>Private by default. No account, ads, tracking, calendar, or contacts.</p><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><small>Original generated collage · <a href="https://sociobot.in">A Sociobot utility</a></small></footer>
+    <footer><p>Repeating Android reminders that wait for your answer.</p><nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><small><a href="https://sociobot.in">Built by Param Factory</a> · ${BUILD_ID} · Original generated collage</small></footer>
     ${editorDialog()}
     ${settingsDialog()}
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>`;
@@ -226,6 +268,10 @@ function bindEvents(): void {
     });
   });
   document.querySelector('#add-reminder')?.addEventListener('click', () => openEditor(null));
+  document.querySelector('.open-license-settings')?.addEventListener('click', () => {
+    document.querySelector<HTMLDialogElement>('#settings-dialog')!.showModal();
+    window.setTimeout(() => document.querySelector<HTMLInputElement>('#license-form input')?.focus(), 0);
+  });
   document.querySelector('#reset-demo')?.addEventListener('click', async () => {
     data = createDemoData();
     await clearData();
@@ -269,7 +315,13 @@ function bindEvents(): void {
   document.querySelector('#export-data')?.addEventListener('click', exportData);
   document.querySelector<HTMLInputElement>('#import-data')?.addEventListener('change', importData);
   document.querySelector('#license-form')?.addEventListener('submit', restoreLicense);
-  document.querySelector('#remove-license')?.addEventListener('click', () => { removeLicense(); unlocked = false; render(); showToast('License removed from this device.'); });
+  document.querySelector('#remove-license')?.addEventListener('click', async () => {
+    removeLicense();
+    unlocked = false;
+    await applyFreeLimit();
+    render();
+    showToast('License removed from this device.');
+  });
 }
 
 async function handleReminderSubmit(event: Event): Promise<void> {
@@ -410,7 +462,12 @@ async function restoreLicense(event: Event): Promise<void> {
   event.preventDefault();
   const form = event.currentTarget as HTMLFormElement;
   setLicense(String(new FormData(form).get('license')));
-  try { unlocked = await verifyLicense(true); render(); showToast(unlocked ? 'Purchase restored. Unlimited reminders are unlocked.' : 'That license is not active.'); }
+  try {
+    unlocked = await verifyLicense(true);
+    if (!unlocked) await applyFreeLimit();
+    render();
+    showToast(unlocked ? 'Purchase restored. Unlimited reminders are unlocked.' : 'That license is not active.');
+  }
   catch { render(); showToast('License check is unavailable. Check your connection and try again.'); }
 }
 
@@ -466,7 +523,13 @@ async function init(): Promise<void> {
   window.setInterval(() => { render(); void checkNotifications(); }, 30_000);
   void checkNotifications();
   if (!isDemo && localStorage.getItem('sb_license:critical-alert-lane')) {
-    verifyLicense().then(valid => { if (valid !== unlocked) { unlocked = valid; render(); if (!valid) showToast('This license is no longer active. The free lane remains available.'); } }).catch(() => undefined);
+    verifyLicense().then(async valid => {
+      if (valid === unlocked) return;
+      unlocked = valid;
+      if (!valid) await applyFreeLimit();
+      render();
+      if (!valid) showToast('This license is no longer active. The free lane remains available.');
+    }).catch(() => undefined);
   }
 }
 

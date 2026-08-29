@@ -70,6 +70,34 @@
     "sandbox": "fresh demo browser with a fixed clock; import a due reminder inside quiet hours and assert it stays visible while the lane marks its notifications muted"
   },
   {
+    "id": "repeat-range",
+    "claim": "A reminder can repeat from every 5 minutes through every 60 minutes until handled.",
+    "where": "landing How it works, reminder editor, README",
+    "test": "npm run test:e2e -- --grep @claim:repeat-range",
+    "sandbox": "fresh demo browser at /demo; assert the complete 5, 10, 15, 30, and 60 minute choice set, then save and re-edit both published bounds"
+  },
+  {
+    "id": "pwa-installable",
+    "claim": "The web app supplies a standalone PWA manifest and a controlled offline shell.",
+    "where": "manifest, Privacy, README",
+    "test": "npm run test:e2e -- --grep @claim:pwa-installable",
+    "sandbox": "fresh demo browser; assert the linked manifest name, standalone display, versioned start URL, 192, 512, and maskable icons, plus service-worker control"
+  },
+  {
+    "id": "android-permission-boundary",
+    "claim": "The Android app requests notifications only from Settings, requests no personal-data permissions, and falls back when exact alarms are declined.",
+    "where": "landing limits, Privacy, README, Android manifest",
+    "test": "npm run test:e2e -- --grep @claim:android-permission-boundary",
+    "sandbox": "fresh browser plus checked-in Android source; assert the only native notification call is bound to the Settings action, forbid personal-data manifest permissions, and require the inexact alarm branch"
+  },
+  {
+    "id": "core-free",
+    "claim": "Core reminder controls, accessibility, and JSON export remain available without a license.",
+    "where": "landing paid tier, Settings, Terms, README",
+    "test": "npm run test:e2e -- --grep @claim:core-free",
+    "sandbox": "fresh unlicensed landing and demo; assert add and due-reminder controls, free export, and zero serious or critical axe findings"
+  },
+  {
     "id": "native-background-repeat",
     "claim": "The Android app re-arms a due reminder repeat from persisted native state without a running web timer.",
     "where": "landing APK proof, README",
@@ -92,10 +120,10 @@
   },
   {
     "id": "apk-source-identity",
-    "claim": "The downloadable Android APK contains this release's demo and reminder logic.",
+    "claim": "The downloadable Android APK contains the released v1.0.5 demo and reminder logic.",
     "where": "landing APK proof, README",
     "test": "npm run test:android:artifact",
-    "sandbox": "standard clean verifier; sync a fresh native bundle, compare every embedded asset with the already-published APK, verify its displayed digest and released native-source fingerprints, and require the demo entry point/current service-worker shell; a fresh native release build runs in GitHub Actions"
+    "sandbox": "standard clean verifier; build and inspect the current native shell, then verify the immutable v1.0.5 APK digest, released native-source fingerprints, demo entry point, service-worker shell, reminder markers, and compiled DEX symbols; fresh-build asset equality runs in GitHub Actions"
   },
   {
     "id": "apk-update-signing",
@@ -110,5 +138,19 @@
     "where": "landing page, Settings pricing, Terms, README",
     "test": "npm run test:e2e -- --grep @claim:one-time-license",
     "sandbox": "fresh browser enters through /demo, starts a real lane, captures a returned fixture license, receives a recorded valid verification response, strips the token URL, imports four active reminders, and keeps all four active after reload"
+  },
+  {
+    "id": "billing-data-boundary",
+    "claim": "Checkout and daily license checks use Sociobot; the app stores no payment details.",
+    "where": "landing paid tier, Settings, Privacy, README",
+    "test": "npm run test:e2e -- --grep @claim:billing-data-boundary",
+    "sandbox": "fresh real lane with a fixture verification response; assert the Sociobot checkout origin, token and dated verdict keys, no payment fields, and no second check within one day"
+  },
+  {
+    "id": "license-recovery",
+    "claim": "An active license can be restored on another device, while an inactive license returns the app to free capacity.",
+    "where": "Settings, Terms, README",
+    "test": "npm run test:e2e -- --grep @claim:license-recovery",
+    "sandbox": "fresh real lane; paste a fixture license, verify four active reminders, then return a revoked verdict and assert the fourth reminder is preserved but paused"
   }
 ]
