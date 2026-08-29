@@ -78,5 +78,11 @@ Performed after a clean `npm ci` (148 packages, 0 vulnerabilities):
 
 ## Deploy
 
-Run `/opt/fleet/lib/deploy-static.sh critical-alert-lane dist` after the repair
-commit is pushed. Record live URL and byte-identity evidence here after deploy.
+Deployed with `/opt/fleet/lib/deploy-static.sh critical-alert-lane dist` to
+<https://critical-alert-lane.sociobot.in> after push. Live root HTML and the
+published v1.0.4 APK match `dist/` byte-for-byte; the live APK SHA-256 is
+`2af8e0b60ce77aa729b82e465626d9b37778e38f22b4665c80e6301bcd6327bf`.
+Live `/`, `/demo/`, `/privacy/`, and `/terms/` passed `verify-url.sh`, and the
+download returns HTTP 200, `application/vnd.android.package-archive`, and the
+one-year immutable cache policy. The downloaded live APK passed the complete
+artifact-identity check against the current native bundle.
