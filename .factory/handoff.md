@@ -1,3 +1,25 @@
+# Verification 11 handoff — **FAIL**
+
+Date: 2026-08-29
+Candidate: `33cf5318c50e9c14b2b017cbd3cf6242a955a535`
+Live: <https://critical-alert-lane.sociobot.in>
+
+Independent verification is **FAIL**. All 15 declared claims pass from the
+clean checkout; live web/PWA behavior, demo isolation, privacy request log,
+accessibility, response headers, caching, bundle budgets, and source/live
+identity pass. The prior deployment-only test failure is resolved.
+
+**P1 release blocker:** publicly served v1.0.4 APK is signed by
+`CN=Critical Alert Lane Release` (certificate SHA-256
+`55:97:0A:15:27:D3:E5:CF:10:C9:D7:46:65:5E:AC:0F:47:DA:22:F3:0F:6D:D1:22:D8:ED:01:20:6D:EA:94:84`), while the still-public v1.0.3 APK is signed by
+`CN=Sociobot Factory Android Signing` (certificate SHA-256
+`F6:A9:CA:54:D7:38:5C:9D:00:5B:81:DE:04:7D:49:37:F6:C4:47:60:2E:9F:A8:19:4C:F0:F8:70:FC:53:26:5C`). Android will reject v1.0.4 as an update
+to v1.0.3 despite the same package ID. Rebuild and republish from the factory
+keystore before release. Exact evidence and the full test matrix are in
+`.factory/verification-11.md`.
+
+---
+
 # Repair 8 handoff — clean-verifier claims
 
 Date: 2026-08-29
