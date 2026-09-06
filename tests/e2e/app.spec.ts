@@ -1,13 +1,17 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+
+const DAY_MS = 86_400_000;
+const savedReminderHeading = (page: Page, title: string) =>
+  page.locator('.reminder-row').getByRole('heading', { name: title, exact: true });
 
 const importedReminder = (id: string, title: string) => ({
   id,
   title,
   note: '',
-  nextAt: '2026-09-01T09:00:00.000Z',
+  nextAt: new Date(Date.now() + 7 * DAY_MS).toISOString(),
   recurrence: 'daily',
   repeatMinutes: 5,
   escalationMinutes: 60,
@@ -31,7 +35,8 @@ test('creates, persists, and acknowledges a due reminder', async ({ page }) => {
   await page.getByLabel('First alert').fill('2025-01-01T09:00');
   await page.getByLabel('Schedule').selectOption('daily');
   await page.getByRole('button', { name: 'Arm reminder' }).click();
-  await expect(page.getByRole('heading', { name: 'Call the clinic' }).first()).toBeVisible();
+  await expect(page.locator('.current-alert').getByRole('heading', { name: 'Call the clinic' })).toBeVisible();
+  await expect(savedReminderHeading(page, 'Call the clinic')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Acknowledge' })).toBeVisible();
   await page.reload();
   await expect(page.getByText('Call the clinic').first()).toBeVisible();
@@ -92,7 +97,7 @@ test('@claim:repeat-until-handled lets a sample reminder stay due until it is sn
   await page.getByRole('button', { name: 'Acknowledge' }).click();
   await expect(page.getByRole('status')).toContainText('Acknowledged “Take evening medicine”.');
   await expect(page.getByRole('button', { name: 'Acknowledge' })).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: 'Take evening medicine' }).last()).toBeVisible();
+  await expect(savedReminderHeading(page, 'Take evening medicine')).toBeVisible();
 });
 
 test('@claim:demo-isolation keeps sample actions separate from a real reminder lane', async ({ page }) => {
@@ -100,7 +105,7 @@ test('@claim:demo-isolation keeps sample actions separate from a real reminder l
   await page.evaluate(async () => {
     const realData = {
       version: 1,
-      reminders: [{ id: 'real-only', title: 'Real reminder stays private', note: '', nextAt: '2026-09-01T09:00:00.000Z', recurrence: 'daily', repeatMinutes: 5, escalationMinutes: 60, enabled: true, createdAt: '2026-08-28T09:00:00.000Z', updatedAt: '2026-08-28T09:00:00.000Z' }],
+      reminders: [{ id: 'real-only', title: 'Real reminder stays private', note: '', nextAt: new Date(Date.now() + 7 * 86_400_000).toISOString(), recurrence: 'daily', repeatMinutes: 5, escalationMinutes: 60, enabled: true, createdAt: '2026-08-28T09:00:00.000Z', updatedAt: '2026-08-28T09:00:00.000Z' }],
       history: [], settings: { quietEnabled: true, quietStart: '22:00', quietEnd: '07:00' }, updatedAt: '2026-08-28T09:00:00.000Z'
     };
     await new Promise<void>((resolve, reject) => {
@@ -118,7 +123,7 @@ test('@claim:demo-isolation keeps sample actions separate from a real reminder l
   await expect(page.getByText('Real reminder stays private')).toHaveCount(0);
   await page.getByRole('button', { name: 'Start for real' }).click();
   await page.waitForURL('http://127.0.0.1:4173/');
-  await expect(page.getByRole('heading', { name: 'Real reminder stays private' })).toBeVisible();
+  await expect(savedReminderHeading(page, 'Real reminder stays private')).toBeVisible();
   await expect(page.getByText('Take evening medicine')).toHaveCount(0);
 
   for (const exit of ['Brand', 'Privacy', 'Terms', 'Factory', 'Checkout']) {
@@ -142,7 +147,7 @@ test('@claim:demo-isolation keeps sample actions separate from a real reminder l
 
     await page.waitForURL(url => !/^\/demo\/?$/.test(url.pathname));
     await page.goto('/demo');
-    await expect(page.getByRole('heading', { name: 'Water the balcony plants' })).toBeVisible();
+    await expect(savedReminderHeading(page, 'Water the balcony plants')).toBeVisible();
   }
 });
 
@@ -232,7 +237,7 @@ test('recovers from a syntactically malformed import without replacing device da
   await expect(page.locator('#toast')).toHaveText(
     'This file is not a valid Critical Alert Lane export. Choose a Critical Alert Lane export and try again. Your current reminders were not changed.'
   );
-  await expect(page.getByRole('heading', { name: 'Keep this reminder' })).toBeVisible();
+  await expect(savedReminderHeading(page, 'Keep this reminder')).toBeVisible();
 
   page.once('dialog', dialog => dialog.accept());
   await page.locator('#import-data').setInputFiles({
@@ -243,13 +248,15 @@ test('recovers from a syntactically malformed import without replacing device da
     ])))
   });
   await expect(page.locator('#toast')).toHaveText('Import complete.');
-  await expect(page.getByRole('heading', { name: 'Later valid import' })).toBeVisible();
+  await expect(savedReminderHeading(page, 'Later valid import')).toBeVisible();
   await expect(page.getByText('Keep this reminder')).toHaveCount(0);
 });
 
 test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision during import', async ({ page }) => {
   await page.goto('/demo');
   await page.getByRole('button', { name: 'Open settings' }).click();
+  const firstDuplicate = importedReminder('duplicate', 'First duplicate');
+  firstDuplicate.nextAt = new Date(Date.now() - 60_000).toISOString();
   const confirmation = new Promise<string>(resolve => page.once('dialog', async dialog => {
     const message = dialog.message();
     await dialog.accept();
@@ -259,7 +266,7 @@ test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision
     name: 'unsafe-identities.json',
     mimeType: 'application/json',
     buffer: Buffer.from(JSON.stringify(importedBackup([
-      importedReminder('duplicate', 'First duplicate'),
+      firstDuplicate,
       importedReminder('duplicate', 'Second duplicate'),
       importedReminder('Aa', 'Aa collision'),
       importedReminder('BB', 'BB collision')
@@ -268,10 +275,11 @@ test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision
 
   expect(await confirmation).toContain('2 unsafe reminder ID(s) will be repaired');
   await expect(page.locator('#toast')).toContainText('2 reminder ID(s) repaired');
-  await expect(page.getByRole('heading', { name: 'First duplicate' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Second duplicate' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Aa collision' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'BB collision' })).toBeVisible();
+  await expect(page.locator('.current-alert').getByRole('heading', { name: 'First duplicate' })).toBeVisible();
+  await expect(savedReminderHeading(page, 'First duplicate')).toBeVisible();
+  await expect(savedReminderHeading(page, 'Second duplicate')).toBeVisible();
+  await expect(savedReminderHeading(page, 'Aa collision')).toBeVisible();
+  await expect(savedReminderHeading(page, 'BB collision')).toBeVisible();
 
   const ids = await page.locator('.reminder-row').evaluateAll(rows => rows.map(row => row.getAttribute('data-id')));
   expect(ids).toContain('duplicate');
@@ -283,8 +291,8 @@ test('@claim:safe-import repairs duplicate IDs and the Aa/BB Java hash collision
   await page.getByRole('button', { name: 'Edit Second duplicate' }).click();
   await page.getByLabel('What needs acknowledgement?').fill('Edited second only');
   await page.getByRole('button', { name: 'Save changes' }).click();
-  await expect(page.getByRole('heading', { name: 'First duplicate' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Edited second only' })).toBeVisible();
+  await expect(savedReminderHeading(page, 'First duplicate')).toBeVisible();
+  await expect(savedReminderHeading(page, 'Edited second only')).toBeVisible();
 });
 
 test('@claim:data-portability exports the lane and replaces it only after confirmed import', async ({ page }) => {
@@ -308,7 +316,7 @@ test('@claim:data-portability exports the lane and replaces it only after confir
     buffer: Buffer.from(JSON.stringify(importedBackup([importedReminder('replacement', 'Pay the electricity bill')])))
   });
   await expect(page.locator('#toast')).toContainText('Import complete.');
-  await expect(page.getByRole('heading', { name: 'Pay the electricity bill' })).toBeVisible();
+  await expect(savedReminderHeading(page, 'Pay the electricity bill')).toBeVisible();
   await expect(page.getByText('Take evening medicine')).toHaveCount(0);
 });
 
@@ -404,7 +412,7 @@ test('@claim:free-limit imports all reminders but arms only three on the free ti
   expect(confirmationMessage).toContain('1 additional reminder(s) will be imported paused, not deleted');
   await expect(page.locator('#toast')).toContainText('1 reminder(s) paused for the 3-active free limit');
   await expect(page.getByText('3 / 3 free active')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Fourth preserved' })).toBeVisible();
+  await expect(savedReminderHeading(page, 'Fourth preserved')).toBeVisible();
   const fourthRow = page.locator('.reminder-row[data-id="four"]');
   await expect(fourthRow).toContainText('‖ PAUSED');
   await expect(fourthRow).toContainText('Paused · free limit');
@@ -552,9 +560,9 @@ test('@claim:local-private keeps an ordinary reminder flow on the product origin
   await page.getByLabel('What needs acknowledgement?').fill('Refill the medicine box');
   await page.getByLabel('First alert').fill('2026-09-01T09:00');
   await page.getByRole('button', { name: 'Arm reminder' }).click();
-  await expect(page.getByRole('heading', { name: 'Refill the medicine box' }).first()).toBeVisible();
+  await expect(savedReminderHeading(page, 'Refill the medicine box')).toBeVisible();
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Refill the medicine box' }).first()).toBeVisible();
+  await expect(savedReminderHeading(page, 'Refill the medicine box')).toBeVisible();
   expect(await page.context().cookies()).toEqual([]);
   expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
   expect(await page.evaluate(async () => (await indexedDB.databases()).map(database => database.name))).toEqual(['demo:critical-alert-lane']);
@@ -798,7 +806,7 @@ test('@claim:one-time-license accepts a verified return license and permits unli
     ])))
   });
   await expect(page.getByText('4 active')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Paid four' })).toBeVisible();
+  await expect(savedReminderHeading(page, 'Paid four')).toBeVisible();
   await page.reload();
   await expect(page.getByText('4 active')).toBeVisible();
 });
