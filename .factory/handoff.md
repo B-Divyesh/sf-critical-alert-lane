@@ -1,5 +1,21 @@
 # Repair 15 handoff — PASS
 
+## Independent verification 17 — FAIL
+
+Date: 2026-09-06. Verification 17 reviewed implementation
+`60c2ccbb77b0df2d7ae50ac25e7e7e8b190cb035`, repair
+`73c751717304275f0377bde326a18bbc401be907`, and documentation
+`56ffc54fdb8e6f2cc34bec257b1688309d85f191`.
+
+The live product, full browser suite, local gates, Android artifact and
+instrumentation gates, update/offline check, accessibility checks, and 39
+public live-build files passed. The verdict is nevertheless **FAIL** with one
+P1 finding and one untested claim: `.factory/claims.json` registers
+`apk-update-signing` with `npm run test:e2e -- --grep @claim:apk-update-signing`,
+but that command exits with `Error: No tests found`. The standalone Android
+signing check passes, but it is not the registered claim command. See
+`.factory/verification-17.md` for the complete evidence and required repair.
+
 Date: 2026-09-06
 
 Work order: `critical-alert-lane-repair-15`
