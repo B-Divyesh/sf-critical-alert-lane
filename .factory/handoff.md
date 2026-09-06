@@ -93,6 +93,9 @@ flows made only same-origin requests and loaded no remote fonts. Normal routes
 produced no console or page errors; the deliberate HTTP 404 produced only the
 expected browser resource message.
 
+Every discovered HTTP link and hash target passed. Product, legal, download,
+and factory links returned 200; checkout returned its expected 303 redirect.
+
 Keyboard focus, dialog focus return, the skip link, 44 px phone targets,
 200% text, reduced motion, offline reload, route titles, one-h1 structure,
 legal links, and update behavior passed. Playwright Axe found zero serious or
